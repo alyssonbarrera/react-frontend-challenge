@@ -1,0 +1,17 @@
+import "@testing-library/react";
+import { cleanup } from "@testing-library/react";
+import { afterAll, afterEach, beforeAll } from "vitest";
+import { server } from "./mocks/node";
+
+beforeAll(() => {
+	server.listen();
+});
+
+afterEach(() => {
+	server.resetHandlers();
+	cleanup();
+});
+
+afterAll(() => {
+	server.close();
+});
