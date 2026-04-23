@@ -1,11 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { getCookie } from "@/infra/cookies/cookie-utils";
+import { LoginScreen } from "@/modules/auth/screens/login-screen";
 
-export const Route = createFileRoute("/")({ component: Home });
+export const Route = createFileRoute("/")({
+	beforeLoad: () => {
+		const token = getCookie();
 
-function Home() {
-	return (
-		<div className="p-8">
-			<h1 className="text-4xl font-bold">CineDash</h1>
-		</div>
-	);
-}
+		if (token) {
+			throw redirect({ to: "/app" as never });
+		}
+	},
+	component: LoginScreen,
+});

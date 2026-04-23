@@ -1,6 +1,7 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { Toaster } from "@/core/components/ui/sonner";
 
 import "../styles.css";
 
@@ -12,6 +13,7 @@ function RootComponent() {
 	return (
 		<>
 			<Outlet />
+			<Toaster position="top-right" richColors />
 			{import.meta.env.DEV && (
 				<TanStackDevtools
 					config={{
