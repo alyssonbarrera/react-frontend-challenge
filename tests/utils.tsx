@@ -1,17 +1,29 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
-	createMemoryHistory,
-	createRouter,
-	RouterProvider,
-} from "@tanstack/react-router";
-import {
+	type RenderHookOptions,
+	type RenderOptions,
 	render,
 	renderHook,
-	type RenderOptions,
-	type RenderHookOptions,
 } from "@testing-library/react";
+import { NuqsTestingAdapter, type UrlUpdateEvent } from "nuqs/adapters/testing";
 import type React from "react";
-import { routeTree } from "@/route-tree.gen";
+import { TooltipProvider } from "@/core/components/ui/tooltip";
+
+type TestSearchParams = Record<string, string>;
+type OnUrlUpdate = (event: UrlUpdateEvent) => void;
+
+type CustomRenderOptions = Omit<RenderOptions, "wrapper"> & {
+	searchParams?: TestSearchParams;
+	onUrlUpdate?: OnUrlUpdate;
+};
+
+type CustomRenderHookOptions<Props> = Omit<
+	RenderHookOptions<Props>,
+	"wrapper"
+> & {
+	searchParams?: TestSearchParams;
+	onUrlUpdate?: OnUrlUpdate;
+};
 
 function createTestQueryClient() {
 	return new QueryClient({
@@ -22,52 +34,43 @@ function createTestQueryClient() {
 	});
 }
 
-function createRenderProviders() {
+function createProviders(
+	searchParams?: TestSearchParams,
+	onUrlUpdate?: OnUrlUpdate,
+) {
 	const queryClient = createTestQueryClient();
 
-	const router = createRouter({
-		routeTree,
-		context: { queryClient },
-		defaultPreload: "intent",
-		history: createMemoryHistory({ initialEntries: ["/"] }),
-		scrollRestoration: true,
-	});
-
-	return function RenderProviders({ children }: { children: React.ReactNode }) {
+	return function Providers({ children }: { children: React.ReactNode }) {
 		return (
 			<QueryClientProvider client={queryClient}>
-				<RouterProvider router={router} defaultComponent={() => children} />
+				<NuqsTestingAdapter
+					searchParams={searchParams}
+					onUrlUpdate={onUrlUpdate}
+				>
+					<TooltipProvider>{children}</TooltipProvider>
+				</NuqsTestingAdapter>
 			</QueryClientProvider>
 		);
 	};
 }
 
-function createHookProviders() {
-	const queryClient = createTestQueryClient();
+function customRender(ui: React.ReactElement, options?: CustomRenderOptions) {
+	const { searchParams, onUrlUpdate, ...renderOptions } = options ?? {};
+	const Providers = createProviders(searchParams, onUrlUpdate);
 
-	return function HookProviders({ children }: { children: React.ReactNode }) {
-		return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
-	};
-}
-
-function customRender(
-	ui: React.ReactElement,
-	options?: Omit<RenderOptions, "wrapper">,
-) {
-	const RenderProviders = createRenderProviders();
-
-	return render(ui, { wrapper: RenderProviders, ...options });
+	return render(ui, { wrapper: Providers, ...renderOptions });
 }
 
 function customRenderHook<Result, Props>(
 	renderCallback: (props: Props) => Result,
-	options?: Omit<RenderHookOptions<Props>, "wrapper">,
+	options?: CustomRenderHookOptions<Props>,
 ) {
-	const HookProviders = createHookProviders();
+	const { searchParams, onUrlUpdate, ...renderHookOptions } = options ?? {};
+	const Providers = createProviders(searchParams, onUrlUpdate);
 
 	return renderHook(renderCallback, {
-		wrapper: HookProviders,
-		...options,
+		wrapper: Providers,
+		...renderHookOptions,
 	});
 }
 

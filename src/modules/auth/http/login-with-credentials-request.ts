@@ -30,6 +30,7 @@ export async function loginWithCredentialsRequest({
 			id: crypto.randomUUID(),
 			name: "Alex Morgan",
 			email,
+			avatarUrl: null,
 		},
 	};
 }

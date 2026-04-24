@@ -1,7 +1,9 @@
 /** biome-ignore-all lint/style/noNonNullAssertion: I know the element exists. */
 import { QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import ReactDOM from "react-dom/client";
+import { TooltipProvider } from "./core/components/ui/tooltip";
 import { queryClient } from "./core/lib/react-query";
 import { THEME_STORAGE_KEY, type Theme } from "./core/stores/theme-store";
 import { routeTree } from "./route-tree.gen";
@@ -43,8 +45,12 @@ const rootElement = document.getElementById("app")!;
 if (!rootElement.innerHTML) {
 	const root = ReactDOM.createRoot(rootElement);
 	root.render(
-		<QueryClientProvider client={queryClient}>
-			<RouterProvider router={router} />
-		</QueryClientProvider>,
+		<NuqsAdapter>
+			<QueryClientProvider client={queryClient}>
+				<TooltipProvider>
+					<RouterProvider router={router} />
+				</TooltipProvider>
+			</QueryClientProvider>
+		</NuqsAdapter>,
 	);
 }

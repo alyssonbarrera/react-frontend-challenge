@@ -2,7 +2,7 @@ import { LoginForm } from "../../forms/login-form";
 
 export function LoginScreen() {
 	return (
-		<main className="min-h-screen bg-background">
+		<main className="min-h-screen bg-background" data-testid="login-screen">
 			<div className="mx-auto grid min-h-screen w-full grid-cols-1 lg:h-screen lg:min-h-0 lg:grid-cols-2 xl:grid-cols-[42%_58%]">
 				<section className="flex h-full w-full flex-col px-6 py-8 md:px-10 md:py-12 lg:px-12 lg:py-14">
 					<header className="mx-auto w-full max-w-110 md:max-w-120 xl:max-w-130">

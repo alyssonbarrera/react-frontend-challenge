@@ -1,11 +1,11 @@
 import type { BeforeRequestState } from "ky";
-import { useAuthStore as authStore } from "@/core/stores/auth-store";
-import { getTokenFromCookie } from "@/infra/cookies/auth-cookie.utils";
+
+const TMDB_BEARER_TOKEN = import.meta.env.VITE_APP_TMDB_KEY;
 
 export function beforeRequest({ request }: BeforeRequestState) {
-	const token = authStore.getState().token ?? getTokenFromCookie();
-
-	if (token) {
-		request.headers.set("Authorization", `Bearer ${token}`);
+	if (TMDB_BEARER_TOKEN) {
+		request.headers.set("Authorization", `Bearer ${TMDB_BEARER_TOKEN}`);
 	}
+
+	request.headers.set("Accept", "application/json");
 }
