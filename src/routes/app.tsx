@@ -1,11 +1,9 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { getCookie } from "@/infra/cookies/cookie-utils";
+import { hasTokenOnCookie } from "@/infra/cookies/auth-cookie.utils";
 
 export const Route = createFileRoute("/app")({
 	beforeLoad: () => {
-		const token = getCookie();
-
-		if (!token) {
+		if (!hasTokenOnCookie()) {
 			throw redirect({ to: "/" });
 		}
 	},

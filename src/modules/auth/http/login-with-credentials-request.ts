@@ -1,23 +1,21 @@
-export type SignInWithEmailRequestParams = {
+import type { UserDTO } from "@/core/dtos/user-dto";
+
+export type LoginWithCredentialsRequestParams = {
 	email: string;
 	password: string;
 };
 
-export type SignInWithEmailRequestResponse = {
+export type LoginWithCredentialsRequestResponse = {
 	token: string;
-	user: {
-		id: string;
-		name: string;
-		email: string;
-	};
+	user: UserDTO;
 };
 
 const FAKE_REQUEST_DELAY_MS = 800;
 
-export async function signInWithEmailRequest({
+export async function loginWithCredentialsRequest({
 	email,
 	password,
-}: SignInWithEmailRequestParams): Promise<SignInWithEmailRequestResponse> {
+}: LoginWithCredentialsRequestParams): Promise<LoginWithCredentialsRequestResponse> {
 	await new Promise((resolve) => {
 		setTimeout(resolve, FAKE_REQUEST_DELAY_MS);
 	});

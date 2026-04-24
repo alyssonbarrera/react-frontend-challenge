@@ -1,4 +1,11 @@
-import { Apple, ArrowRight, Github, Globe, Mail } from "lucide-react";
+import {
+	Apple,
+	ArrowRight,
+	Github,
+	Globe,
+	type LucideIcon,
+	Mail,
+} from "lucide-react";
 import { Button } from "@/core/components/ui/button";
 import {
 	Field,
@@ -9,7 +16,15 @@ import {
 import { Input } from "@/core/components/ui/input";
 import { InputPassword } from "@/core/components/ui/input-password";
 import { Separator } from "@/core/components/ui/separator";
+import { Spinner } from "@/core/components/ui/spinner";
 import { useLoginForm } from "./login-form.hook";
+
+type SocialLoginButton = {
+	label: string;
+	testId: string;
+	icon: LucideIcon;
+	onClick: VoidFunction;
+};
 
 export function LoginForm() {
 	const {
@@ -18,8 +33,31 @@ export function LoginForm() {
 		register,
 		isPending,
 		handleSubmit,
-		onSocialSignIn,
+		onSocialLogin,
+		onForgotPassword,
+		onCreateAccount,
 	} = useLoginForm();
+
+	const socialLoginButtons: SocialLoginButton[] = [
+		{
+			icon: Globe,
+			label: "Google",
+			testId: "login-form-google-button",
+			onClick: () => onSocialLogin("google"),
+		},
+		{
+			icon: Apple,
+			label: "Apple",
+			testId: "login-form-apple-button",
+			onClick: () => onSocialLogin("apple"),
+		},
+		{
+			icon: Github,
+			label: "GitHub",
+			testId: "login-form-github-button",
+			onClick: () => onSocialLogin("github"),
+		},
+	];
 
 	return (
 		<form
@@ -60,13 +98,15 @@ export function LoginForm() {
 							Password
 						</FieldLabel>
 
-						<button
+						<Button
 							type="button"
-							className="text-xs font-medium text-primary hover:text-primary/80"
+							variant="link"
+							className="text-xs p-0 h-auto hover:no-underline hover:text-primary/80"
+							onClick={onForgotPassword}
 							data-testid="login-form-forgot-button"
 						>
 							Forgot?
-						</button>
+						</Button>
 					</div>
 
 					<InputPassword
@@ -85,12 +125,13 @@ export function LoginForm() {
 			<Button
 				type="submit"
 				size="lg"
-				className="w-full rounded-3xl text-base"
+				className="w-full rounded-3xl text-base cursor-pointer"
 				disabled={isPending}
 				data-testid="login-form-submit-button"
 			>
-				{isPending ? "Signing in..." : "Sign in to CineDash"}
-				<ArrowRight data-icon="inline-end" />
+				Login to CineDash
+				{isPending && <Spinner />}
+				{!isPending && <ArrowRight />}
 			</Button>
 
 			<div className="flex w-full items-center gap-2">
@@ -102,53 +143,31 @@ export function LoginForm() {
 			</div>
 
 			<div className="grid grid-cols-3 gap-3 mt-4">
-				<Button
-					type="button"
-					variant="outline"
-					className="h-12 rounded-xl"
-					onClick={() => {
-						onSocialSignIn("google");
-					}}
-					data-testid="login-form-google-button"
-				>
-					<Globe data-icon="inline-start" /> Google
-				</Button>
-				<Button
-					type="button"
-					variant="outline"
-					className="h-12 rounded-xl"
-					onClick={() => {
-						onSocialSignIn("apple");
-					}}
-					data-testid="login-form-apple-button"
-				>
-					<Apple data-icon="inline-start" /> Apple
-				</Button>
-				<Button
-					type="button"
-					variant="outline"
-					className="h-12 rounded-xl"
-					onClick={() => {
-						onSocialSignIn("github");
-					}}
-					data-testid="login-form-github-button"
-				>
-					<Github data-icon="inline-start" /> GitHub
-				</Button>
+				{socialLoginButtons.map(({ onClick, testId, icon: Icon, label }) => (
+					<Button
+						key={testId}
+						type="button"
+						variant="outline"
+						className="cursor-pointer"
+						onClick={onClick}
+						data-testid={testId}
+					>
+						<Icon /> {label}
+					</Button>
+				))}
 			</div>
 
 			<p className="pt-1 text-center text-sm text-muted-foreground">
 				New to CineDash?{" "}
-				<button
+				<Button
 					type="button"
-					className="font-semibold text-primary hover:text-primary/85"
-					onClick={() => {
-						onSocialSignIn("google");
-					}}
+					variant="link"
+					className="p-0 h-auto font-semibold"
+					onClick={onCreateAccount}
 					data-testid="login-form-signup-button"
 				>
 					Create an account
-				</button>
+				</Button>
 			</p>
 		</form>
 	);
