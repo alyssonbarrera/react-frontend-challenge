@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const PASSWORD_MIN_LENGTH = 6;
+const PASSWORD_MIN_LENGTH = 7;
 
 export const loginSchema = z.object({
 	email: z.email("Please enter a valid email."),

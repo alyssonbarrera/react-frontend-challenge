@@ -13,39 +13,60 @@ import {
 import type React from "react";
 import { routeTree } from "@/route-tree.gen";
 
-const queryClient = new QueryClient({
-	defaultOptions: { queries: { retry: false, gcTime: 0 } },
-});
+function createTestQueryClient() {
+	return new QueryClient({
+		defaultOptions: {
+			queries: { retry: false, gcTime: 0 },
+			mutations: { retry: false },
+		},
+	});
+}
 
-const router = createRouter({
-	routeTree,
-	context: { queryClient },
-	defaultPreload: "intent",
-	history: createMemoryHistory({ initialEntries: ["/"] }),
-	scrollRestoration: true,
-});
+function createRenderProviders() {
+	const queryClient = createTestQueryClient();
 
-function AllTheProviders({ children }: { children: React.ReactNode }) {
-	return (
-		<QueryClientProvider client={queryClient}>
-			<RouterProvider router={router} defaultComponent={() => children} />
-		</QueryClientProvider>
-	);
+	const router = createRouter({
+		routeTree,
+		context: { queryClient },
+		defaultPreload: "intent",
+		history: createMemoryHistory({ initialEntries: ["/"] }),
+		scrollRestoration: true,
+	});
+
+	return function RenderProviders({ children }: { children: React.ReactNode }) {
+		return (
+			<QueryClientProvider client={queryClient}>
+				<RouterProvider router={router} defaultComponent={() => children} />
+			</QueryClientProvider>
+		);
+	};
+}
+
+function createHookProviders() {
+	const queryClient = createTestQueryClient();
+
+	return function HookProviders({ children }: { children: React.ReactNode }) {
+		return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+	};
 }
 
 function customRender(
 	ui: React.ReactElement,
 	options?: Omit<RenderOptions, "wrapper">,
 ) {
-	return render(ui, { wrapper: AllTheProviders, ...options });
+	const RenderProviders = createRenderProviders();
+
+	return render(ui, { wrapper: RenderProviders, ...options });
 }
 
 function customRenderHook<Result, Props>(
 	renderCallback: (props: Props) => Result,
 	options?: Omit<RenderHookOptions<Props>, "wrapper">,
 ) {
+	const HookProviders = createHookProviders();
+
 	return renderHook(renderCallback, {
-		wrapper: AllTheProviders,
+		wrapper: HookProviders,
 		...options,
 	});
 }
