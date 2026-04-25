@@ -1,0 +1,1 @@
+export const GLOBAL_SEARCH_DEBOUNCE_MIN_MS = 300;
