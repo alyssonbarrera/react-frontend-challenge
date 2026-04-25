@@ -29,7 +29,7 @@ export function useLoginForm() {
 	const loginMutation = useLoginMutation({
 		onSuccess: ({ token, user }) => {
 			setAuth({ token, user });
-			navigate({ to: "/app" });
+			navigate({ to: "/discovery" });
 		},
 		onError: () => {
 			toast.error("Unable to login.", {

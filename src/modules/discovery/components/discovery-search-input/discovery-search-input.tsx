@@ -25,7 +25,7 @@ export function DiscoverySearchInput({
 				onChange={(event) => {
 					onSearchValueChange(event.target.value);
 				}}
-				placeholder="Search films, directors, actors..."
+				placeholder="Search films..."
 				className="h-auto border-0 rounded-none bg-transparent p-0 text-sm placeholder:text-muted-foreground focus-visible:ring-0"
 				data-testid="dashboard-movie-search-input"
 			/>

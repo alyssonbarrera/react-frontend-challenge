@@ -29,6 +29,8 @@ describe("MovieCard", () => {
 			formattedYear: "2020",
 			formattedGenre: "Action, Adventure",
 			formattedRating: "7.3",
+			isInWatchlist: false,
+			handleToggleWatchlist: vi.fn(),
 		});
 	});
 

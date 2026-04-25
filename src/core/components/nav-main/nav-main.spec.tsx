@@ -1,5 +1,6 @@
 import { render, screen } from "@tests/utils";
 import { Compass, Flame, Heart } from "lucide-react";
+import type React from "react";
 import { SidebarProvider } from "@/core/components/ui/sidebar";
 import { NavMain } from "./nav-main";
 
@@ -7,19 +8,48 @@ vi.mock("@/core/hooks/use-mobile", () => ({
 	useIsMobile: () => false,
 }));
 
+vi.mock("@tanstack/react-router", async (importOriginal) => {
+	const actual =
+		await importOriginal<typeof import("@tanstack/react-router")>();
+	const navigateMock = vi.fn();
+
+	return {
+		...actual,
+		useNavigate: () => navigateMock,
+		Link: ({
+			to,
+			children,
+			...props
+		}: {
+			to: string;
+			children: React.ReactNode;
+		} & React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+			<a href={to} {...props}>
+				{children}
+			</a>
+		),
+		useLocation: ({
+			select,
+		}: {
+			select: (location: { pathname: string }) => string;
+		}) => select({ pathname: "/discovery" }),
+	};
+});
+
 const navMainSections = [
 	{
 		label: "BROWSE",
 		items: [
 			{
 				title: "Discover",
-				url: "/app",
+				url: "/discovery",
+				activePath: "/discovery",
 				icon: Compass,
-				isActive: true,
 			},
 			{
 				title: "Trending",
 				url: "/design-system",
+				activePath: "/trending",
 				icon: Flame,
 			},
 		],
@@ -29,7 +59,8 @@ const navMainSections = [
 		items: [
 			{
 				title: "Favorites",
-				url: "/app",
+				url: "/watchlist",
+				activePath: "/watchlist",
 				icon: Heart,
 				badge: "12",
 			},
@@ -87,10 +118,10 @@ describe("NavMain", () => {
 
 		expect(navMainItemDiscoverButton.getAttribute("data-active")).toBe("true");
 		expect(navMainItemTrendingButton.getAttribute("data-active")).toBe("false");
-		expect(navMainItemDiscoverButton.getAttribute("href")).toBe("/app");
+		expect(navMainItemDiscoverButton.getAttribute("href")).toBe("/discovery");
 		expect(navMainItemTrendingButton.getAttribute("href")).toBe(
 			"/design-system",
 		);
-		expect(navMainItemFavoritesButton.getAttribute("href")).toBe("/app");
+		expect(navMainItemFavoritesButton.getAttribute("href")).toBe("/watchlist");
 	});
 });

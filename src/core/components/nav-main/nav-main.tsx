@@ -1,6 +1,6 @@
 "use client";
 
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import {
 	SidebarGroup,
@@ -17,14 +17,20 @@ type NavMainProps = {
 		items: {
 			title: string;
 			url: string;
+			activePath?: string;
 			icon: LucideIcon;
-			isActive?: boolean;
 			badge?: string;
 		}[];
 	}[];
 };
 
 export function NavMain({ sections }: NavMainProps) {
+	const pathname = useLocation({ select: (location) => location.pathname });
+
+	function isPathActive(path: string): boolean {
+		return pathname === path || pathname.startsWith(`${path}/`);
+	}
+
 	return (
 		<>
 			{sections.map((section, sectionIndex) => (
@@ -45,7 +51,9 @@ export function NavMain({ sections }: NavMainProps) {
 							>
 								<SidebarMenuButton
 									asChild
-									isActive={item.isActive}
+									isActive={
+										item.activePath ? isPathActive(item.activePath) : false
+									}
 									tooltip={item.title}
 									data-testid={`nav-main-item-${sectionIndex}-${itemIndex}-button`}
 								>
@@ -54,13 +62,13 @@ export function NavMain({ sections }: NavMainProps) {
 										<span>{item.title}</span>
 									</Link>
 								</SidebarMenuButton>
-								{item.badge ? (
+								{item.badge && (
 									<SidebarMenuBadge
 										data-testid={`nav-main-item-${sectionIndex}-${itemIndex}-badge`}
 									>
 										{item.badge}
 									</SidebarMenuBadge>
-								) : null}
+								)}
 							</SidebarMenuItem>
 						))}
 					</SidebarMenu>

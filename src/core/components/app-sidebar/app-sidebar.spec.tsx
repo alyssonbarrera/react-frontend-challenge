@@ -1,12 +1,50 @@
+import { makeMovie } from "@tests/mocks/factories/make-movie";
 import { render, screen } from "@tests/utils";
+import type React from "react";
 import { SidebarProvider } from "@/core/components/ui/sidebar";
+import { useWatchlistStore } from "@/modules/watchlist/stores/watchlist-store";
 import { AppSidebar } from "./app-sidebar";
 
 vi.mock("@/core/hooks/use-mobile", () => ({
 	useIsMobile: () => false,
 }));
 
+vi.mock("@tanstack/react-router", async (importOriginal) => {
+	const actual =
+		await importOriginal<typeof import("@tanstack/react-router")>();
+	const navigateMock = vi.fn();
+
+	return {
+		...actual,
+		useNavigate: () => navigateMock,
+		Link: ({
+			to,
+			children,
+			...props
+		}: {
+			to: string;
+			children: React.ReactNode;
+		} & React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+			<a href={to} {...props}>
+				{children}
+			</a>
+		),
+		useLocation: ({
+			select,
+		}: {
+			select: (location: { pathname: string }) => string;
+		}) => select({ pathname: "/discovery" }),
+	};
+});
+
+const initialWatchlistState = useWatchlistStore.getState();
+
 describe("AppSidebar", () => {
+	beforeEach(() => {
+		useWatchlistStore.setState(initialWatchlistState);
+		localStorage.clear();
+	});
+
 	it("should be able to render sidebar structure and brand", () => {
 		render(
 			<SidebarProvider>
@@ -49,5 +87,24 @@ describe("AppSidebar", () => {
 		expect(appSidebarLibraryLabel.textContent).toBe("LIBRARY");
 		expect(appSidebarUserMenu).toBeDefined();
 		expect(appSidebarUserTrigger).toBeDefined();
+	});
+
+	it("should be able to render watchlist badge from real store count", () => {
+		useWatchlistStore.setState({
+			items: [
+				{ ...makeMovie({ id: 1 }), addedAt: "2026-01-01T00:00:00.000Z" },
+				{ ...makeMovie({ id: 2 }), addedAt: "2026-01-02T00:00:00.000Z" },
+			],
+		});
+
+		render(
+			<SidebarProvider>
+				<AppSidebar />
+			</SidebarProvider>,
+		);
+
+		const watchlistBadge = screen.getByTestId("nav-main-item-1-0-badge");
+
+		expect(watchlistBadge.textContent).toBe("2");
 	});
 });

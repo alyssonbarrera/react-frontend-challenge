@@ -1,3 +1,5 @@
+import { toYearData } from "@/core/utils/to-year-data";
+import { useWatchlistStore } from "@/modules/watchlist/stores/watchlist-store";
 import type { Movie } from "../../dtos/movie";
 import { buildPosterUrl } from "../../utils/movie.utils";
 import { getGenreName } from "../../utils/movie-genres.utils";
@@ -11,27 +13,32 @@ const FALLBACK_YEAR = "—";
 const MAX_GENRES_DISPLAYED = 2;
 
 export function useMovieCard({ movie }: UseMovieCardParams) {
+	const isInWatchlist = useWatchlistStore((state) =>
+		state.isInWatchlist(movie.id),
+	);
+	const toggleWatchlist = useWatchlistStore((state) => state.toggle);
+
 	const formattedRating = movie.voteAverage.toFixed(1);
-	const formattedYear = formatReleaseYear(movie.releaseDate);
+	const { yearLabel: formattedYear } = toYearData(
+		movie.releaseDate,
+		FALLBACK_YEAR,
+	);
 
 	const formattedGenre = formatGenres(movie.genreIds);
 	const posterUrl = buildPosterUrl(movie.posterPath);
 
+	function handleToggleWatchlist() {
+		toggleWatchlist(movie);
+	}
+
 	return {
 		posterUrl,
 		formattedYear,
+		isInWatchlist,
 		formattedGenre,
 		formattedRating,
+		handleToggleWatchlist,
 	};
-}
-
-function formatReleaseYear(releaseDate: Movie["releaseDate"]): string {
-	if (!releaseDate) {
-		return FALLBACK_YEAR;
-	}
-
-	const releaseYear = releaseDate.slice(0, 4);
-	return releaseYear;
 }
 
 function formatGenres(genreIds: readonly number[]): string {
