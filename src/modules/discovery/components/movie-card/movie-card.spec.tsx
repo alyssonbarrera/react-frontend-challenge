@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import type { Movie } from "../../dtos/movie";
 import { MovieCard } from "./movie-card";
 import { useMovieCard } from "./movie-card.hook";
@@ -31,6 +31,7 @@ describe("MovieCard", () => {
 			formattedRating: "7.3",
 			isInWatchlist: false,
 			handleToggleWatchlist: vi.fn(),
+			handleNavigateToDetails: vi.fn(),
 		});
 	});
 
@@ -69,5 +70,47 @@ describe("MovieCard", () => {
 
 		expect(movieCardErrorFallback).toBeDefined();
 		expect(movieCard).toBeNull();
+	});
+
+	it("should be able to navigate to the movie details when the card is clicked", () => {
+		const handleNavigateToDetails = vi.fn();
+
+		vi.mocked(useMovieCard).mockReturnValue({
+			posterUrl: "https://image.tmdb.org/poster.jpg",
+			formattedYear: "2020",
+			formattedGenre: "Action, Adventure",
+			formattedRating: "7.3",
+			isInWatchlist: false,
+			handleToggleWatchlist: vi.fn(),
+			handleNavigateToDetails,
+		});
+
+		render(<MovieCard movie={movie} />);
+
+		fireEvent.click(screen.getByTestId("movie-card"));
+
+		expect(handleNavigateToDetails).toHaveBeenCalledTimes(1);
+	});
+
+	it("should be able to toggle the watchlist without navigating when the bookmark is clicked", () => {
+		const handleToggleWatchlist = vi.fn();
+		const handleNavigateToDetails = vi.fn();
+
+		vi.mocked(useMovieCard).mockReturnValue({
+			posterUrl: "https://image.tmdb.org/poster.jpg",
+			formattedYear: "2020",
+			formattedGenre: "Action, Adventure",
+			formattedRating: "7.3",
+			isInWatchlist: false,
+			handleToggleWatchlist,
+			handleNavigateToDetails,
+		});
+
+		render(<MovieCard movie={movie} />);
+
+		fireEvent.click(screen.getByTestId("movie-card-bookmark"));
+
+		expect(handleToggleWatchlist).toHaveBeenCalledTimes(1);
+		expect(handleNavigateToDetails).not.toHaveBeenCalled();
 	});
 });

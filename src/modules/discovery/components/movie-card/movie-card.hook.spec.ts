@@ -1,7 +1,12 @@
+import { useNavigate } from "@tanstack/react-router";
 import { act, renderHook } from "@testing-library/react";
 import { useWatchlistStore } from "@/modules/watchlist/stores/watchlist-store";
 import type { Movie } from "../../dtos/movie";
 import { useMovieCard } from "./movie-card.hook";
+
+vi.mock("@tanstack/react-router", () => ({
+	useNavigate: vi.fn(),
+}));
 
 const baseMovie: Movie = {
 	id: 1,
@@ -24,6 +29,7 @@ describe("useMovieCard", () => {
 	beforeEach(() => {
 		useWatchlistStore.getState().clear();
 		localStorage.clear();
+		vi.mocked(useNavigate).mockReturnValue(vi.fn() as never);
 	});
 
 	it("should be able to format the movie data", () => {
@@ -69,5 +75,21 @@ describe("useMovieCard", () => {
 		});
 
 		expect(useWatchlistStore.getState().isInWatchlist(baseMovie.id)).toBe(true);
+	});
+
+	it("should be able to navigate to the movie details with the movie id", () => {
+		const navigate = vi.fn();
+		vi.mocked(useNavigate).mockReturnValue(navigate as never);
+
+		const { result } = renderHook(() => useMovieCard({ movie: baseMovie }));
+
+		act(() => {
+			result.current.handleNavigateToDetails();
+		});
+
+		expect(navigate).toHaveBeenCalledWith({
+			to: "/movie/$id",
+			params: { id: String(baseMovie.id) },
+		});
 	});
 });

@@ -1,4 +1,5 @@
 import { Bookmark, Star } from "lucide-react";
+import type { MouseEvent } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import type { Movie } from "../../dtos/movie";
 import { MovieCardErrorFallback } from "./fragments/movie-card-error-fallback";
@@ -16,12 +17,20 @@ function MovieCardView({ movie }: MovieCardProps) {
 		formattedGenre,
 		formattedRating,
 		handleToggleWatchlist,
+		handleNavigateToDetails,
 	} = useMovieCard({ movie });
 
+	function handleBookmarkClick(event: MouseEvent<HTMLButtonElement>) {
+		event.stopPropagation();
+		handleToggleWatchlist();
+	}
+
 	return (
+		// biome-ignore lint/a11y/useKeyWithClickEvents: keyboard navigation is intentionally out of scope here
 		<article
 			className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border bg-card"
 			data-testid="movie-card"
+			onClick={handleNavigateToDetails}
 		>
 			<div
 				className="relative aspect-268/380 w-full overflow-hidden bg-muted"
@@ -51,7 +60,7 @@ function MovieCardView({ movie }: MovieCardProps) {
 							? `Remove ${movie.title} from watchlist`
 							: `Save ${movie.title} to watchlist`
 					}
-					onClick={handleToggleWatchlist}
+					onClick={handleBookmarkClick}
 					className="absolute top-3.5 right-3.5 flex size-9 items-center justify-center rounded-full border border-white/10 bg-surface-base/70 text-foreground opacity-80 transition hover:opacity-100"
 					data-testid="movie-card-bookmark"
 				>
