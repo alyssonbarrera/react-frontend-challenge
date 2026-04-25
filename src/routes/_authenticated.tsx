@@ -17,9 +17,9 @@ function AuthenticatedLayoutRoute() {
 	return (
 		<SidebarProvider>
 			<AppSidebar />
-			<SidebarInset>
+			<SidebarInset className="min-w-0">
 				<AuthenticatedLayoutHeader />
-				<div className="flex flex-1 flex-col p-4 md:p-6">
+				<div className="flex min-w-0 flex-1 flex-col p-4 md:p-6">
 					<Outlet />
 				</div>
 			</SidebarInset>

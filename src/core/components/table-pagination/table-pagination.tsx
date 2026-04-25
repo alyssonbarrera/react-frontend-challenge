@@ -69,7 +69,7 @@ export function TablePagination({
 
 	return (
 		<Pagination
-			className={cn("px-6 py-4", className)}
+			className={cn("py-4 flex-col gap-4 md:flex-row", className)}
 			data-testid={testIdPrefix}
 			{...props}
 		>

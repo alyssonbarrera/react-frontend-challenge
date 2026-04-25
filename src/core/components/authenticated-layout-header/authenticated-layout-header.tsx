@@ -1,5 +1,5 @@
+import { GlobalSearchInput } from "@/core/components/global-search-input";
 import { SidebarTrigger } from "@/core/components/ui/sidebar";
-import { DiscoverySearchInput } from "@/modules/discovery/components/discovery-search-input";
 
 export function AuthenticatedLayoutHeader() {
 	return (
@@ -9,7 +9,7 @@ export function AuthenticatedLayoutHeader() {
 		>
 			<SidebarTrigger data-testid="authenticated-layout-header-sidebar-trigger" />
 
-			<DiscoverySearchInput />
+			<GlobalSearchInput />
 
 			<div
 				className="size-8"

@@ -10,6 +10,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/core/components/ui/table";
+import { cn } from "@/core/lib/utils";
 import {
 	useWatchlistTable,
 	type WatchlistTableRow,
@@ -17,7 +18,7 @@ import {
 
 type WatchlistTableProps = ComponentProps<"div">;
 
-export function WatchlistTable(props: WatchlistTableProps) {
+export function WatchlistTable({ className, ...props }: WatchlistTableProps) {
 	const {
 		table,
 		goToPage,
@@ -27,26 +28,35 @@ export function WatchlistTable(props: WatchlistTableProps) {
 		canNextPage,
 		currentPage,
 		goToNextPage,
+		hasNoResults,
+		searchQuery,
 		showPagination,
 		canPreviousPage,
 		paginationRange,
 		goToPreviousPage,
 	} = useWatchlistTable();
 
+	const columnCount = table.getAllColumns().length;
+
 	return (
-		<div {...props} data-testid="watchlist-table">
+		<div
+			{...props}
+			className={cn("min-w-0", className)}
+			data-testid="watchlist-table"
+		>
 			<Table>
 				<TableHeader>
 					{table.getHeaderGroups().map((headerGroup) => (
 						<TableRow
 							key={headerGroup.id}
-							className="bg-muted/30 hover:bg-muted/30"
+							className="bg-surface-muted hover:bg-surface-muted"
 						>
 							{headerGroup.headers.map((header) => {
 								return (
 									<TableHead
 										key={header.id}
 										className={header.column.columnDef.meta?.headClassName}
+										data-testid={`watchlist-table-header-${header.column.id}`}
 									>
 										{renderHeaderContent(header)}
 									</TableHead>
@@ -56,22 +66,32 @@ export function WatchlistTable(props: WatchlistTableProps) {
 					))}
 				</TableHeader>
 				<TableBody>
-					{table.getRowModel().rows.map((row) => (
-						<TableRow
-							key={row.id}
-							className="border-border/40"
-							data-testid="watchlist-table-row"
-						>
-							{row.getVisibleCells().map((cell) => (
-								<TableCell
-									key={cell.id}
-									className={cell.column.columnDef.meta?.cellClassName}
-								>
-									{flexRender(cell.column.columnDef.cell, cell.getContext())}
-								</TableCell>
-							))}
+					{hasNoResults ? (
+						<TableRow data-testid="watchlist-table-no-results-row">
+							<TableCell
+								colSpan={columnCount}
+								className="h-32 text-center text-muted-foreground text-sm"
+							>
+								<span data-testid="watchlist-table-no-results-message">
+									No movies in your watchlist match
+									<span className="text-foreground"> "{searchQuery}"</span>.
+								</span>
+							</TableCell>
 						</TableRow>
-					))}
+					) : (
+						table.getRowModel().rows.map((row) => (
+							<TableRow key={row.id} data-testid="watchlist-table-row">
+								{row.getVisibleCells().map((cell) => (
+									<TableCell
+										key={cell.id}
+										className={cell.column.columnDef.meta?.cellClassName}
+									>
+										{flexRender(cell.column.columnDef.cell, cell.getContext())}
+									</TableCell>
+								))}
+							</TableRow>
+						))
+					)}
 				</TableBody>
 			</Table>
 
@@ -113,7 +133,7 @@ function renderHeaderContent(header: Header<WatchlistTableRow, unknown>) {
 			{flexRender(header.column.columnDef.header, header.getContext())}
 
 			<Activity mode={sortDirection ? "visible" : "hidden"}>
-				<SortDirectionIcon className="size-3 text-primary" />
+				<SortDirectionIcon className="size-3 text-muted-foreground" />
 			</Activity>
 		</button>
 	);

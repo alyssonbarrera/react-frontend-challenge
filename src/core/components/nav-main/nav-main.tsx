@@ -10,6 +10,9 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "@/core/components/ui/sidebar";
+import { useWatchlistStore } from "@/modules/watchlist/stores/watchlist-store";
+
+const WATCHLIST_BADGE_SOURCE = "watchlist-count";
 
 type NavMainProps = {
 	sections: {
@@ -20,6 +23,7 @@ type NavMainProps = {
 			activePath?: string;
 			icon: LucideIcon;
 			badge?: string;
+			badgeSource?: typeof WATCHLIST_BADGE_SOURCE;
 		}[];
 	}[];
 };
@@ -62,18 +66,36 @@ export function NavMain({ sections }: NavMainProps) {
 										<span>{item.title}</span>
 									</Link>
 								</SidebarMenuButton>
-								{item.badge && (
+								{item.badgeSource === WATCHLIST_BADGE_SOURCE ? (
+									<WatchlistMenuBadge
+										testId={`nav-main-item-${sectionIndex}-${itemIndex}-badge`}
+									/>
+								) : item.badge ? (
 									<SidebarMenuBadge
 										data-testid={`nav-main-item-${sectionIndex}-${itemIndex}-badge`}
 									>
 										{item.badge}
 									</SidebarMenuBadge>
-								)}
+								) : null}
 							</SidebarMenuItem>
 						))}
 					</SidebarMenu>
 				</SidebarGroup>
 			))}
 		</>
+	);
+}
+
+type WatchlistMenuBadgeProps = {
+	testId: string;
+};
+
+function WatchlistMenuBadge({ testId }: WatchlistMenuBadgeProps) {
+	const watchlistCount = useWatchlistStore((state) => state.items.length);
+
+	return (
+		<SidebarMenuBadge data-testid={testId}>
+			{String(watchlistCount)}
+		</SidebarMenuBadge>
 	);
 }

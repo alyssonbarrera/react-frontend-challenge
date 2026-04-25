@@ -25,8 +25,11 @@ export const DISCOVERY_GENRES = [
 
 export const DISCOVERY_MIN_RATINGS = [0, 5, 6, 7, 7.5, 8, 8.5, 9] as const;
 
+const ANY_YEAR_RANGE_FROM = 1900;
+const CURRENT_YEAR = new Date().getFullYear();
+
 export const DISCOVERY_YEAR_RANGES = [
-	{ label: "Any year", from: 1900, to: new Date().getFullYear() },
+	{ label: "Any year", from: ANY_YEAR_RANGE_FROM, to: CURRENT_YEAR },
 	{ label: "2020 — 2025", from: 2020, to: 2025 },
 	{ label: "2010 — 2019", from: 2010, to: 2019 },
 	{ label: "2000 — 2009", from: 2000, to: 2009 },
@@ -37,6 +40,6 @@ export const SORT_VALUES = DISCOVERY_SORT_OPTIONS.map((option) => option.value);
 
 export const DEFAULT_DISCOVERY_SORT = "popularity" as const;
 export const DEFAULT_DISCOVERY_GENRE = "All genres" as const;
-export const DEFAULT_DISCOVERY_YEAR_FROM = 2020;
-export const DEFAULT_DISCOVERY_YEAR_TO = 2025;
+export const DEFAULT_DISCOVERY_YEAR_FROM = ANY_YEAR_RANGE_FROM;
+export const DEFAULT_DISCOVERY_YEAR_TO = CURRENT_YEAR;
 export const DEFAULT_DISCOVERY_MIN_RATING = 0;

@@ -405,7 +405,7 @@ function SidebarGroupLabel({
 			data-slot="sidebar-group-label"
 			data-sidebar="group-label"
 			className={cn(
-				"flex h-8 shrink-0 items-center rounded-md px-2 text-[10px] font-semibold tracking-[0.14em] text-sidebar-foreground/45 ring-sidebar-ring outline-hidden transition-[margin,opacity] duration-200 ease-linear group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+				"flex h-8 shrink-0 items-center rounded-md px-2 text-[10px] font-semibold tracking-[0.14em] text-muted-foreground ring-sidebar-ring outline-hidden transition-[margin,opacity] duration-200 ease-linear group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
 				className,
 			)}
 			{...props}
@@ -470,7 +470,7 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 }
 
 const sidebarMenuButtonVariants = cva(
-	"peer/menu-button group/menu-button flex w-full items-center gap-3 overflow-hidden rounded-[10px] px-2 py-2.5 text-left text-[13px] ring-sidebar-ring outline-hidden transition-[width,height,padding,background-color,color] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-foreground data-active:bg-sidebar-primary/12 data-active:font-semibold data-active:text-sidebar-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-sidebar-foreground/45 data-active:[&_svg]:text-sidebar-primary [&>span:last-child]:truncate",
+	"peer/menu-button group/menu-button flex w-full items-center gap-3 overflow-hidden rounded-[10px] px-2 py-2.5 text-left text-[13px] text-secondary ring-sidebar-ring outline-hidden transition-[width,height,padding,background-color,color] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-foreground data-active:bg-sidebar-primary/12 data-active:font-semibold data-active:text-sidebar-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground data-active:[&_svg]:text-sidebar-primary [&>span:last-child]:truncate",
 	{
 		variants: {
 			variant: {
@@ -576,7 +576,7 @@ function SidebarMenuBadge({
 			data-slot="sidebar-menu-badge"
 			data-sidebar="menu-badge"
 			className={cn(
-				"pointer-events-none absolute right-2 top-1/2 flex h-5 min-w-7 -translate-y-1/2 items-center justify-center rounded-full border border-sidebar-border bg-sidebar text-[10px] font-semibold text-sidebar-foreground/70 tabular-nums select-none group-data-[collapsible=icon]:hidden peer-hover/menu-button:text-sidebar-foreground peer-data-active/menu-button:text-sidebar-foreground",
+				"pointer-events-none absolute right-2 top-1/2 flex h-5 min-w-7 -translate-y-1/2 items-center justify-center rounded-full bg-surface-elevated px-2 font-heading text-[10px] font-semibold text-secondary tabular-nums select-none group-data-[collapsible=icon]:hidden peer-hover/menu-button:text-foreground peer-data-active/menu-button:text-foreground",
 				className,
 			)}
 			{...props}

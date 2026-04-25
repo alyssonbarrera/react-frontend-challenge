@@ -301,7 +301,7 @@ describe("useDiscoveryFilterBar", () => {
 
 	it("should be able to flag isDisabled when a search query is present in the URL", () => {
 		const { result } = renderHook(() => useDiscoveryFilterBar(), {
-			searchParams: { search: "matrix" },
+			searchParams: { q: "matrix" },
 		});
 
 		expect(result.current.isDisabled).toBe(true);
@@ -309,7 +309,7 @@ describe("useDiscoveryFilterBar", () => {
 
 	it("should not be able to flag isDisabled when the search query is only whitespace", () => {
 		const { result } = renderHook(() => useDiscoveryFilterBar(), {
-			searchParams: { search: "   " },
+			searchParams: { q: "   " },
 		});
 
 		expect(result.current.isDisabled).toBe(false);

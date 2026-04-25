@@ -57,7 +57,7 @@ describe("useMovieGrid", () => {
 		);
 
 		const { result } = renderHook(() => useMovieGrid(), {
-			searchParams: { search: "dune" },
+			searchParams: { q: "dune" },
 		});
 
 		await waitFor(() => {

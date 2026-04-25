@@ -22,7 +22,6 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 } from "@/core/components/ui/sidebar";
-import { useWatchlistStore } from "@/modules/watchlist/stores/watchlist-store";
 
 const user = {
 	id: crypto.randomUUID(),
@@ -31,58 +30,53 @@ const user = {
 	avatarUrl: null,
 };
 
-function buildSections(watchlistCount: number) {
-	return [
-		{
-			label: "BROWSE",
-			items: [
-				{
-					title: "Discover",
-					url: "/discovery",
-					activePath: "/discovery",
-					icon: Compass,
-				},
-				{
-					title: "Trending",
-					url: "/discovery",
-					icon: Flame,
-				},
-				{
-					title: "New releases",
-					url: "/discovery",
-					icon: Calendar,
-				},
-			],
-		},
-		{
-			label: "LIBRARY",
-			items: [
-				{
-					title: "Watchlist",
-					url: "/watchlist",
-					activePath: "/watchlist",
-					icon: ListVideo,
-					badge: String(watchlistCount),
-				},
-				{
-					title: "Favorites",
-					url: "/discovery",
-					icon: Heart,
-				},
-				{
-					title: "History",
-					url: "/discovery",
-					icon: History,
-				},
-			],
-		},
-	];
-}
+const sections: ComponentProps<typeof NavMain>["sections"] = [
+	{
+		label: "BROWSE",
+		items: [
+			{
+				title: "Discover",
+				url: "/discovery",
+				activePath: "/discovery",
+				icon: Compass,
+			},
+			{
+				title: "Trending",
+				url: "/discovery",
+				icon: Flame,
+			},
+			{
+				title: "New releases",
+				url: "/discovery",
+				icon: Calendar,
+			},
+		],
+	},
+	{
+		label: "LIBRARY",
+		items: [
+			{
+				title: "Watchlist",
+				url: "/watchlist",
+				activePath: "/watchlist",
+				icon: ListVideo,
+				badgeSource: "watchlist-count",
+			},
+			{
+				title: "Favorites",
+				url: "/discovery",
+				icon: Heart,
+			},
+			{
+				title: "History",
+				url: "/discovery",
+				icon: History,
+			},
+		],
+	},
+];
 
 export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
-	const watchlistCount = useWatchlistStore((state) => state.items.length);
-	const sections = buildSections(watchlistCount);
-
 	return (
 		<Sidebar collapsible="icon" data-testid="app-sidebar" {...props}>
 			<SidebarHeader>
@@ -94,11 +88,11 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 							data-testid="app-sidebar-brand"
 						>
 							<div className="flex size-8 aspect-square items-center justify-center rounded-lg bg-sidebar-primary">
-								<Clapperboard className="text-black!" />
+								<Clapperboard className="text-primary-foreground!" />
 							</div>
 							<div className="flex flex-col gap-0.5 leading-none">
 								<span
-									className="font-heading text-base font-semibold"
+									className="font-heading font-bold text-lg tracking-[-0.02em]"
 									data-testid="app-sidebar-brand-title"
 								>
 									CineDash
