@@ -7,10 +7,10 @@ export function LoginScreen() {
 				<section className="flex h-full w-full flex-col px-6 py-8 md:px-10 md:py-12 lg:px-12 lg:py-14">
 					<header className="mx-auto w-full max-w-110 md:max-w-120 xl:max-w-130">
 						<div className="flex items-center gap-2">
-							<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-cyan text-xs font-bold text-bg-base">
+							<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-cyan text-xs font-bold text-primary-foreground">
 								C
 							</div>
-							<p className="font-heading text-xl font-bold text-text-primary">
+							<p className="font-heading text-xl font-bold text-foreground">
 								CineDash
 							</p>
 						</div>
@@ -19,14 +19,14 @@ export function LoginScreen() {
 					<div className="flex flex-1 items-center py-8 md:items-center md:py-12 md:flex-1 lg:py-0">
 						<div className="mx-auto w-full max-w-110 space-y-8 md:max-w-120 xl:max-w-130">
 							<div className="inline-flex items-center gap-2 rounded-full bg-accent-cyan dark:bg-accent-cyan-soft px-3 py-1.5 text-xs dark:text-accent-cyan">
-								<div className="size-1.5 rounded-full bg-black dark:bg-accent-cyan" />
+								<div className="size-1.5 rounded-full bg-black" />
 								<span className="font-medium tracking-[0.03em]">
 									Welcome back
 								</span>
 							</div>
 
 							<div className="space-y-5">
-								<h1 className="font-heading text-4xl leading-[1.02] font-bold tracking-[-0.04em] text-text-primary md:text-5xl xl:text-6xl">
+								<h1 className="font-heading text-4xl leading-[1.02] font-bold tracking-[-0.04em] text-foreground md:text-5xl xl:text-6xl">
 									Login to your cinematic library.
 								</h1>
 								<p className="max-w-115 text-sm leading-relaxed text-secondary md:text-base">

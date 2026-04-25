@@ -3,7 +3,6 @@ import {
 	PageHeader,
 	PageHeaderBadge,
 	PageHeaderContent,
-	PageHeaderSubtitle,
 	PageHeaderTitle,
 } from "@/core/components/page-header";
 
@@ -21,9 +20,6 @@ export function DiscoveryPageHeader() {
 				<PageHeaderTitle data-testid="discovery-page-header-title">
 					Films worth your evening
 				</PageHeaderTitle>
-				<PageHeaderSubtitle data-testid="discovery-page-header-subtitle">
-					Hand-picked from 12,847 titles · updated 14 minutes ago
-				</PageHeaderSubtitle>
 			</PageHeaderContent>
 		</PageHeader>
 	);

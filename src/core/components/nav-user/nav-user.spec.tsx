@@ -5,6 +5,8 @@ import { NavUser } from "./nav-user";
 
 const navUserNavigateMock = vi.fn();
 const navUserClearAuthMock = vi.fn();
+const navUserSetThemeMock = vi.fn();
+let navUserTheme: "light" | "dark" = "dark";
 
 vi.mock("@/core/hooks/use-mobile", () => ({
 	useIsMobile: () => false,
@@ -19,6 +21,19 @@ vi.mock("@/core/stores/auth-store", () => ({
 		selector({ clearAuth: navUserClearAuthMock }),
 }));
 
+vi.mock("@/core/stores/theme-store", () => ({
+	useThemeStore: (
+		selector: (state: {
+			theme: "light" | "dark";
+			setTheme: (theme: "light" | "dark") => void;
+		}) => unknown,
+	) =>
+		selector({
+			theme: navUserTheme,
+			setTheme: navUserSetThemeMock,
+		}),
+}));
+
 const navUserUser = makeUser({
 	name: "Alex Morgan",
 	email: "alex.morgan@cinedash.app",
@@ -28,6 +43,8 @@ describe("NavUser", () => {
 	beforeEach(() => {
 		navUserNavigateMock.mockReset();
 		navUserClearAuthMock.mockReset();
+		navUserSetThemeMock.mockReset();
+		navUserTheme = "dark";
 	});
 
 	it("should be able to render user identity in the trigger", () => {
@@ -67,10 +84,41 @@ describe("NavUser", () => {
 		const navUserDropdownContent = await screen.findByTestId(
 			"nav-user-dropdown-content",
 		);
+		const navUserThemeItem = await screen.findByTestId("nav-user-theme-item");
+		const navUserThemeToggle = await screen.findByTestId(
+			"nav-user-theme-toggle",
+		);
 		const navUserLogoutItem = await screen.findByTestId("nav-user-logout-item");
 
 		expect(navUserDropdownContent).toBeDefined();
+		expect(navUserThemeItem).toBeDefined();
+		expect(navUserThemeToggle).toBeDefined();
 		expect(navUserLogoutItem).toBeDefined();
+	});
+
+	it("should be able to set light theme when toggle is turned off", async () => {
+		navUserTheme = "dark";
+
+		render(
+			<SidebarProvider>
+				<NavUser user={navUserUser} />
+			</SidebarProvider>,
+		);
+
+		const navUserTrigger = screen.getByTestId("nav-user-trigger");
+
+		fireEvent.pointerDown(navUserTrigger, {
+			button: 0,
+			ctrlKey: false,
+		});
+
+		const navUserThemeToggle = await screen.findByTestId(
+			"nav-user-theme-toggle",
+		);
+
+		fireEvent.click(navUserThemeToggle);
+
+		expect(navUserSetThemeMock).toHaveBeenCalledWith("light");
 	});
 
 	it("should be able to logout and redirect to login page", async () => {

@@ -35,11 +35,11 @@ function MovieCardView({ movie }: MovieCardProps) {
 				/>
 
 				<div
-					className="absolute top-3.5 left-3.5 flex items-center gap-1 rounded-lg border border-white/10 bg-black/90 px-2.5 py-1"
+					className="absolute top-3.5 left-3.5 flex items-center gap-1 rounded-lg border border-white/10 bg-surface-base/90 px-2.5 py-1"
 					data-testid="movie-card-rating"
 				>
-					<Star className="size-3 fill-amber-400 text-amber-400" />
-					<span className="font-semibold text-[12px] text-amber-400">
+					<Star className="size-3 fill-accent-amber text-accent-amber" />
+					<span className="font-semibold text-xs text-accent-amber">
 						{formattedRating}
 					</span>
 				</div>
@@ -52,7 +52,7 @@ function MovieCardView({ movie }: MovieCardProps) {
 							: `Save ${movie.title} to watchlist`
 					}
 					onClick={handleToggleWatchlist}
-					className="absolute top-3.5 right-3.5 flex size-9 items-center justify-center rounded-full border border-white/10 bg-black/70 text-foreground opacity-80 transition hover:opacity-100"
+					className="absolute top-3.5 right-3.5 flex size-9 items-center justify-center rounded-full border border-white/10 bg-surface-base/70 text-foreground opacity-80 transition hover:opacity-100"
 					data-testid="movie-card-bookmark"
 				>
 					<Bookmark
@@ -74,9 +74,9 @@ function MovieCardView({ movie }: MovieCardProps) {
 					className="flex items-center gap-2 text-[12px]"
 					data-testid="movie-card-meta"
 				>
-					<span className="text-muted-foreground">{formattedGenre}</span>
-					<span className="text-muted-foreground/60">·</span>
-					<span className="text-muted-foreground">{formattedYear}</span>
+					<span className="text-secondary">{formattedGenre}</span>
+					<span className="text-muted-foreground">·</span>
+					<span className="text-secondary">{formattedYear}</span>
 				</div>
 			</div>
 		</article>

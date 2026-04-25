@@ -8,7 +8,7 @@ type MakeUseFormOverrides<TFieldValues extends FieldValues> = {
 };
 
 export function makeUseForm<TFieldValues extends FieldValues>(
-	schema: unknown,
+	schema: any,
 	overrides?: MakeUseFormOverrides<TFieldValues>,
 ) {
 	return renderHook(() =>

@@ -1,45 +1,34 @@
 import { useEffect, useMemo, useState } from "react";
+import { GLOBAL_SEARCH_DEBOUNCE_MIN_MS } from "@/core/constants/global-search";
+import { useGlobalSearch } from "@/core/hooks/use-global-search";
 import { debounce } from "@/core/utils/debounce";
-import { SEARCH_DEBOUNCE_MIN_MS } from "../../constants/discovery-search";
-import { useDiscoveryFilters } from "../../hooks/use-discovery-filters";
-import { useDiscoverySearch } from "../../hooks/use-discovery-search";
 
-type UseDiscoverySearchInputParams = {
+type UseGlobalSearchInputParams = {
 	debounceInMs?: number;
 	onDebouncedValueChange?: (value: string) => void;
 };
 
-export function useDiscoverySearchInput({
-	debounceInMs = SEARCH_DEBOUNCE_MIN_MS,
+export function useGlobalSearchInput({
+	debounceInMs = GLOBAL_SEARCH_DEBOUNCE_MIN_MS,
 	onDebouncedValueChange,
-}: UseDiscoverySearchInputParams) {
-	const [searchValueOnUrl, setSearchValueOnUrl] = useDiscoverySearch();
-	const [_filters, setFilters] = useDiscoveryFilters();
+}: UseGlobalSearchInputParams) {
+	const [searchValueOnUrl, setSearchValueOnUrl] = useGlobalSearch();
 	const [searchValue, setSearchValue] = useState(searchValueOnUrl);
 
-	const effectiveDebounceInMs = Math.max(SEARCH_DEBOUNCE_MIN_MS, debounceInMs);
+	const effectiveDebounceInMs = Math.max(
+		GLOBAL_SEARCH_DEBOUNCE_MIN_MS,
+		debounceInMs,
+	);
 
 	const debounceSearchValueSync = useMemo(
 		() =>
 			debounce((nextSearchValue: string) => {
 				const trimmed = nextSearchValue.trim();
 				setSearchValueOnUrl(trimmed ? nextSearchValue : null);
-				setFilters({
-					genre: null,
-					yearFrom: null,
-					yearTo: null,
-					minRating: null,
-					sort: null,
-				});
 
 				onDebouncedValueChange?.(nextSearchValue);
 			}, effectiveDebounceInMs),
-		[
-			effectiveDebounceInMs,
-			onDebouncedValueChange,
-			setSearchValueOnUrl,
-			setFilters,
-		],
+		[effectiveDebounceInMs, onDebouncedValueChange, setSearchValueOnUrl],
 	);
 
 	function onSearchValueChange(nextSearchValue: string) {

@@ -1,4 +1,5 @@
-import { renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
+import { useWatchlistStore } from "@/modules/watchlist/stores/watchlist-store";
 import type { Movie } from "../../dtos/movie";
 import { useMovieCard } from "./movie-card.hook";
 
@@ -20,6 +21,11 @@ const baseMovie: Movie = {
 };
 
 describe("useMovieCard", () => {
+	beforeEach(() => {
+		useWatchlistStore.getState().clear();
+		localStorage.clear();
+	});
+
 	it("should be able to format the movie data", () => {
 		const { result } = renderHook(() => useMovieCard({ movie: baseMovie }));
 
@@ -53,5 +59,15 @@ describe("useMovieCard", () => {
 		const displayedGenres = result.current.formattedGenre.split(", ");
 
 		expect(displayedGenres).toHaveLength(2);
+	});
+
+	it("should be able to toggle movie in watchlist when handleToggleWatchlist is called", () => {
+		const { result } = renderHook(() => useMovieCard({ movie: baseMovie }));
+
+		act(() => {
+			result.current.handleToggleWatchlist();
+		});
+
+		expect(useWatchlistStore.getState().isInWatchlist(baseMovie.id)).toBe(true);
 	});
 });

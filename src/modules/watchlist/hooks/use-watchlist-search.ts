@@ -1,5 +1,5 @@
 import { useGlobalSearch } from "@/core/hooks/use-global-search";
 
-export function useDiscoverySearch() {
+export function useWatchlistSearch() {
 	return useGlobalSearch();
 }

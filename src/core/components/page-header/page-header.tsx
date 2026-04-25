@@ -45,7 +45,7 @@ function PageHeaderBadge({
 			<span
 				data-slot="page-header-badge"
 				className={cn(
-					"font-bold text-[11px] text-primary tracking-[0.16em]",
+					"font-semibold text-[11px] text-primary tracking-[0.18em]",
 					className,
 				)}
 				{...props}
@@ -61,7 +61,7 @@ function PageHeaderTitle({ className, ...props }: React.ComponentProps<"h1">) {
 		<h1
 			data-slot="page-header-title"
 			className={cn(
-				"font-heading font-bold text-3xl text-foreground tracking-tight md:text-[32px]",
+				"font-heading font-semibold text-3xl text-foreground tracking-tight md:text-[32px]",
 				className,
 			)}
 			{...props}
@@ -76,7 +76,7 @@ function PageHeaderSubtitle({
 	return (
 		<p
 			data-slot="page-header-subtitle"
-			className={cn("text-muted-foreground text-sm", className)}
+			className={cn("text-[13px] text-secondary", className)}
 			{...props}
 		/>
 	);

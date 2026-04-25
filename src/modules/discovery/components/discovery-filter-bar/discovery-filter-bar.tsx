@@ -99,7 +99,7 @@ export function DiscoveryFilterBar({
 					isActive={isMinRatingActive}
 					isDisabled={isDisabled}
 					LeadingIcon={Star}
-					leadingIconClassName="text-amber-400"
+					leadingIconClassName="text-accent-amber"
 					options={DISCOVERY_MIN_RATINGS.map((rating) => ({
 						label: rating === 0 ? "Any rating" : `${rating}+`,
 						isSelected: rating === filters.minRating,
@@ -127,7 +127,7 @@ export function DiscoveryFilterBar({
 						<button
 							type="button"
 							disabled={isDisabled}
-							className="flex items-center gap-2 rounded-[10px] border border-border bg-background px-3.5 py-2 font-semibold text-foreground text-xs transition-colors hover:border-border-strong disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-border"
+							className="flex items-center gap-2 rounded-[10px] border border-border bg-surface-elevated px-3.5 py-2 font-semibold text-foreground text-xs transition-colors hover:border-strong disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-border"
 							data-testid="discovery-filter-bar-sort"
 						>
 							{sortLabel}
@@ -188,18 +188,11 @@ function FilterChipDropdown({
 						"flex items-center gap-2 rounded-[10px] border px-3.5 py-2 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-50",
 						isActive
 							? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
-							: "border-border bg-background text-foreground hover:border-border-strong",
+							: "border-border bg-surface-elevated text-foreground hover:border-strong",
 					)}
 					data-testid={testId}
 				>
-					<span
-						className={cn(
-							"font-medium",
-							isActive ? "text-primary/80" : "text-muted-foreground",
-						)}
-					>
-						{prefix}
-					</span>
+					<span className="font-medium text-secondary">{prefix}</span>
 					{LeadingIcon ? (
 						<LeadingIcon className={cn("size-3", leadingIconClassName)} />
 					) : null}

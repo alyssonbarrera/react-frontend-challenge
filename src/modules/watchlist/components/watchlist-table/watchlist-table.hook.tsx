@@ -9,8 +9,9 @@ import {
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { WATCHLIST_PAGE_SIZE } from "../../constants/watchlist-table-query";
+import { useWatchlistSearch } from "../../hooks/use-watchlist-search";
 import { useWatchlistTableQuery } from "../../hooks/use-watchlist-table-query";
 import { useWatchlistStore } from "../../stores/watchlist-store";
 import {
@@ -41,8 +42,26 @@ export function useWatchlistTable() {
 	const removeFromWatchlist = useWatchlistStore((state) => state.remove);
 
 	const [{ sort, direction, page }, setQuery] = useWatchlistTableQuery();
+	const [searchValue] = useWatchlistSearch();
 
-	const data = useMemo(() => items.map(mapWatchlistItemToRow), [items]);
+	const trimmedSearch = searchValue.trim().toLowerCase();
+	const hasSearchQuery = trimmedSearch.length > 0;
+	const previousSearchRef = useRef(trimmedSearch);
+
+	const filteredItems = useMemo(() => {
+		if (!hasSearchQuery) {
+			return items;
+		}
+
+		return items.filter((item) =>
+			item.title.toLowerCase().includes(trimmedSearch),
+		);
+	}, [items, hasSearchQuery, trimmedSearch]);
+
+	const data = useMemo(
+		() => filteredItems.map(mapWatchlistItemToRow),
+		[filteredItems],
+	);
 
 	const sorting = useMemo<SortingState>(() => {
 		return createSortingState({ sort, direction });
@@ -88,6 +107,7 @@ export function useWatchlistTable() {
 	const totalRows = table.getFilteredRowModel().rows.length;
 	const pageCount = table.getPageCount();
 	const currentPage = pagination.pageIndex + 1;
+	const hasNoResults = hasSearchQuery && totalRows === 0;
 
 	const paginationRange = useMemo<PaginationRangeItem[]>(
 		() => getPaginationRange(currentPage, pageCount),
@@ -107,6 +127,15 @@ export function useWatchlistTable() {
 	const goToPreviousPage = () => table.previousPage();
 	const goToNextPage = () => table.nextPage();
 
+	useEffect(() => {
+		if (previousSearchRef.current !== trimmedSearch) {
+			previousSearchRef.current = trimmedSearch;
+			if (page !== 1) {
+				setQuery({ page: 1 });
+			}
+		}
+	}, [trimmedSearch, page, setQuery]);
+
 	return {
 		table,
 		goToPage,
@@ -115,6 +144,8 @@ export function useWatchlistTable() {
 		rangeStart,
 		currentPage,
 		goToNextPage,
+		hasNoResults,
+		searchQuery: searchValue,
 		showPagination,
 		paginationRange,
 		goToPreviousPage,

@@ -7,18 +7,14 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/core/components/ui/dropdown-menu";
-import { toYearData } from "@/core/utils/to-year-data";
 import { buildPosterUrl } from "@/modules/discovery/utils/movie.utils";
 import { getGenreName } from "@/modules/discovery/utils/movie-genres.utils";
 import {
-	DEFAULT_DIRECTION,
-	DEFAULT_SORT,
 	SORTABLE_COLUMNS,
 	type SortableColumn,
 	type SortDirection,
 } from "../../constants/watchlist-table-query";
 import type { WatchlistItem } from "../../dtos/watchlist-item";
-import { timeAgo } from "../../utils/time-ago";
 
 export type {
 	SortableColumn,
@@ -30,29 +26,30 @@ export type WatchlistTableRow = {
 	title: string;
 	posterPath: string | null;
 	genreLabel: string;
-	yearLabel: string;
-	yearValue: number;
+	releaseDateLabel: string;
+	releaseDateValue: number;
 	ratingLabel: string;
 	ratingValue: number;
-	addedLabel: string;
-	addedValue: number;
 };
 
 type SortQueryState = {
-	sort: SortableColumn;
-	direction: SortDirection;
+	sort: SortableColumn | null;
+	direction: SortDirection | null;
 };
 
 type WatchlistColumn = ColumnDef<WatchlistTableRow>;
 
 export type PaginationRangeItem = number | "ellipsis";
-const DEFAULT_SORT_QUERY = {
-	sort: DEFAULT_SORT,
-	direction: DEFAULT_DIRECTION,
-};
 
 const FALLBACK_GENRE = "Unknown";
-const FALLBACK_YEAR = "—";
+const FALLBACK_RELEASE_DATE = "—";
+const RELEASE_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const RELEASE_DATE_FORMATTER = new Intl.DateTimeFormat("pt-BR", {
+	day: "2-digit",
+	month: "2-digit",
+	year: "numeric",
+	timeZone: "UTC",
+});
 
 function isSortableColumn(value: string): value is SortableColumn {
 	return SORTABLE_COLUMNS.some((column) => column === value);
@@ -62,6 +59,10 @@ export function createSortingState({
 	sort,
 	direction,
 }: SortQueryState): SortingState {
+	if (!sort || !direction) {
+		return [];
+	}
+
 	return [{ id: sort, desc: direction === "desc" }];
 }
 
@@ -69,13 +70,16 @@ export function toSortQueryState(sorting: SortingState): SortQueryState {
 	const [firstSort] = sorting;
 
 	if (!firstSort) {
-		return { ...DEFAULT_SORT_QUERY };
+		return { sort: null, direction: null };
 	}
 
-	const sort = isSortableColumn(firstSort.id) ? firstSort.id : DEFAULT_SORT;
+	if (!isSortableColumn(firstSort.id)) {
+		return { sort: null, direction: null };
+	}
+
 	const direction: SortDirection = firstSort.desc ? "desc" : "asc";
 
-	return { sort, direction };
+	return { sort: firstSort.id, direction };
 }
 
 export function getPaginationRange(
@@ -122,17 +126,16 @@ export function getPaginationRange(
 }
 
 export function mapWatchlistItemToRow(item: WatchlistItem): WatchlistTableRow {
-	const { yearLabel, yearValue } = toYearData(item.releaseDate, FALLBACK_YEAR);
+	const { releaseDateLabel, releaseDateValue } = toReleaseDateData(
+		item.releaseDate,
+	);
 	const genreLabel = toPrimaryGenreLabel(item.genreIds);
-	const { addedLabel, addedValue } = toAddedAtData(item.addedAt);
 	const ratingValue = toRatingValue(item.voteAverage);
 
 	return {
-		yearLabel,
-		yearValue,
-		addedLabel,
+		releaseDateLabel,
+		releaseDateValue,
 		genreLabel,
-		addedValue,
 		ratingValue,
 		id: item.id,
 		title: item.title,
@@ -151,19 +154,41 @@ function toPrimaryGenreLabel(genreIds: WatchlistItem["genreIds"]): string {
 	);
 }
 
-function toAddedAtData(addedAt: WatchlistItem["addedAt"]): {
-	addedLabel: string;
-	addedValue: number;
+function toReleaseDateData(releaseDate: WatchlistItem["releaseDate"]): {
+	releaseDateLabel: string;
+	releaseDateValue: number;
 } {
-	const safeAddedAt = typeof addedAt === "string" ? addedAt : "";
-	const addedAtDate = new Date(safeAddedAt);
-	const addedValue = Number.isNaN(addedAtDate.getTime())
-		? 0
-		: addedAtDate.getTime();
+	const safeReleaseDate =
+		typeof releaseDate === "string" ? releaseDate.trim() : "";
+
+	if (!safeReleaseDate || !RELEASE_DATE_PATTERN.test(safeReleaseDate)) {
+		return {
+			releaseDateLabel: FALLBACK_RELEASE_DATE,
+			releaseDateValue: 0,
+		};
+	}
+
+	const [yearPart, monthPart, dayPart] = safeReleaseDate.split("-");
+	const year = Number(yearPart);
+	const month = Number(monthPart);
+	const day = Number(dayPart);
+	const parsedDate = new Date(Date.UTC(year, month - 1, day));
+
+	const isValidDate =
+		parsedDate.getUTCFullYear() === year &&
+		parsedDate.getUTCMonth() + 1 === month &&
+		parsedDate.getUTCDate() === day;
+
+	if (!isValidDate) {
+		return {
+			releaseDateLabel: FALLBACK_RELEASE_DATE,
+			releaseDateValue: 0,
+		};
+	}
 
 	return {
-		addedValue,
-		addedLabel: timeAgo(safeAddedAt),
+		releaseDateLabel: RELEASE_DATE_FORMATTER.format(parsedDate),
+		releaseDateValue: parsedDate.getTime(),
 	};
 }
 
@@ -185,9 +210,8 @@ export function buildColumns({
 	return [
 		createTitleColumn(),
 		createGenreColumn(),
-		createYearColumn(),
+		createReleaseDateColumn(),
 		createRatingColumn(),
-		createAddedColumn(),
 		createActionsColumn(onRemoveFromWatchlist),
 	];
 }
@@ -226,7 +250,7 @@ function createGenreColumn(): WatchlistColumn {
 		accessorKey: "genreLabel",
 		sortingFn: "text",
 		cell: ({ row }) => (
-			<span className="inline-flex items-center rounded-full border border-border bg-muted/40 px-2.5 py-1 font-medium text-[11px] text-muted-foreground">
+			<span className="inline-flex items-center rounded-full border border-border bg-surface-elevated px-2.5 py-1 font-medium text-[11px] text-secondary">
 				{row.original.genreLabel}
 			</span>
 		),
@@ -237,20 +261,20 @@ function createGenreColumn(): WatchlistColumn {
 	};
 }
 
-function createYearColumn(): WatchlistColumn {
+function createReleaseDateColumn(): WatchlistColumn {
 	return {
-		id: "year",
-		header: "Year",
-		accessorKey: "yearValue",
+		id: "release-date",
+		header: "Release Date",
+		accessorKey: "releaseDateValue",
 		sortingFn: "basic",
 		cell: ({ row }) => (
-			<span className="text-muted-foreground text-sm">
-				{row.original.yearLabel}
+			<span className="text-secondary text-sm">
+				{row.original.releaseDateLabel}
 			</span>
 		),
 		meta: {
-			headClassName: "w-[90px] px-6 py-4",
-			cellClassName: "w-[90px] px-6 py-4.5",
+			headClassName: "w-[140px] px-6 py-4",
+			cellClassName: "w-[140px] px-6 py-4.5",
 		},
 	};
 }
@@ -263,7 +287,7 @@ function createRatingColumn(): WatchlistColumn {
 		sortingFn: "basic",
 		cell: ({ row }) => (
 			<div className="flex items-center gap-1.5">
-				<Star className="size-3 fill-amber-400 text-amber-400" />
+				<Star className="size-3 fill-accent-amber text-accent-amber" />
 				<span className="font-medium text-foreground text-sm">
 					{row.original.ratingLabel}
 				</span>
@@ -275,31 +299,12 @@ function createRatingColumn(): WatchlistColumn {
 		},
 	};
 }
-
-function createAddedColumn(): WatchlistColumn {
-	return {
-		id: "added",
-		header: "Added",
-		accessorKey: "addedValue",
-		sortingFn: "basic",
-		cell: ({ row }) => (
-			<span className="text-muted-foreground text-sm">
-				{row.original.addedLabel}
-			</span>
-		),
-		meta: {
-			headClassName: "w-[120px] px-6 py-4",
-			cellClassName: "w-[120px] px-6 py-4.5",
-		},
-	};
-}
-
 function createActionsColumn(
 	onRemoveFromWatchlist: (id: number) => void,
 ): WatchlistColumn {
 	return {
 		id: "actions",
-		header: "Actions",
+		header: () => <span className="sr-only">Actions</span>,
 		enableSorting: false,
 		cell: ({ row }) => (
 			<div className="flex items-center justify-end gap-2">
@@ -307,7 +312,7 @@ function createActionsColumn(
 					type="button"
 					size="icon"
 					variant="outline"
-					className="size-8 rounded-full"
+					className="size-8 rounded-lg"
 					aria-label={`Play ${row.original.title}`}
 					data-testid="watchlist-table-row-play"
 				>
@@ -319,7 +324,7 @@ function createActionsColumn(
 							type="button"
 							size="icon"
 							variant="ghost"
-							className="size-8 rounded-full"
+							className="size-8 rounded-lg"
 							aria-label={`More actions for ${row.original.title}`}
 							data-testid="watchlist-table-row-actions"
 						>
@@ -338,8 +343,7 @@ function createActionsColumn(
 			</div>
 		),
 		meta: {
-			headClassName:
-				"w-[80px] px-6 py-4 text-right font-bold text-[11px] text-muted-foreground uppercase tracking-[0.12em]",
+			headClassName: "w-[80px] px-6 py-4",
 			cellClassName: "w-[80px] px-6 py-4.5",
 		},
 	};
