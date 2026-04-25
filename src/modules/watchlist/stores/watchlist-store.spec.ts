@@ -146,6 +146,19 @@ describe("useWatchlistStore", () => {
 		});
 	});
 
+	it("should be able to keep empty items when rehydrating corrupted localStorage data", async () => {
+		useWatchlistStore.setState({ ...initialState, items: [] });
+		localStorage.setItem(WATCHLIST_STORAGE_KEY, '{"state":{"items":[}');
+
+		await expect(
+			useWatchlistStore.persist.rehydrate(),
+		).resolves.toBeUndefined();
+
+		const { items } = useWatchlistStore.getState();
+
+		expect(items).toEqual([]);
+	});
+
 	it("should be able to clear persisted watchlist storage", async () => {
 		localStorage.setItem(
 			WATCHLIST_STORAGE_KEY,
