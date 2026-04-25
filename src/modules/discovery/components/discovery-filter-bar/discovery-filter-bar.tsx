@@ -5,7 +5,6 @@ import {
 	Star,
 	X,
 } from "lucide-react";
-import { Activity } from "react";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
