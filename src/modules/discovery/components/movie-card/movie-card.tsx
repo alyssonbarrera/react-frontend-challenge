@@ -9,8 +9,14 @@ type MovieCardProps = {
 };
 
 function MovieCardView({ movie }: MovieCardProps) {
-	const { formattedRating, formattedYear, formattedGenre, posterUrl } =
-		useMovieCard({ movie });
+	const {
+		posterUrl,
+		formattedYear,
+		isInWatchlist,
+		formattedGenre,
+		formattedRating,
+		handleToggleWatchlist,
+	} = useMovieCard({ movie });
 
 	return (
 		<article
@@ -40,12 +46,20 @@ function MovieCardView({ movie }: MovieCardProps) {
 
 				<button
 					type="button"
-					aria-label={`Save ${movie.title} to watchlist`}
-					tabIndex={-1}
+					aria-label={
+						isInWatchlist
+							? `Remove ${movie.title} from watchlist`
+							: `Save ${movie.title} to watchlist`
+					}
+					onClick={handleToggleWatchlist}
 					className="absolute top-3.5 right-3.5 flex size-9 items-center justify-center rounded-full border border-white/10 bg-black/70 text-foreground opacity-80 transition hover:opacity-100"
 					data-testid="movie-card-bookmark"
 				>
-					<Bookmark className="size-4" />
+					<Bookmark
+						className={
+							isInWatchlist ? "size-4 fill-primary text-primary" : "size-4"
+						}
+					/>
 				</button>
 			</div>
 

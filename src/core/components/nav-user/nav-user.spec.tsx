@@ -3,8 +3,20 @@ import { fireEvent, render, screen } from "@tests/utils";
 import { SidebarProvider } from "@/core/components/ui/sidebar";
 import { NavUser } from "./nav-user";
 
+const navUserNavigateMock = vi.fn();
+const navUserClearAuthMock = vi.fn();
+
 vi.mock("@/core/hooks/use-mobile", () => ({
 	useIsMobile: () => false,
+}));
+
+vi.mock("@tanstack/react-router", () => ({
+	useNavigate: () => navUserNavigateMock,
+}));
+
+vi.mock("@/core/stores/auth-store", () => ({
+	useAuthStore: (selector: (state: { clearAuth: VoidFunction }) => unknown) =>
+		selector({ clearAuth: navUserClearAuthMock }),
 }));
 
 const navUserUser = makeUser({
@@ -13,6 +25,11 @@ const navUserUser = makeUser({
 });
 
 describe("NavUser", () => {
+	beforeEach(() => {
+		navUserNavigateMock.mockReset();
+		navUserClearAuthMock.mockReset();
+	});
+
 	it("should be able to render user identity in the trigger", () => {
 		render(
 			<SidebarProvider>
@@ -54,5 +71,27 @@ describe("NavUser", () => {
 
 		expect(navUserDropdownContent).toBeDefined();
 		expect(navUserLogoutItem).toBeDefined();
+	});
+
+	it("should be able to logout and redirect to login page", async () => {
+		render(
+			<SidebarProvider>
+				<NavUser user={navUserUser} />
+			</SidebarProvider>,
+		);
+
+		const navUserTrigger = screen.getByTestId("nav-user-trigger");
+
+		fireEvent.pointerDown(navUserTrigger, {
+			button: 0,
+			ctrlKey: false,
+		});
+
+		const navUserLogoutItem = await screen.findByTestId("nav-user-logout-item");
+
+		fireEvent.click(navUserLogoutItem);
+
+		expect(navUserClearAuthMock).toHaveBeenCalledTimes(1);
+		expect(navUserNavigateMock).toHaveBeenCalledWith({ to: "/" });
 	});
 });

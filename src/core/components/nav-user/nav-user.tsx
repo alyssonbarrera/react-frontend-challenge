@@ -19,16 +19,16 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
-	useSidebar,
 } from "@/core/components/ui/sidebar";
 import type { UserDTO } from "@/core/dtos/user-dto";
+import { useNavUser } from "./nav-user.hook";
 
 type NavUserProps = {
 	user: UserDTO;
 };
 
 export function NavUser({ user }: NavUserProps) {
-	const { isMobile } = useSidebar();
+	const { isMobile, handleLogout } = useNavUser();
 
 	return (
 		<SidebarMenu data-testid="nav-user-menu">
@@ -87,7 +87,10 @@ export function NavUser({ user }: NavUserProps) {
 							</div>
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem data-testid="nav-user-logout-item">
+						<DropdownMenuItem
+							onSelect={handleLogout}
+							data-testid="nav-user-logout-item"
+						>
 							<LogOut />
 							Log out
 						</DropdownMenuItem>

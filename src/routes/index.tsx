@@ -5,7 +5,7 @@ import { LoginScreen } from "@/modules/auth/screens/login-screen";
 export const Route = createFileRoute("/")({
 	beforeLoad: () => {
 		if (hasTokenOnCookie()) {
-			throw redirect({ to: "/app" });
+			throw redirect({ to: "/discovery" });
 		}
 	},
 	component: LoginScreen,

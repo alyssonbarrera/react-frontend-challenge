@@ -10,7 +10,6 @@ import {
 	ListVideo,
 } from "lucide-react";
 import type { ComponentProps } from "react";
-
 import { NavMain } from "@/core/components/nav-main";
 import { NavUser } from "@/core/components/nav-user";
 import {
@@ -23,32 +22,34 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 } from "@/core/components/ui/sidebar";
+import { useWatchlistStore } from "@/modules/watchlist/stores/watchlist-store";
 
-const data = {
-	user: {
-		id: crypto.randomUUID(),
-		name: "Alex Morgan",
-		email: "john.doe@cinedash.com",
-		avatarUrl: null,
-	},
-	sections: [
+const user = {
+	id: crypto.randomUUID(),
+	name: "Alex Morgan",
+	email: "john.doe@cinedash.com",
+	avatarUrl: null,
+};
+
+function buildSections(watchlistCount: number) {
+	return [
 		{
 			label: "BROWSE",
 			items: [
 				{
 					title: "Discover",
-					url: "/app",
+					url: "/discovery",
+					activePath: "/discovery",
 					icon: Compass,
-					isActive: true,
 				},
 				{
 					title: "Trending",
-					url: "/app",
+					url: "/discovery",
 					icon: Flame,
 				},
 				{
 					title: "New releases",
-					url: "/app",
+					url: "/discovery",
 					icon: Calendar,
 				},
 			],
@@ -58,26 +59,30 @@ const data = {
 			items: [
 				{
 					title: "Watchlist",
-					url: "/app",
+					url: "/watchlist",
+					activePath: "/watchlist",
 					icon: ListVideo,
-					badge: "24",
+					badge: String(watchlistCount),
 				},
 				{
 					title: "Favorites",
-					url: "/app",
+					url: "/discovery",
 					icon: Heart,
 				},
 				{
 					title: "History",
-					url: "/app",
+					url: "/discovery",
 					icon: History,
 				},
 			],
 		},
-	],
-};
+	];
+}
 
 export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
+	const watchlistCount = useWatchlistStore((state) => state.items.length);
+	const sections = buildSections(watchlistCount);
+
 	return (
 		<Sidebar collapsible="icon" data-testid="app-sidebar" {...props}>
 			<SidebarHeader>
@@ -104,10 +109,10 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 				</SidebarMenu>
 			</SidebarHeader>
 			<SidebarContent data-testid="app-sidebar-content">
-				<NavMain sections={data.sections} />
+				<NavMain sections={sections} />
 			</SidebarContent>
 			<SidebarFooter data-testid="app-sidebar-footer">
-				<NavUser user={data.user} />
+				<NavUser user={user} />
 			</SidebarFooter>
 			<SidebarRail data-testid="app-sidebar-rail" />
 		</Sidebar>

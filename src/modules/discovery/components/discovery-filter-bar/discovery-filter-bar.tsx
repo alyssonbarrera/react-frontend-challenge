@@ -107,7 +107,7 @@ export function DiscoveryFilterBar({
 					}))}
 				/>
 
-				{hasActiveFilters && !isDisabled ? (
+				{hasActiveFilters && !isDisabled && (
 					<button
 						type="button"
 						onClick={onClearFilters}
@@ -117,7 +117,7 @@ export function DiscoveryFilterBar({
 						<X className="size-3" />
 						Clear
 					</button>
-				) : null}
+				)}
 			</div>
 
 			<div className="flex items-center gap-2.5">
@@ -169,14 +169,14 @@ type FilterChipDropdownProps = {
 };
 
 function FilterChipDropdown({
+	value,
 	testId,
 	prefix,
-	value,
+	options,
 	isActive,
 	isDisabled,
 	LeadingIcon,
 	leadingIconClassName,
-	options,
 }: FilterChipDropdownProps) {
 	return (
 		<DropdownMenu>

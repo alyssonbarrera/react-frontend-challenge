@@ -92,7 +92,7 @@ describe("useLoginForm", () => {
 		await waitFor(() => {
 			expect(navigate).toHaveBeenCalled();
 			expect(navigate).toHaveBeenCalledTimes(1);
-			expect(navigate).toHaveBeenCalledWith({ to: "/app" });
+			expect(navigate).toHaveBeenCalledWith({ to: "/discovery" });
 		});
 	});
 
