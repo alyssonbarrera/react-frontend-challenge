@@ -134,7 +134,8 @@ describe("watchlist-table.utils", () => {
 
 	it("should be able to build actions column and call remove callback", () => {
 		const onRemoveFromWatchlist = vi.fn();
-		const columns = buildColumns({ onRemoveFromWatchlist });
+		const onPlayMovie = vi.fn();
+		const columns = buildColumns({ onRemoveFromWatchlist, onPlayMovie });
 		const actionsColumn = columns.find((column) => column.id === "actions");
 		const renderActionsCell = actionsColumn?.cell as (params: {
 			row: {
@@ -170,5 +171,13 @@ describe("watchlist-table.utils", () => {
 		expect(watchlistTableRowRemove).toBeDefined();
 		expect(onRemoveFromWatchlist).toHaveBeenCalledTimes(1);
 		expect(onRemoveFromWatchlist).toHaveBeenCalledWith(42);
+
+		const watchlistTableRowPlay = screen.getByTestId(
+			"watchlist-table-row-play",
+		);
+		fireEvent.click(watchlistTableRowPlay);
+
+		expect(onPlayMovie).toHaveBeenCalledTimes(1);
+		expect(onPlayMovie).toHaveBeenCalledWith(42);
 	});
 });

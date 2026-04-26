@@ -202,17 +202,19 @@ function toPosterPath(posterPath: WatchlistItem["posterPath"]): string | null {
 
 type BuildColumnsParams = {
 	onRemoveFromWatchlist: (id: number) => void;
+	onPlayMovie: (id: number) => void;
 };
 
 export function buildColumns({
 	onRemoveFromWatchlist,
+	onPlayMovie,
 }: BuildColumnsParams): ColumnDef<WatchlistTableRow>[] {
 	return [
 		createTitleColumn(),
 		createGenreColumn(),
 		createReleaseDateColumn(),
 		createRatingColumn(),
-		createActionsColumn(onRemoveFromWatchlist),
+		createActionsColumn(onRemoveFromWatchlist, onPlayMovie),
 	];
 }
 
@@ -301,6 +303,7 @@ function createRatingColumn(): WatchlistColumn {
 }
 function createActionsColumn(
 	onRemoveFromWatchlist: (id: number) => void,
+	onPlayMovie: (id: number) => void,
 ): WatchlistColumn {
 	return {
 		id: "actions",
@@ -315,6 +318,7 @@ function createActionsColumn(
 					className="size-8 rounded-lg"
 					aria-label={`Play ${row.original.title}`}
 					data-testid="watchlist-table-row-play"
+					onClick={() => onPlayMovie(row.original.id)}
 				>
 					<Play className="size-3.5" />
 				</Button>
