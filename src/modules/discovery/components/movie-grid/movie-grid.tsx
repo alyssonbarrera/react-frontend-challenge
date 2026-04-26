@@ -42,7 +42,9 @@ export function MovieGrid() {
 		searchQuery,
 		handleRetry,
 		handleEndReached,
+		handleRangeChanged,
 		isFetchingNextPage,
+		initialItemIndex,
 	} = useMovieGrid();
 
 	if (isPending) {
@@ -76,7 +78,9 @@ export function MovieGrid() {
 			totalCount={totalCount}
 			components={components}
 			endReached={handleEndReached}
-			overscan={2000}
+			rangeChanged={handleRangeChanged}
+			initialTopMostItemIndex={initialItemIndex}
+			overscan={400}
 			itemContent={(_index, movie) => <MovieCard movie={movie} />}
 		/>
 	);

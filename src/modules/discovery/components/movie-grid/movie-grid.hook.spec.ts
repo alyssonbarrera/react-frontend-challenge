@@ -194,4 +194,110 @@ describe("useMovieGrid", () => {
 		expect(result.current.hasMovies).toBe(true);
 		expect(discoverMoviesRequestMock).toHaveBeenCalledTimes(2);
 	});
+
+	it("should be able to expose initialItemIndex as 0 when there is no cached scroll position", async () => {
+		discoverMoviesRequestMock.mockResolvedValueOnce(
+			makeMoviesPage({
+				page: 1,
+				totalPages: 1,
+				results: [makeMovie({ id: 1, title: "Tenet" })],
+			}),
+		);
+
+		const { result } = renderHook(() => useMovieGrid());
+
+		await waitFor(() => {
+			expect(result.current.isPending).toBe(false);
+		});
+
+		expect(result.current.initialItemIndex).toBe(0);
+	});
+
+	it("should be able to restore initialItemIndex from a previously reported range on remount", async () => {
+		discoverMoviesRequestMock.mockResolvedValue(
+			makeMoviesPage({
+				page: 1,
+				totalPages: 1,
+				results: [makeMovie({ id: 1, title: "Tenet" })],
+			}),
+		);
+
+		const first = renderHook(() => useMovieGrid());
+
+		await waitFor(() => {
+			expect(first.result.current.isPending).toBe(false);
+		});
+
+		expect(first.result.current.initialItemIndex).toBe(0);
+
+		act(() => {
+			first.result.current.handleRangeChanged({
+				startIndex: 24,
+				endIndex: 36,
+			});
+		});
+
+		first.unmount();
+
+		const second = renderHook(() => useMovieGrid());
+
+		await waitFor(() => {
+			expect(second.result.current.isPending).toBe(false);
+		});
+
+		expect(second.result.current.initialItemIndex).toBe(24);
+	});
+
+	it("should be able to keep separate cached scroll positions for discover and search modes", async () => {
+		discoverMoviesRequestMock.mockResolvedValue(
+			makeMoviesPage({
+				page: 1,
+				totalPages: 1,
+				results: [makeMovie({ id: 1, title: "Tenet" })],
+			}),
+		);
+		searchMoviesRequestMock.mockResolvedValue(
+			makeMoviesPage({
+				page: 1,
+				totalPages: 1,
+				results: [makeMovie({ id: 2, title: "Dune" })],
+			}),
+		);
+
+		const discover = renderHook(() => useMovieGrid());
+
+		await waitFor(() => {
+			expect(discover.result.current.isPending).toBe(false);
+		});
+
+		act(() => {
+			discover.result.current.handleRangeChanged({
+				startIndex: 10,
+				endIndex: 20,
+			});
+		});
+
+		discover.unmount();
+
+		const search = renderHook(() => useMovieGrid(), {
+			searchParams: { q: "dune" },
+		});
+
+		await waitFor(() => {
+			expect(search.result.current.isPending).toBe(false);
+		});
+
+		expect(search.result.current.isSearching).toBe(true);
+		expect(search.result.current.initialItemIndex).toBe(0);
+
+		search.unmount();
+
+		const discoverAgain = renderHook(() => useMovieGrid());
+
+		await waitFor(() => {
+			expect(discoverAgain.result.current.isPending).toBe(false);
+		});
+
+		expect(discoverAgain.result.current.initialItemIndex).toBe(10);
+	});
 });

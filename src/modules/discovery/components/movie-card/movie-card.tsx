@@ -1,5 +1,6 @@
-import { Bookmark, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { ErrorBoundary } from "react-error-boundary";
+import { WatchlistToggleButton } from "@/modules/watchlist/components/watchlist-toggle-button";
 import type { Movie } from "../../dtos/movie";
 import { MovieCardErrorFallback } from "./fragments/movie-card-error-fallback";
 import { useMovieCard } from "./movie-card.hook";
@@ -12,16 +13,17 @@ function MovieCardView({ movie }: MovieCardProps) {
 	const {
 		posterUrl,
 		formattedYear,
-		isInWatchlist,
 		formattedGenre,
 		formattedRating,
-		handleToggleWatchlist,
+		handleNavigateToDetails,
 	} = useMovieCard({ movie });
 
 	return (
+		// biome-ignore lint/a11y/useKeyWithClickEvents: keyboard navigation is intentionally out of scope here
 		<article
 			className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border bg-card"
 			data-testid="movie-card"
+			onClick={handleNavigateToDetails}
 		>
 			<div
 				className="relative aspect-268/380 w-full overflow-hidden bg-muted"
@@ -44,23 +46,11 @@ function MovieCardView({ movie }: MovieCardProps) {
 					</span>
 				</div>
 
-				<button
-					type="button"
-					aria-label={
-						isInWatchlist
-							? `Remove ${movie.title} from watchlist`
-							: `Save ${movie.title} to watchlist`
-					}
-					onClick={handleToggleWatchlist}
-					className="absolute top-3.5 right-3.5 flex size-9 items-center justify-center rounded-full border border-white/10 bg-surface-base/70 text-foreground opacity-80 transition hover:opacity-100"
-					data-testid="movie-card-bookmark"
-				>
-					<Bookmark
-						className={
-							isInWatchlist ? "size-4 fill-primary text-primary" : "size-4"
-						}
-					/>
-				</button>
+				<WatchlistToggleButton
+					className="absolute top-3.5 right-3.5"
+					movie={movie}
+					variant="icon"
+				/>
 			</div>
 
 			<div className="flex flex-col gap-2 px-4.5 pt-3.5 pb-4.5">
@@ -85,7 +75,11 @@ function MovieCardView({ movie }: MovieCardProps) {
 
 export function MovieCard({ movie }: MovieCardProps) {
 	return (
-		<ErrorBoundary fallback={<MovieCardErrorFallback />}>
+		<ErrorBoundary
+			fallbackRender={({ resetErrorBoundary }) => (
+				<MovieCardErrorFallback resetErrorBoundary={resetErrorBoundary} />
+			)}
+		>
 			<MovieCardView movie={movie} />
 		</ErrorBoundary>
 	);

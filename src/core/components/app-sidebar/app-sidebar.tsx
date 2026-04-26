@@ -2,7 +2,6 @@
 
 import {
 	Calendar,
-	Clapperboard,
 	Compass,
 	Flame,
 	Heart,
@@ -22,6 +21,7 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 } from "@/core/components/ui/sidebar";
+import { CineDashLogo } from "../cinedash-logo";
 
 const user = {
 	id: crypto.randomUUID(),
@@ -40,16 +40,6 @@ const sections: ComponentProps<typeof NavMain>["sections"] = [
 				activePath: "/discovery",
 				icon: Compass,
 			},
-			{
-				title: "Trending",
-				url: "/discovery",
-				icon: Flame,
-			},
-			{
-				title: "New releases",
-				url: "/discovery",
-				icon: Calendar,
-			},
 		],
 	},
 	{
@@ -61,16 +51,6 @@ const sections: ComponentProps<typeof NavMain>["sections"] = [
 				activePath: "/watchlist",
 				icon: ListVideo,
 				badgeSource: "watchlist-count",
-			},
-			{
-				title: "Favorites",
-				url: "/discovery",
-				icon: Heart,
-			},
-			{
-				title: "History",
-				url: "/discovery",
-				icon: History,
 			},
 		],
 	},
@@ -87,9 +67,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 							className="pointer-events-none"
 							data-testid="app-sidebar-brand"
 						>
-							<div className="flex size-8 aspect-square items-center justify-center rounded-lg bg-sidebar-primary">
-								<Clapperboard className="text-primary-foreground!" />
-							</div>
+							<CineDashLogo className="size-8!" />
 							<div className="flex flex-col gap-0.5 leading-none">
 								<span
 									className="font-heading font-bold text-lg tracking-[-0.02em]"

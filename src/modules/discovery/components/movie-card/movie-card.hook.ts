@@ -1,5 +1,5 @@
+import { useNavigate } from "@tanstack/react-router";
 import { toYearData } from "@/core/utils/to-year-data";
-import { useWatchlistStore } from "@/modules/watchlist/stores/watchlist-store";
 import type { Movie } from "../../dtos/movie";
 import { buildPosterUrl } from "../../utils/movie.utils";
 import { getGenreName } from "../../utils/movie-genres.utils";
@@ -13,10 +13,7 @@ const FALLBACK_YEAR = "—";
 const MAX_GENRES_DISPLAYED = 2;
 
 export function useMovieCard({ movie }: UseMovieCardParams) {
-	const isInWatchlist = useWatchlistStore((state) =>
-		state.isInWatchlist(movie.id),
-	);
-	const toggleWatchlist = useWatchlistStore((state) => state.toggle);
+	const navigate = useNavigate();
 
 	const formattedRating = movie.voteAverage.toFixed(1);
 	const { yearLabel: formattedYear } = toYearData(
@@ -27,17 +24,16 @@ export function useMovieCard({ movie }: UseMovieCardParams) {
 	const formattedGenre = formatGenres(movie.genreIds);
 	const posterUrl = buildPosterUrl(movie.posterPath);
 
-	function handleToggleWatchlist() {
-		toggleWatchlist(movie);
+	function handleNavigateToDetails() {
+		navigate({ to: "/movie/$id", params: { id: String(movie.id) } });
 	}
 
 	return {
 		posterUrl,
 		formattedYear,
-		isInWatchlist,
 		formattedGenre,
 		formattedRating,
-		handleToggleWatchlist,
+		handleNavigateToDetails,
 	};
 }
 
