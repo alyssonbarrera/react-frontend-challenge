@@ -1,12 +1,21 @@
+import { useNavigate } from "@tanstack/react-router";
 import { makeWatchlistItem } from "@tests/factories/make-watchlist-item";
 import { fireEvent, render, screen, waitFor } from "@tests/utils";
 import { seedWatchlist } from "@tests/utils/seed-watchlist";
 import type { UrlUpdateEvent } from "nuqs/adapters/testing";
 import { WatchlistTable } from "./watchlist-table";
 
+vi.mock("@tanstack/react-router", () => ({
+	useNavigate: vi.fn(),
+}));
+
 describe("WatchlistTable", () => {
+	const navigateMock = vi.fn();
+
 	beforeEach(() => {
 		seedWatchlist();
+		navigateMock.mockReset();
+		vi.mocked(useNavigate).mockReturnValue(navigateMock as never);
 	});
 
 	it("should be able to render the watchlist table correctly", () => {
@@ -142,5 +151,22 @@ describe("WatchlistTable", () => {
 		);
 
 		expect(pageUpdate).toBeDefined();
+	});
+
+	it("should be able to navigate to movie details when play button is clicked", () => {
+		seedWatchlist([makeWatchlistItem({ id: 42, title: "The Matrix" })]);
+
+		render(<WatchlistTable />);
+
+		const watchlistTableRowPlay = screen.getByTestId(
+			"watchlist-table-row-play",
+		);
+		fireEvent.click(watchlistTableRowPlay);
+
+		expect(navigateMock).toHaveBeenCalledTimes(1);
+		expect(navigateMock).toHaveBeenCalledWith({
+			to: "/movie/$id",
+			params: { id: "42" },
+		});
 	});
 });

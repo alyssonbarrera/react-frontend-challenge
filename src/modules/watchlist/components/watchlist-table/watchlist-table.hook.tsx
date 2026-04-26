@@ -1,3 +1,4 @@
+import { useNavigate } from "@tanstack/react-router";
 import {
 	type ColumnDef,
 	getCoreRowModel,
@@ -38,6 +39,7 @@ declare module "@tanstack/react-table" {
 }
 
 export function useWatchlistTable() {
+	const navigate = useNavigate();
 	const items = useWatchlistStore((state) => state.items) ?? [];
 	const removeFromWatchlist = useWatchlistStore((state) => state.remove);
 
@@ -110,9 +112,23 @@ export function useWatchlistTable() {
 		[filteredItems, page, removeFromWatchlist, setQuery],
 	);
 
+	const handlePlayMovie = useCallback(
+		(id: number) => {
+			navigate({
+				to: "/movie/$id",
+				params: { id: String(id) },
+			});
+		},
+		[navigate],
+	);
+
 	const columns = useMemo<ColumnDef<WatchlistTableRow>[]>(
-		() => buildColumns({ onRemoveFromWatchlist: handleRemoveFromWatchlist }),
-		[handleRemoveFromWatchlist],
+		() =>
+			buildColumns({
+				onRemoveFromWatchlist: handleRemoveFromWatchlist,
+				onPlayMovie: handlePlayMovie,
+			}),
+		[handleRemoveFromWatchlist, handlePlayMovie],
 	);
 
 	const table = useReactTable({
