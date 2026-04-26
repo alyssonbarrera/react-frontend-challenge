@@ -6,7 +6,7 @@ export function MovieDetailTrailerSkeleton() {
 			className="flex flex-col gap-3.5"
 			data-testid="movie-detail-trailer-skeleton"
 		>
-			<Skeleton className="h-3 w-16" />
+			<Skeleton className="h-4 w-16" />
 
 			<div
 				className="relative flex aspect-880/440 w-full flex-col overflow-hidden rounded-[18px] border border-border bg-surface-elevated"

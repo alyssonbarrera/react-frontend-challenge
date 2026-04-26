@@ -1,8 +1,10 @@
 import { Play } from "lucide-react";
 
 import { Button } from "@/core/components/ui/button";
+import { Spinner } from "@/core/components/ui/spinner";
 import type { Movie } from "@/modules/discovery/dtos/movie";
 import { WatchlistToggleButton } from "@/modules/watchlist/components/watchlist-toggle-button";
+import { useMovieDetailHeroActions } from "./movie-detail-hero-actions.hook";
 
 type MovieDetailHeroActionsProps = {
 	movie: Movie;
@@ -13,6 +15,9 @@ export function MovieDetailHeroActions({
 	movie,
 	onPlayTrailer,
 }: MovieDetailHeroActionsProps) {
+	const { isWatchTrailerDisabled, isWatchTrailerLoading } =
+		useMovieDetailHeroActions();
+
 	return (
 		<div
 			className="flex flex-wrap items-center gap-2.5 pt-3"
@@ -21,10 +26,18 @@ export function MovieDetailHeroActions({
 			<Button
 				className="gap-2.5 bg-accent-cyan px-5.5 py-3.5 font-heading font-bold text-[14px] text-surface-base hover:bg-accent-cyan-hover"
 				data-testid="movie-detail-hero-actions-play"
+				disabled={isWatchTrailerDisabled}
 				onClick={onPlayTrailer}
 				type="button"
 			>
-				<Play className="size-3.5 fill-current" />
+				{isWatchTrailerLoading ? (
+					<Spinner
+						className="size-3.5"
+						data-testid="movie-detail-hero-actions-play-spinner"
+					/>
+				) : (
+					<Play className="size-3.5 fill-current" />
+				)}
 				Watch trailer
 			</Button>
 			<WatchlistToggleButton movie={movie} variant="pill" />

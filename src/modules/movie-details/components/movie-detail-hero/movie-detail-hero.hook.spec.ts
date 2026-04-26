@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { useCanGoBack, useNavigate, useRouter } from "@tanstack/react-router";
 import { makeMovieCredits } from "@tests/factories/make-movie-credits";
 import { makeMovieDetails } from "@tests/factories/make-movie-details";
 import { act, renderHook, waitFor } from "@tests/utils";
@@ -12,9 +12,8 @@ const { useMovieDetailParamsMock } = vi.hoisted(() => ({
 
 vi.mock("@tanstack/react-router", () => ({
 	useNavigate: vi.fn(),
-	useRouter: vi.fn(() => ({
-		history: { canGoBack: vi.fn(() => false), back: vi.fn() },
-	})),
+	useCanGoBack: vi.fn(() => false),
+	useRouter: vi.fn(),
 	getRouteApi: vi.fn(() => ({ useParams: useMovieDetailParamsMock })),
 }));
 
@@ -28,15 +27,40 @@ vi.mock("../../http/get-movie-credits-request", () => ({
 
 describe("useMovieDetailHero", () => {
 	const navigateMock = vi.fn();
+	const routerBackMock = vi.fn();
 	const getMovieDetailsRequestMock = vi.mocked(getMovieDetailsRequest);
 	const getMovieCreditsRequestMock = vi.mocked(getMovieCreditsRequest);
 
 	beforeEach(() => {
 		navigateMock.mockReset();
+		routerBackMock.mockReset();
 		getMovieDetailsRequestMock.mockReset();
 		getMovieCreditsRequestMock.mockReset();
 		vi.mocked(useNavigate).mockReturnValue(navigateMock as never);
+		vi.mocked(useCanGoBack).mockReturnValue(false);
+		vi.mocked(useRouter).mockReturnValue({
+			history: { back: routerBackMock },
+		} as never);
 		useMovieDetailParamsMock.mockReturnValue({ id: "1" });
+	});
+
+	it("should be able to go back using browser history when there is history", async () => {
+		vi.mocked(useCanGoBack).mockReturnValue(true);
+		getMovieDetailsRequestMock.mockResolvedValueOnce(makeMovieDetails());
+		getMovieCreditsRequestMock.mockResolvedValueOnce(makeMovieCredits());
+
+		const { result } = renderHook(() => useMovieDetailHero());
+
+		await waitFor(() => {
+			expect(result.current.isLoading).toBe(false);
+		});
+
+		act(() => {
+			result.current.handleBack();
+		});
+
+		expect(routerBackMock).toHaveBeenCalledTimes(1);
+		expect(navigateMock).not.toHaveBeenCalled();
 	});
 
 	it("should be able to expose hero contract and handlers from query data", async () => {

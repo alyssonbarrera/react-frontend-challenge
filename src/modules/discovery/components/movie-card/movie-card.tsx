@@ -2,8 +2,8 @@ import { Star } from "lucide-react";
 import { ErrorBoundary } from "react-error-boundary";
 import { WatchlistToggleButton } from "@/modules/watchlist/components/watchlist-toggle-button";
 import type { Movie } from "../../dtos/movie";
-import { MovieCardErrorFallback } from "./fragments/movie-card-error-fallback";
 import { useMovieCard } from "./movie-card.hook";
+import { MovieCardError } from "./movie-card-error";
 
 type MovieCardProps = {
 	movie: Movie;
@@ -77,7 +77,7 @@ export function MovieCard({ movie }: MovieCardProps) {
 	return (
 		<ErrorBoundary
 			fallbackRender={({ resetErrorBoundary }) => (
-				<MovieCardErrorFallback resetErrorBoundary={resetErrorBoundary} />
+				<MovieCardError onRetry={resetErrorBoundary} />
 			)}
 		>
 			<MovieCardView movie={movie} />

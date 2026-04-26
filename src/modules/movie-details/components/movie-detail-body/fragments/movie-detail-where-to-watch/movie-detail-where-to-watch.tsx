@@ -1,35 +1,31 @@
-import { Download, Play, ShoppingBag } from "lucide-react";
-import type { ComponentType, SVGProps } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { MovieDetailSectionLabel } from "../movie-detail-section-label";
+import { MovieDetailWhereToWatchOption } from "./fragments/movie-detail-where-to-watch-option";
+import { useMovieDetailWhereToWatch } from "./movie-detail-where-to-watch.hook";
+import { MovieDetailWhereToWatchError } from "./movie-detail-where-to-watch-error";
+import { MovieDetailWhereToWatchSkeleton } from "./movie-detail-where-to-watch-skeleton";
 
-type StreamingOption = {
-	id: string;
-	label: string;
-	icon: "play" | "download" | "shopping-bag";
-};
+function MovieDetailWhereToWatchView() {
+	const {
+		isError,
+		isLoading,
+		retryWhereToWatch,
+		whereToWatch,
+		handleSelectStreamingOption,
+	} = useMovieDetailWhereToWatch();
 
-type MovieDetailWhereToWatchProps = {
-	region: string;
-	options: ReadonlyArray<StreamingOption>;
-	footnote: string;
-	onSelectOption: (optionId: string) => void;
-};
+	if (isLoading) {
+		return <MovieDetailWhereToWatchSkeleton />;
+	}
 
-const ICON_MAP: Record<
-	StreamingOption["icon"],
-	ComponentType<SVGProps<SVGSVGElement>>
-> = {
-	play: Play,
-	download: Download,
-	"shopping-bag": ShoppingBag,
-};
+	if (isError) {
+		return <MovieDetailWhereToWatchError onRetry={retryWhereToWatch} />;
+	}
 
-export function MovieDetailWhereToWatch({
-	region,
-	options,
-	footnote,
-	onSelectOption,
-}: MovieDetailWhereToWatchProps) {
+	if (!whereToWatch) {
+		return null;
+	}
+
 	return (
 		<section
 			className="flex flex-col gap-4 rounded-[18px] border border-border bg-card p-6"
@@ -43,7 +39,7 @@ export function MovieDetailWhereToWatch({
 					className="rounded-full border border-border bg-surface-elevated px-2.5 py-1 text-[11px] text-muted-foreground"
 					data-testid="movie-detail-where-to-watch-region"
 				>
-					{region}
+					{whereToWatch.region}
 				</span>
 			</header>
 
@@ -51,30 +47,33 @@ export function MovieDetailWhereToWatch({
 				className="flex flex-col gap-2.5"
 				data-testid="movie-detail-where-to-watch-list"
 			>
-				{options.map((option) => {
-					const Icon = ICON_MAP[option.icon];
-					return (
-						<li key={option.id}>
-							<button
-								type="button"
-								onClick={() => onSelectOption(option.id)}
-								className="flex w-full items-center gap-3 rounded-[14px] border border-border bg-surface-elevated px-4 py-3 text-left text-[13px] text-foreground transition hover:border-accent-cyan/40 hover:bg-surface-elevated/80"
-								data-testid="movie-detail-where-to-watch-option"
-							>
-								<Icon className="size-4 text-accent-cyan" />
-								<span className="font-medium">{option.label}</span>
-							</button>
-						</li>
-					);
-				})}
+				{whereToWatch.options.map((option) => (
+					<MovieDetailWhereToWatchOption
+						key={option.id}
+						option={option}
+						onSelectStreamingOption={handleSelectStreamingOption}
+					/>
+				))}
 			</ul>
 
 			<p
 				className="text-[11px] text-muted-foreground"
 				data-testid="movie-detail-where-to-watch-footnote"
 			>
-				{footnote}
+				{whereToWatch.footnote}
 			</p>
 		</section>
+	);
+}
+
+export function MovieDetailWhereToWatch() {
+	return (
+		<ErrorBoundary
+			fallbackRender={({ resetErrorBoundary }) => (
+				<MovieDetailWhereToWatchError onRetry={resetErrorBoundary} />
+			)}
+		>
+			<MovieDetailWhereToWatchView />
+		</ErrorBoundary>
 	);
 }

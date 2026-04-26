@@ -1,21 +1,23 @@
 import { ErrorBoundary } from "react-error-boundary";
 import { Progress } from "@/core/components/ui/progress";
 import { MovieDetailSectionLabel } from "../movie-detail-section-label";
-import { MovieDetailAudienceScoreErrorFallback } from "./fragments/movie-detail-audience-score-error-fallback";
+import { useMovieDetailAudienceScore } from "./movie-detail-audience-score.hook";
+import { MovieDetailAudienceScoreError } from "./movie-detail-audience-score-error";
 
-type MovieDetailAudienceScoreProps = {
-	formattedScore: string;
-	formattedScoreMax: string;
-	formattedVotes: string;
-	scorePercentage: number;
-};
+function MovieDetailAudienceScoreView() {
+	const {
+		isError,
+		formattedScore,
+		formattedVotes,
+		scorePercentage,
+		formattedScoreMax,
+		retryAudienceScore,
+	} = useMovieDetailAudienceScore();
 
-function MovieDetailAudienceScoreView({
-	formattedScore,
-	formattedScoreMax,
-	formattedVotes,
-	scorePercentage,
-}: MovieDetailAudienceScoreProps) {
+	if (isError) {
+		return <MovieDetailAudienceScoreError onRetry={retryAudienceScore} />;
+	}
+
 	return (
 		<section
 			className="flex flex-col gap-4 rounded-[18px] border border-border bg-card p-6"
@@ -48,16 +50,14 @@ function MovieDetailAudienceScoreView({
 	);
 }
 
-export function MovieDetailAudienceScore(props: MovieDetailAudienceScoreProps) {
+export function MovieDetailAudienceScore() {
 	return (
 		<ErrorBoundary
 			fallbackRender={({ resetErrorBoundary }) => (
-				<MovieDetailAudienceScoreErrorFallback
-					resetErrorBoundary={resetErrorBoundary}
-				/>
+				<MovieDetailAudienceScoreError onRetry={resetErrorBoundary} />
 			)}
 		>
-			<MovieDetailAudienceScoreView {...props} />
+			<MovieDetailAudienceScoreView />
 		</ErrorBoundary>
 	);
 }

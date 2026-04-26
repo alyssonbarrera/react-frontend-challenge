@@ -9,10 +9,15 @@ export function useMovieDetailRelated() {
 	const movieId = Number(id);
 	const recommendationsQuery = useMovieRecommendationsQuery(movieId);
 
+	function retry() {
+		void recommendationsQuery.refetch();
+	}
+
 	const related =
 		recommendationsQuery.data?.results.slice(0, MAX_RELATED_MOVIES) ?? [];
 
 	return {
+		retry,
 		related,
 		isError: recommendationsQuery.isError,
 		isLoading: recommendationsQuery.isLoading,

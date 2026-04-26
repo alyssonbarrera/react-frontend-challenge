@@ -4,7 +4,7 @@ import {
 	AvatarFallback,
 	AvatarImage,
 } from "@/core/components/ui/avatar";
-import { MovieDetailCastCardErrorFallback } from "./fragments/movie-detail-cast-card-error-fallback";
+import { MovieDetailCastCardError } from "./movie-detail-cast-card-error";
 
 type MovieDetailCastCardProps = {
 	name: string;
@@ -40,6 +40,8 @@ function MovieDetailCastCardView({
 					<AvatarImage
 						alt={name}
 						src={profileUrl}
+						loading="lazy"
+						fetchPriority="low"
 						data-testid="movie-detail-cast-card-image"
 					/>
 				)}
@@ -68,7 +70,7 @@ function MovieDetailCastCardView({
 
 export function MovieDetailCastCard(props: MovieDetailCastCardProps) {
 	return (
-		<ErrorBoundary fallback={<MovieDetailCastCardErrorFallback />}>
+		<ErrorBoundary fallback={<MovieDetailCastCardError />}>
 			<MovieDetailCastCardView {...props} />
 		</ErrorBoundary>
 	);

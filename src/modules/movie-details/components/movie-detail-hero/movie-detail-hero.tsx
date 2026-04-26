@@ -26,8 +26,12 @@ function MovieDetailHeroView() {
 		return <MovieDetailHeroError onRetry={handleRetry} />;
 	}
 
-	if (isLoading || !hero || !movie) {
+	if (isLoading) {
 		return <MovieDetailHeroSkeleton />;
+	}
+
+	if (!hero || !movie) {
+		return null;
 	}
 
 	return (
@@ -36,9 +40,11 @@ function MovieDetailHeroView() {
 			data-testid="movie-detail-hero"
 		>
 			<img
+				loading="eager"
+				fetchPriority="high"
+				key={hero.backdropUrl}
 				src={hero.backdropUrl}
-				alt=""
-				aria-hidden
+				alt={`Backdrop from ${hero.title}`}
 				className="absolute inset-0 -z-20 h-full w-full object-cover object-[center_20%]"
 				data-testid="movie-detail-hero-backdrop"
 			/>
