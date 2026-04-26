@@ -1,6 +1,7 @@
 import { ErrorBoundary } from "react-error-boundary";
 import { MovieDetailSectionLabel } from "../movie-detail-section-label";
-import { MovieDetailKeyCrewErrorFallback } from "./fragments/movie-detail-key-crew-error-fallback";
+import { MovieDetailKeyCrewError } from "./movie-detail-key-crew-error";
+import { MovieDetailKeyCrewSkeleton } from "./movie-detail-key-crew-skeleton";
 
 type CrewMember = {
 	role: string;
@@ -8,10 +9,30 @@ type CrewMember = {
 };
 
 type MovieDetailKeyCrewProps = {
-	crew: ReadonlyArray<CrewMember>;
+	crew?: ReadonlyArray<CrewMember>;
+	isLoading: boolean;
+	isError: boolean;
+	onRetry: VoidFunction;
 };
 
-function MovieDetailKeyCrewView({ crew }: MovieDetailKeyCrewProps) {
+function MovieDetailKeyCrewView({
+	crew,
+	isError,
+	isLoading,
+	onRetry,
+}: MovieDetailKeyCrewProps) {
+	if (isError) {
+		return <MovieDetailKeyCrewError onRetry={onRetry} />;
+	}
+
+	if (isLoading) {
+		return <MovieDetailKeyCrewSkeleton />;
+	}
+
+	if (!crew || crew.length === 0) {
+		return null;
+	}
+
 	return (
 		<section
 			className="flex flex-col gap-4 rounded-[18px] border border-border bg-card p-6"
@@ -46,9 +67,7 @@ export function MovieDetailKeyCrew(props: MovieDetailKeyCrewProps) {
 	return (
 		<ErrorBoundary
 			fallbackRender={({ resetErrorBoundary }) => (
-				<MovieDetailKeyCrewErrorFallback
-					resetErrorBoundary={resetErrorBoundary}
-				/>
+				<MovieDetailKeyCrewError onRetry={resetErrorBoundary} />
 			)}
 		>
 			<MovieDetailKeyCrewView {...props} />

@@ -1,5 +1,7 @@
 import { MovieDetailSectionLabel } from "../movie-detail-section-label";
 import { MovieDetailCastCard } from "./fragments/movie-detail-cast-card";
+import { MovieDetailCastError } from "./movie-detail-cast-error";
+import { MovieDetailCastSkeleton } from "./movie-detail-cast-skeleton";
 
 type CastMember = {
 	id: string;
@@ -9,10 +11,28 @@ type CastMember = {
 };
 
 type MovieDetailCastProps = {
-	cast: ReadonlyArray<CastMember>;
+	cast?: ReadonlyArray<CastMember>;
+	isLoading: boolean;
+	isError: boolean;
 };
 
-export function MovieDetailCast({ cast }: MovieDetailCastProps) {
+export function MovieDetailCast({
+	cast,
+	isError,
+	isLoading,
+}: MovieDetailCastProps) {
+	if (isError) {
+		return <MovieDetailCastError />;
+	}
+
+	if (isLoading) {
+		return <MovieDetailCastSkeleton />;
+	}
+
+	if (!cast || cast.length === 0) {
+		return null;
+	}
+
 	return (
 		<section className="flex flex-col gap-4.5" data-testid="movie-detail-cast">
 			<header className="flex items-center justify-between">

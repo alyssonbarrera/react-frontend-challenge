@@ -15,7 +15,8 @@ export function MovieDetailHeroPoster({
 			<img
 				src={src}
 				alt={alt}
-				loading="lazy"
+				loading="eager"
+				fetchPriority="high"
 				className="h-full w-full object-cover"
 			/>
 		</div>

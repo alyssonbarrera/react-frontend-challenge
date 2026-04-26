@@ -4,10 +4,10 @@ import { MovieDetailRelatedError } from "./movie-detail-related-error";
 import { MovieDetailRelatedSkeleton } from "./movie-detail-related-skeleton";
 
 export function MovieDetailRelated() {
-	const { related, isError, isLoading } = useMovieDetailRelated();
+	const { retry, related, isError, isLoading } = useMovieDetailRelated();
 
 	if (isError) {
-		return <MovieDetailRelatedError />;
+		return <MovieDetailRelatedError onRetry={retry} />;
 	}
 
 	if (isLoading) {

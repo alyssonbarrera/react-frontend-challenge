@@ -61,12 +61,10 @@ describe("MovieCard", () => {
 
 		render(<MovieCard movie={movie} />);
 
-		const movieCardErrorFallback = screen.getByTestId(
-			"movie-card-error-fallback",
-		);
+		const movieCardError = screen.getByTestId("movie-card-error");
 		const movieCard = screen.queryByTestId("movie-card");
 
-		expect(movieCardErrorFallback).toBeDefined();
+		expect(movieCardError).toBeDefined();
 		expect(movieCard).toBeNull();
 	});
 
