@@ -3,10 +3,6 @@ import { act, renderHook } from "@testing-library/react";
 import type { Movie } from "../../dtos/movie";
 import { useMovieCard } from "./movie-card.hook";
 
-vi.mock("@tanstack/react-router", () => ({
-	useNavigate: vi.fn(),
-}));
-
 const baseMovie: Movie = {
 	id: 1,
 	title: "Tenet",

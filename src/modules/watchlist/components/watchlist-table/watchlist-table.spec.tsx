@@ -5,17 +5,12 @@ import { seedWatchlist } from "@tests/utils/seed-watchlist";
 import type { UrlUpdateEvent } from "nuqs/adapters/testing";
 import { WatchlistTable } from "./watchlist-table";
 
-vi.mock("@tanstack/react-router", () => ({
-	useNavigate: vi.fn(),
-}));
-
 describe("WatchlistTable", () => {
 	const navigateMock = vi.fn();
 
 	beforeEach(() => {
 		seedWatchlist();
-		navigateMock.mockReset();
-		vi.mocked(useNavigate).mockReturnValue(navigateMock as never);
+		vi.mocked(useNavigate).mockReturnValue(navigateMock);
 	});
 
 	it("should be able to render the watchlist table correctly", () => {

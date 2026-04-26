@@ -1,26 +1,15 @@
 import "@testing-library/react";
 import { cleanup } from "@testing-library/react";
-import React from "react";
 import { useAuthStore } from "@/core/stores/auth-store";
+import { tanstackRouterMock } from "./factories/make-tanstack-router";
 import { makeUser } from "./factories/make-user";
 import { server } from "./mocks/node";
 
 vi.mock("@tanstack/react-router", async (importOriginal) => {
-	const actual =
-		await importOriginal<typeof import("@tanstack/react-router")>();
-
-	return {
-		...actual,
-		Link: ({
-			to,
-			children,
-			...props
-		}: {
-			to: string;
-			children: React.ReactNode;
-		} & React.AnchorHTMLAttributes<HTMLAnchorElement>) =>
-			React.createElement("a", { href: to, ...props }, children),
-	};
+	const { makeTanstackRouter } = await import(
+		"./factories/make-tanstack-router"
+	);
+	return makeTanstackRouter()(importOriginal);
 });
 
 vi.mock("@/core/stores/auth-store", () => {
@@ -80,6 +69,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+	tanstackRouterMock.reset();
 	server.resetHandlers();
 	cleanup();
 });

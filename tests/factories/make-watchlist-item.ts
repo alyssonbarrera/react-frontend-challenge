@@ -1,4 +1,4 @@
-import { makeMovie } from "@tests/mocks/factories/make-movie";
+import { makeMovie } from "@tests/factories/make-movie";
 import type { WatchlistItem } from "@/modules/watchlist/dtos/watchlist-item";
 
 export function makeWatchlistItem(

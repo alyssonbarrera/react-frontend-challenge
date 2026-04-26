@@ -1,6 +1,5 @@
-import { makeMovie } from "@tests/mocks/factories/make-movie";
+import { makeMovie } from "@tests/factories/make-movie";
 import { render, screen } from "@tests/utils";
-import type React from "react";
 import { SidebarProvider } from "@/core/components/ui/sidebar";
 import { useWatchlistStore } from "@/modules/watchlist/stores/watchlist-store";
 import { AppSidebar } from "./app-sidebar";
@@ -8,34 +7,6 @@ import { AppSidebar } from "./app-sidebar";
 vi.mock("@/core/hooks/use-mobile", () => ({
 	useIsMobile: () => false,
 }));
-
-vi.mock("@tanstack/react-router", async (importOriginal) => {
-	const actual =
-		await importOriginal<typeof import("@tanstack/react-router")>();
-	const navigateMock = vi.fn();
-
-	return {
-		...actual,
-		useNavigate: () => navigateMock,
-		Link: ({
-			to,
-			children,
-			...props
-		}: {
-			to: string;
-			children: React.ReactNode;
-		} & React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
-			<a href={to} {...props}>
-				{children}
-			</a>
-		),
-		useLocation: ({
-			select,
-		}: {
-			select: (location: { pathname: string }) => string;
-		}) => select({ pathname: "/discovery" }),
-	};
-});
 
 const initialWatchlistState = useWatchlistStore.getState();
 

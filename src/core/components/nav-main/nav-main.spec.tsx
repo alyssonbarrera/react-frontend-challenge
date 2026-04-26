@@ -1,40 +1,12 @@
+import { tanstackRouterMock } from "@tests/factories/make-tanstack-router";
 import { render, screen } from "@tests/utils";
 import { Compass, Flame, Heart } from "lucide-react";
-import type React from "react";
 import { SidebarProvider } from "@/core/components/ui/sidebar";
 import { NavMain } from "./nav-main";
 
 vi.mock("@/core/hooks/use-mobile", () => ({
 	useIsMobile: () => false,
 }));
-
-vi.mock("@tanstack/react-router", async (importOriginal) => {
-	const actual =
-		await importOriginal<typeof import("@tanstack/react-router")>();
-	const navigateMock = vi.fn();
-
-	return {
-		...actual,
-		useNavigate: () => navigateMock,
-		Link: ({
-			to,
-			children,
-			...props
-		}: {
-			to: string;
-			children: React.ReactNode;
-		} & React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
-			<a href={to} {...props}>
-				{children}
-			</a>
-		),
-		useLocation: ({
-			select,
-		}: {
-			select: (location: { pathname: string }) => string;
-		}) => select({ pathname: "/discovery" }),
-	};
-});
 
 const navMainSections = [
 	{
@@ -69,6 +41,10 @@ const navMainSections = [
 ];
 
 describe("NavMain", () => {
+	beforeEach(() => {
+		tanstackRouterMock.setPathname("/discovery");
+	});
+
 	it("should be able to render sections items and badges", () => {
 		render(
 			<SidebarProvider>

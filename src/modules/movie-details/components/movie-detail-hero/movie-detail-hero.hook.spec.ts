@@ -1,51 +1,37 @@
-import { useCanGoBack, useNavigate, useRouter } from "@tanstack/react-router";
 import { makeMovieCredits } from "@tests/factories/make-movie-credits";
 import { makeMovieDetails } from "@tests/factories/make-movie-details";
+import { tanstackRouterMock } from "@tests/factories/make-tanstack-router";
 import { act, renderHook, waitFor } from "@tests/utils";
-import { getMovieCreditsRequest } from "../../http/get-movie-credits-request";
-import { getMovieDetailsRequest } from "../../http/get-movie-details-request";
+import type { MockInstance } from "vitest";
+import * as movieCreditsRequestModule from "../../http/get-movie-credits-request";
+import * as movieDetailsRequestModule from "../../http/get-movie-details-request";
 import { useMovieDetailHero } from "./movie-detail-hero.hook";
-
-const { useMovieDetailParamsMock } = vi.hoisted(() => ({
-	useMovieDetailParamsMock: vi.fn(),
-}));
-
-vi.mock("@tanstack/react-router", () => ({
-	useNavigate: vi.fn(),
-	useCanGoBack: vi.fn(() => false),
-	useRouter: vi.fn(),
-	getRouteApi: vi.fn(() => ({ useParams: useMovieDetailParamsMock })),
-}));
-
-vi.mock("../../http/get-movie-details-request", () => ({
-	getMovieDetailsRequest: vi.fn(),
-}));
-
-vi.mock("../../http/get-movie-credits-request", () => ({
-	getMovieCreditsRequest: vi.fn(),
-}));
 
 describe("useMovieDetailHero", () => {
 	const navigateMock = vi.fn();
 	const routerBackMock = vi.fn();
-	const getMovieDetailsRequestMock = vi.mocked(getMovieDetailsRequest);
-	const getMovieCreditsRequestMock = vi.mocked(getMovieCreditsRequest);
+
+	let getMovieDetailsRequestMock: MockInstance;
+	let getMovieCreditsRequestMock: MockInstance;
 
 	beforeEach(() => {
-		navigateMock.mockReset();
-		routerBackMock.mockReset();
-		getMovieDetailsRequestMock.mockReset();
-		getMovieCreditsRequestMock.mockReset();
-		vi.mocked(useNavigate).mockReturnValue(navigateMock as never);
-		vi.mocked(useCanGoBack).mockReturnValue(false);
-		vi.mocked(useRouter).mockReturnValue({
-			history: { back: routerBackMock },
-		} as never);
-		useMovieDetailParamsMock.mockReturnValue({ id: "1" });
+		tanstackRouterMock.setNavigateMock(navigateMock);
+		tanstackRouterMock.setCanGoBack(false);
+		tanstackRouterMock.setBackHistoryMock(routerBackMock);
+		tanstackRouterMock.setParams({ id: "1" });
+
+		getMovieDetailsRequestMock = vi.spyOn(
+			movieDetailsRequestModule,
+			"getMovieDetailsRequest",
+		);
+		getMovieCreditsRequestMock = vi.spyOn(
+			movieCreditsRequestModule,
+			"getMovieCreditsRequest",
+		);
 	});
 
 	it("should be able to go back using browser history when there is history", async () => {
-		vi.mocked(useCanGoBack).mockReturnValue(true);
+		tanstackRouterMock.setCanGoBack(true);
 		getMovieDetailsRequestMock.mockResolvedValueOnce(makeMovieDetails());
 		getMovieCreditsRequestMock.mockResolvedValueOnce(makeMovieCredits());
 

@@ -1,6 +1,6 @@
-import { makeTmdbMovieCredits } from "@tests/mocks/factories/make-tmdb-movie-credits";
-import { makeTmdbMovieVideos } from "@tests/mocks/factories/make-tmdb-movie-videos";
-import { makeTmdbMovieWatchProviders } from "@tests/mocks/factories/make-tmdb-movie-watch-providers";
+import { makeTmdbMovieCredits } from "@tests/factories/make-tmdb-movie-credits";
+import { makeTmdbMovieVideos } from "@tests/factories/make-tmdb-movie-videos";
+import { makeTmdbMovieWatchProviders } from "@tests/factories/make-tmdb-movie-watch-providers";
 import { HttpResponse, http } from "msw";
 import type {
 	TmdbMovieResponse,

@@ -1,4 +1,4 @@
-import { makeMovie } from "@tests/mocks/factories/make-movie";
+import { makeMovie } from "@tests/factories/make-movie";
 import { useWatchlistStore, WATCHLIST_STORAGE_KEY } from "./watchlist-store";
 
 const initialState = useWatchlistStore.getState();

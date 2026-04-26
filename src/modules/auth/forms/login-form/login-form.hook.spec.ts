@@ -15,11 +15,6 @@ vi.mock("sonner", () => ({
 	},
 }));
 
-vi.mock("@tanstack/react-router", async () => ({
-	...(await vi.importActual("@tanstack/react-router")),
-	useNavigate: vi.fn(),
-}));
-
 const user = makeUser();
 const token = "test-token";
 
