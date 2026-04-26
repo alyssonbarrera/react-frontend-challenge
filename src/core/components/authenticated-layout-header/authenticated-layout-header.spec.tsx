@@ -24,8 +24,9 @@ describe("AuthenticatedLayoutHeader", () => {
 		const authenticatedLayoutHeaderSidebarTrigger = screen.getByTestId(
 			"authenticated-layout-header-sidebar-trigger",
 		);
-		const authenticatedLayoutHeaderSearchInput =
-			screen.getByTestId("global-search-input");
+		const authenticatedLayoutHeaderSearchInput = screen.getByTestId(
+			"global-search-input",
+		);
 		const authenticatedLayoutHeaderSpacer = screen.getByTestId(
 			"authenticated-layout-header-spacer",
 		);

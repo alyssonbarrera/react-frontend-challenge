@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedMovieRouteImport } from './routes/_authenticated/movie'
 import { Route as AuthenticatedAppShellRouteImport } from './routes/_authenticated/_app-shell'
 import { Route as AuthenticatedMovieIdRouteImport } from './routes/_authenticated/movie.$id'
 import { Route as AuthenticatedAppShellWatchlistRouteImport } from './routes/_authenticated/_app-shell/watchlist'
@@ -31,14 +32,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedMovieRoute = AuthenticatedMovieRouteImport.update({
+  id: '/movie',
+  path: '/movie',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedAppShellRoute = AuthenticatedAppShellRouteImport.update({
   id: '/_app-shell',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedMovieIdRoute = AuthenticatedMovieIdRouteImport.update({
-  id: '/movie/$id',
-  path: '/movie/$id',
-  getParentRoute: () => AuthenticatedRoute,
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedMovieRoute,
 } as any)
 const AuthenticatedAppShellWatchlistRoute =
   AuthenticatedAppShellWatchlistRouteImport.update({
@@ -56,6 +62,7 @@ const AuthenticatedAppShellDiscoveryRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/design-system': typeof DesignSystemRoute
+  '/movie': typeof AuthenticatedMovieRouteWithChildren
   '/discovery': typeof AuthenticatedAppShellDiscoveryRoute
   '/watchlist': typeof AuthenticatedAppShellWatchlistRoute
   '/movie/$id': typeof AuthenticatedMovieIdRoute
@@ -63,6 +70,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/design-system': typeof DesignSystemRoute
+  '/movie': typeof AuthenticatedMovieRouteWithChildren
   '/discovery': typeof AuthenticatedAppShellDiscoveryRoute
   '/watchlist': typeof AuthenticatedAppShellWatchlistRoute
   '/movie/$id': typeof AuthenticatedMovieIdRoute
@@ -73,21 +81,35 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/design-system': typeof DesignSystemRoute
   '/_authenticated/_app-shell': typeof AuthenticatedAppShellRouteWithChildren
+  '/_authenticated/movie': typeof AuthenticatedMovieRouteWithChildren
   '/_authenticated/_app-shell/discovery': typeof AuthenticatedAppShellDiscoveryRoute
   '/_authenticated/_app-shell/watchlist': typeof AuthenticatedAppShellWatchlistRoute
   '/_authenticated/movie/$id': typeof AuthenticatedMovieIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/design-system' | '/discovery' | '/watchlist' | '/movie/$id'
+  fullPaths:
+    | '/'
+    | '/design-system'
+    | '/movie'
+    | '/discovery'
+    | '/watchlist'
+    | '/movie/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/design-system' | '/discovery' | '/watchlist' | '/movie/$id'
+  to:
+    | '/'
+    | '/design-system'
+    | '/movie'
+    | '/discovery'
+    | '/watchlist'
+    | '/movie/$id'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/design-system'
     | '/_authenticated/_app-shell'
+    | '/_authenticated/movie'
     | '/_authenticated/_app-shell/discovery'
     | '/_authenticated/_app-shell/watchlist'
     | '/_authenticated/movie/$id'
@@ -122,6 +144,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/movie': {
+      id: '/_authenticated/movie'
+      path: '/movie'
+      fullPath: '/movie'
+      preLoaderRoute: typeof AuthenticatedMovieRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/_app-shell': {
       id: '/_authenticated/_app-shell'
       path: ''
@@ -131,10 +160,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/movie/$id': {
       id: '/_authenticated/movie/$id'
-      path: '/movie/$id'
+      path: '/$id'
       fullPath: '/movie/$id'
       preLoaderRoute: typeof AuthenticatedMovieIdRouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedMovieRoute
     }
     '/_authenticated/_app-shell/watchlist': {
       id: '/_authenticated/_app-shell/watchlist'
@@ -168,14 +197,25 @@ const AuthenticatedAppShellRouteWithChildren =
     AuthenticatedAppShellRouteChildren,
   )
 
+interface AuthenticatedMovieRouteChildren {
+  AuthenticatedMovieIdRoute: typeof AuthenticatedMovieIdRoute
+}
+
+const AuthenticatedMovieRouteChildren: AuthenticatedMovieRouteChildren = {
+  AuthenticatedMovieIdRoute: AuthenticatedMovieIdRoute,
+}
+
+const AuthenticatedMovieRouteWithChildren =
+  AuthenticatedMovieRoute._addFileChildren(AuthenticatedMovieRouteChildren)
+
 interface AuthenticatedRouteChildren {
   AuthenticatedAppShellRoute: typeof AuthenticatedAppShellRouteWithChildren
-  AuthenticatedMovieIdRoute: typeof AuthenticatedMovieIdRoute
+  AuthenticatedMovieRoute: typeof AuthenticatedMovieRouteWithChildren
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAppShellRoute: AuthenticatedAppShellRouteWithChildren,
-  AuthenticatedMovieIdRoute: AuthenticatedMovieIdRoute,
+  AuthenticatedMovieRoute: AuthenticatedMovieRouteWithChildren,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

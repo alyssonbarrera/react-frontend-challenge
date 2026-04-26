@@ -8,9 +8,11 @@ describe("RouteErrorFallback", () => {
 		const routeErrorFallback = screen.getByTestId("route-error-fallback");
 		const routeErrorRetry = screen.getByTestId("route-error-retry");
 
-		expect(routeErrorFallback.textContent).toContain("Something went wrong");
 		expect(routeErrorFallback.textContent).toContain(
-			"An unexpected error occurred while rendering this page.",
+			"The projector just gave out.",
+		);
+		expect(routeErrorFallback.textContent).toContain(
+			"An unexpected error broke this page mid-reel.",
 		);
 		expect(routeErrorRetry).toBeDefined();
 	});

@@ -1,6 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
 import { act, renderHook } from "@testing-library/react";
-import { useWatchlistStore } from "@/modules/watchlist/stores/watchlist-store";
 import type { Movie } from "../../dtos/movie";
 import { useMovieCard } from "./movie-card.hook";
 
@@ -27,8 +26,6 @@ const baseMovie: Movie = {
 
 describe("useMovieCard", () => {
 	beforeEach(() => {
-		useWatchlistStore.getState().clear();
-		localStorage.clear();
 		vi.mocked(useNavigate).mockReturnValue(vi.fn() as never);
 	});
 
@@ -65,16 +62,6 @@ describe("useMovieCard", () => {
 		const displayedGenres = result.current.formattedGenre.split(", ");
 
 		expect(displayedGenres).toHaveLength(2);
-	});
-
-	it("should be able to toggle movie in watchlist when handleToggleWatchlist is called", () => {
-		const { result } = renderHook(() => useMovieCard({ movie: baseMovie }));
-
-		act(() => {
-			result.current.handleToggleWatchlist();
-		});
-
-		expect(useWatchlistStore.getState().isInWatchlist(baseMovie.id)).toBe(true);
 	});
 
 	it("should be able to navigate to the movie details with the movie id", () => {

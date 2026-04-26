@@ -1,10 +1,6 @@
-import { AlertTriangle } from "lucide-react";
-import {
-	Alert,
-	AlertDescription,
-	AlertTitle,
-} from "@/core/components/ui/alert";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/core/components/ui/button";
+import { ErrorState } from "../error-state";
 
 type RouteErrorFallbackProps = {
 	title?: string;
@@ -13,8 +9,8 @@ type RouteErrorFallbackProps = {
 };
 
 export function RouteErrorFallback({
-	title = "Something went wrong",
-	description = "An unexpected error occurred while rendering this page.",
+	title = "The projector just gave out.",
+	description = "An unexpected error broke this page mid-reel. Our team has been notified — try refreshing, or head back to safer ground while we patch things up.",
 	onRetry,
 }: RouteErrorFallbackProps) {
 	function handleReload() {
@@ -26,27 +22,30 @@ export function RouteErrorFallback({
 	}
 
 	return (
-		<div
-			className="flex flex-1 items-center justify-center p-4 md:p-6"
-			data-testid="route-error-fallback"
-		>
-			<Alert variant="destructive" className="max-w-lg">
-				<AlertTriangle />
-				<AlertTitle>{title}</AlertTitle>
-				<AlertDescription className="flex flex-col gap-3">
-					<span>{description}</span>
-
+		<ErrorState
+			variant="error"
+			title={title}
+			description={description}
+			containerTestId="route-error-fallback"
+			titleTestId="route-error-title"
+			descriptionTestId="route-error-description"
+			actions={
+				<>
 					<Button
 						type="button"
-						size="sm"
-						variant="outline"
+						size="lg"
 						onClick={handleReload}
 						data-testid="route-error-retry"
 					>
 						Try again
 					</Button>
-				</AlertDescription>
-			</Alert>
-		</div>
+					<Button asChild size="lg" variant="outline">
+						<Link to="/discovery" data-testid="route-error-suggestion-discover">
+							Go to Discover
+						</Link>
+					</Button>
+				</>
+			}
+		/>
 	);
 }

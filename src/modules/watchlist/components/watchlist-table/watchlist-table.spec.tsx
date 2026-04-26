@@ -1,6 +1,7 @@
 import { makeWatchlistItem } from "@tests/factories/make-watchlist-item";
-import { render, screen } from "@tests/utils";
+import { fireEvent, render, screen, waitFor } from "@tests/utils";
 import { seedWatchlist } from "@tests/utils/seed-watchlist";
+import type { UrlUpdateEvent } from "nuqs/adapters/testing";
 import { WatchlistTable } from "./watchlist-table";
 
 describe("WatchlistTable", () => {
@@ -96,5 +97,50 @@ describe("WatchlistTable", () => {
 
 		expect(watchlistTableRows).toHaveLength(2);
 		expect(noResultsRow).toBeNull();
+	});
+
+	it("should be able to move to the previous valid page when removing the last item from the current page", async () => {
+		seedWatchlist(
+			Array.from({ length: 21 }, (_, index) =>
+				makeWatchlistItem({ id: index + 1, title: `Movie ${index + 1}` }),
+			),
+		);
+
+		const urlUpdates: UrlUpdateEvent[] = [];
+		const onUrlUpdate = (event: UrlUpdateEvent) => {
+			urlUpdates.push(event);
+		};
+
+		render(<WatchlistTable />, {
+			searchParams: { page: "3" },
+			onUrlUpdate,
+		});
+
+		const watchlistTableRowActions = screen.getByTestId(
+			"watchlist-table-row-actions",
+		);
+		fireEvent.pointerDown(watchlistTableRowActions);
+
+		const watchlistTableRowRemove = screen.getByTestId(
+			"watchlist-table-row-remove",
+		);
+		fireEvent.click(watchlistTableRowRemove);
+
+		await waitFor(() => {
+			const paginationInfo = screen.getByTestId(
+				"watchlist-table-pagination-info",
+			);
+			expect(paginationInfo.textContent).toContain("11");
+			expect(paginationInfo.textContent).toContain("20");
+			expect(
+				screen.queryByTestId("watchlist-table-pagination-page-3"),
+			).toBeNull();
+		});
+
+		const pageUpdate = urlUpdates.find(
+			(event) => event.searchParams.get("page") === "2",
+		);
+
+		expect(pageUpdate).toBeDefined();
 	});
 });

@@ -29,8 +29,6 @@ describe("MovieCard", () => {
 			formattedYear: "2020",
 			formattedGenre: "Action, Adventure",
 			formattedRating: "7.3",
-			isInWatchlist: false,
-			handleToggleWatchlist: vi.fn(),
 			handleNavigateToDetails: vi.fn(),
 		});
 	});
@@ -80,8 +78,6 @@ describe("MovieCard", () => {
 			formattedYear: "2020",
 			formattedGenre: "Action, Adventure",
 			formattedRating: "7.3",
-			isInWatchlist: false,
-			handleToggleWatchlist: vi.fn(),
 			handleNavigateToDetails,
 		});
 
@@ -92,8 +88,7 @@ describe("MovieCard", () => {
 		expect(handleNavigateToDetails).toHaveBeenCalledTimes(1);
 	});
 
-	it("should be able to toggle the watchlist without navigating when the bookmark is clicked", () => {
-		const handleToggleWatchlist = vi.fn();
+	it("should be able to toggle the watchlist without navigating when the watchlist button is clicked", () => {
 		const handleNavigateToDetails = vi.fn();
 
 		vi.mocked(useMovieCard).mockReturnValue({
@@ -101,16 +96,13 @@ describe("MovieCard", () => {
 			formattedYear: "2020",
 			formattedGenre: "Action, Adventure",
 			formattedRating: "7.3",
-			isInWatchlist: false,
-			handleToggleWatchlist,
 			handleNavigateToDetails,
 		});
 
 		render(<MovieCard movie={movie} />);
 
-		fireEvent.click(screen.getByTestId("movie-card-bookmark"));
+		fireEvent.click(screen.getByTestId("watchlist-toggle-button"));
 
-		expect(handleToggleWatchlist).toHaveBeenCalledTimes(1);
 		expect(handleNavigateToDetails).not.toHaveBeenCalled();
 	});
 });

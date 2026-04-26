@@ -1,17 +1,13 @@
-import { MovieDetailBody } from "./fragments/movie-detail-body";
-import { MovieDetailHero } from "./fragments/movie-detail-hero";
-import { MovieDetailRelated } from "./fragments/movie-detail-related";
+import { MovieDetailBody } from "../../components/movie-detail-body";
+import { MovieDetailHero } from "../../components/movie-detail-hero";
+import { MovieDetailRelated } from "../../components/movie-detail-related";
 
-type MovieDetailScreenProps = {
-	id: string;
-};
-
-export function MovieDetailScreen({ id }: MovieDetailScreenProps) {
+export function MovieDetailScreen() {
 	return (
-		<div className="flex flex-col" data-testid="movie-detail-screen">
-			<MovieDetailHero id={id} />
-			<MovieDetailBody id={id} />
-			<MovieDetailRelated id={id} />
+		<div className="relative flex flex-col" data-testid="movie-detail-screen">
+			<MovieDetailHero />
+			<MovieDetailBody />
+			<MovieDetailRelated />
 		</div>
 	);
 }

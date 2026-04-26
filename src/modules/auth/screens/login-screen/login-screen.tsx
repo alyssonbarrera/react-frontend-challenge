@@ -1,3 +1,4 @@
+import { CineDashLogo } from "@/core/components/cinedash-logo";
 import { LoginForm } from "../../forms/login-form";
 
 export function LoginScreen() {
@@ -7,9 +8,7 @@ export function LoginScreen() {
 				<section className="flex h-full w-full flex-col px-6 py-8 md:px-10 md:py-12 lg:px-12 lg:py-14">
 					<header className="mx-auto w-full max-w-110 md:max-w-120 xl:max-w-130">
 						<div className="flex items-center gap-2">
-							<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-cyan text-xs font-bold text-primary-foreground">
-								C
-							</div>
+							<CineDashLogo className="size-8" />
 							<p className="font-heading text-xl font-bold text-foreground">
 								CineDash
 							</p>

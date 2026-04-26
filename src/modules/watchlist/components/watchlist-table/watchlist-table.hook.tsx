@@ -9,7 +9,7 @@ import {
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { WATCHLIST_PAGE_SIZE } from "../../constants/watchlist-table-query";
 import { useWatchlistSearch } from "../../hooks/use-watchlist-search";
 import { useWatchlistTableQuery } from "../../hooks/use-watchlist-table-query";
@@ -87,14 +87,38 @@ export function useWatchlistTable() {
 		setQuery({ page: nextPagination.pageIndex + 1 });
 	};
 
+	const handleRemoveFromWatchlist = useCallback(
+		(id: number) => {
+			const isVisibleInCurrentFilter = filteredItems.some(
+				(item) => item.id === id,
+			);
+
+			const nextFilteredTotal = isVisibleInCurrentFilter
+				? Math.max(0, filteredItems.length - 1)
+				: filteredItems.length;
+			const maxPageAfterRemoval = Math.max(
+				1,
+				Math.ceil(nextFilteredTotal / WATCHLIST_PAGE_SIZE),
+			);
+
+			removeFromWatchlist(id);
+
+			if (page > maxPageAfterRemoval) {
+				setQuery({ page: maxPageAfterRemoval });
+			}
+		},
+		[filteredItems, page, removeFromWatchlist, setQuery],
+	);
+
 	const columns = useMemo<ColumnDef<WatchlistTableRow>[]>(
-		() => buildColumns({ onRemoveFromWatchlist: removeFromWatchlist }),
-		[removeFromWatchlist],
+		() => buildColumns({ onRemoveFromWatchlist: handleRemoveFromWatchlist }),
+		[handleRemoveFromWatchlist],
 	);
 
 	const table = useReactTable({
 		data,
 		columns,
+		autoResetPageIndex: false,
 		state: { sorting, pagination },
 		onSortingChange: handleSortingChange,
 		onPaginationChange: handlePaginationChange,
@@ -145,10 +169,10 @@ export function useWatchlistTable() {
 		currentPage,
 		goToNextPage,
 		hasNoResults,
-		searchQuery: searchValue,
 		showPagination,
 		paginationRange,
 		goToPreviousPage,
+		searchQuery: searchValue,
 		canNextPage: table.getCanNextPage(),
 		canPreviousPage: table.getCanPreviousPage(),
 	};

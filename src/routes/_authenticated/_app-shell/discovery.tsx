@@ -3,6 +3,9 @@ import { RouteErrorFallback } from "@/core/components/route-error-fallback";
 import { DiscoveryScreen } from "@/modules/discovery/screens/discovery-screen";
 
 export const Route = createFileRoute("/_authenticated/_app-shell/discovery")({
+	head: () => ({
+		meta: [{ title: "CineDash | Discovery" }],
+	}),
 	component: DiscoveryScreen,
 	errorComponent: () => (
 		<RouteErrorFallback

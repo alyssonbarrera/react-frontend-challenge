@@ -3,6 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import ReactDOM from "react-dom/client";
+import { NotFound } from "./core/components/not-found";
 import { TooltipProvider } from "./core/components/ui/tooltip";
 import { queryClient } from "./core/lib/react-query";
 import { THEME_STORAGE_KEY, type Theme } from "./core/stores/theme-store";
@@ -32,6 +33,7 @@ const router = createRouter({
 	context: { queryClient },
 	defaultPreload: "intent",
 	scrollRestoration: true,
+	defaultNotFoundComponent: () => <NotFound />,
 });
 
 declare module "@tanstack/react-router" {

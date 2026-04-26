@@ -3,6 +3,7 @@ import { act, renderHook, waitFor } from "@tests/utils";
 import { seedWatchlist } from "@tests/utils/seed-watchlist";
 import type { UrlUpdateEvent } from "nuqs/adapters/testing";
 import { useGlobalSearch } from "@/core/hooks/use-global-search";
+import { useWatchlistStore } from "../../stores/watchlist-store";
 import { useWatchlistTable } from "./watchlist-table.hook";
 
 describe("useWatchlistTable", () => {
@@ -133,6 +134,36 @@ describe("useWatchlistTable", () => {
 		renderHook(() => useWatchlistTable(), {
 			searchParams: { page: "2", q: "Movie" },
 			onUrlUpdate,
+		});
+
+		expect(urlUpdates).toHaveLength(0);
+	});
+
+	it("should be able to keep the current page after removing an item from watchlist", async () => {
+		seedWatchlist(
+			Array.from({ length: 25 }, (_, index) =>
+				makeWatchlistItem({ id: index + 1, title: `Movie ${index + 1}` }),
+			),
+		);
+
+		const urlUpdates: UrlUpdateEvent[] = [];
+		const onUrlUpdate = (event: UrlUpdateEvent) => {
+			urlUpdates.push(event);
+		};
+
+		const { result } = renderHook(() => useWatchlistTable(), {
+			searchParams: { page: "2" },
+			onUrlUpdate,
+		});
+
+		expect(result.current.currentPage).toBe(2);
+
+		act(() => {
+			useWatchlistStore.getState().remove(1);
+		});
+
+		await waitFor(() => {
+			expect(result.current.currentPage).toBe(2);
 		});
 
 		expect(urlUpdates).toHaveLength(0);

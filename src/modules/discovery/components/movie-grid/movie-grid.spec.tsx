@@ -13,6 +13,7 @@ vi.mock("../movie-card", () => ({
 	MovieCard: ({ movie }: { movie: Movie }) => (
 		<div data-testid="movie-grid-movie-card">{movie.title}</div>
 	),
+	MovieCardSkeleton: () => <div data-testid="movie-card-skeleton" />,
 }));
 
 vi.mock("react-virtuoso", () => ({
@@ -22,6 +23,8 @@ vi.mock("react-virtuoso", () => ({
 		itemContent,
 		components,
 		endReached,
+		rangeChanged,
+		initialTopMostItemIndex,
 	}: {
 		data: ReadonlyArray<Movie>;
 		totalCount: number;
@@ -32,6 +35,8 @@ vi.mock("react-virtuoso", () => ({
 			Footer?: () => React.ReactNode;
 		};
 		endReached?: (index: number) => void;
+		rangeChanged?: (range: { startIndex: number; endIndex: number }) => void;
+		initialTopMostItemIndex?: number;
 	}) => {
 		const List = components?.List ?? "div";
 		const Item = components?.Item ?? "div";
@@ -41,6 +46,7 @@ vi.mock("react-virtuoso", () => ({
 			<div
 				data-testid="movie-grid-virtuoso"
 				data-total-count={String(totalCount)}
+				data-initial-item-index={String(initialTopMostItemIndex ?? 0)}
 			>
 				<button
 					type="button"
@@ -48,6 +54,13 @@ vi.mock("react-virtuoso", () => ({
 					onClick={() => endReached?.(totalCount - 1)}
 				>
 					Reach end
+				</button>
+				<button
+					type="button"
+					data-testid="movie-grid-virtuoso-range-changed"
+					onClick={() => rangeChanged?.({ startIndex: 12, endIndex: 24 })}
+				>
+					Range changed
 				</button>
 				<List>
 					{data.map((movie, index) => (
@@ -84,10 +97,12 @@ const baseMovie: Movie = {
 describe("MovieGrid", () => {
 	let movieGridHandleRetryMock: ReturnType<typeof vi.fn>;
 	let movieGridHandleEndReachedMock: ReturnType<typeof vi.fn>;
+	let movieGridHandleRangeChangedMock: ReturnType<typeof vi.fn>;
 
 	beforeEach(() => {
 		movieGridHandleRetryMock = vi.fn();
 		movieGridHandleEndReachedMock = vi.fn();
+		movieGridHandleRangeChangedMock = vi.fn();
 
 		useMovieGridMock.mockReturnValue({
 			movies: [baseMovie],
@@ -100,6 +115,8 @@ describe("MovieGrid", () => {
 			searchQuery: "",
 			handleRetry: movieGridHandleRetryMock,
 			handleEndReached: movieGridHandleEndReachedMock,
+			handleRangeChanged: movieGridHandleRangeChangedMock,
+			initialItemIndex: 0,
 			isFetchingNextPage: false,
 		});
 	});
@@ -116,6 +133,8 @@ describe("MovieGrid", () => {
 			searchQuery: "",
 			handleRetry: movieGridHandleRetryMock,
 			handleEndReached: movieGridHandleEndReachedMock,
+			handleRangeChanged: movieGridHandleRangeChangedMock,
+			initialItemIndex: 0,
 			isFetchingNextPage: false,
 		});
 
@@ -142,6 +161,8 @@ describe("MovieGrid", () => {
 			searchQuery: "",
 			handleRetry: movieGridHandleRetryMock,
 			handleEndReached: movieGridHandleEndReachedMock,
+			handleRangeChanged: movieGridHandleRangeChangedMock,
+			initialItemIndex: 0,
 			isFetchingNextPage: false,
 		});
 
@@ -169,6 +190,8 @@ describe("MovieGrid", () => {
 			searchQuery: "matrix",
 			handleRetry: movieGridHandleRetryMock,
 			handleEndReached: movieGridHandleEndReachedMock,
+			handleRangeChanged: movieGridHandleRangeChangedMock,
+			initialItemIndex: 0,
 			isFetchingNextPage: false,
 		});
 
@@ -192,6 +215,8 @@ describe("MovieGrid", () => {
 			searchQuery: "",
 			handleRetry: movieGridHandleRetryMock,
 			handleEndReached: movieGridHandleEndReachedMock,
+			handleRangeChanged: movieGridHandleRangeChangedMock,
+			initialItemIndex: 0,
 			isFetchingNextPage: false,
 		});
 
@@ -222,6 +247,8 @@ describe("MovieGrid", () => {
 			searchQuery: "",
 			handleRetry: movieGridHandleRetryMock,
 			handleEndReached: movieGridHandleEndReachedMock,
+			handleRangeChanged: movieGridHandleRangeChangedMock,
+			initialItemIndex: 0,
 			isFetchingNextPage: true,
 		});
 
@@ -245,5 +272,47 @@ describe("MovieGrid", () => {
 
 		expect(movieGridHandleEndReachedMock).toHaveBeenCalled();
 		expect(movieGridHandleEndReachedMock).toHaveBeenCalledTimes(1);
+	});
+
+	it("should be able to forward initialItemIndex to the virtualized grid", async () => {
+		useMovieGridMock.mockReturnValueOnce({
+			movies: [baseMovie],
+			isError: false,
+			isPending: false,
+			hasMovies: true,
+			totalCount: 1,
+			isFetching: false,
+			hasNextPage: false,
+			searchQuery: "",
+			handleRetry: movieGridHandleRetryMock,
+			handleEndReached: movieGridHandleEndReachedMock,
+			handleRangeChanged: movieGridHandleRangeChangedMock,
+			initialItemIndex: 42,
+			isFetchingNextPage: false,
+		});
+
+		render(<MovieGrid />);
+
+		const movieGridVirtuoso = screen.getByTestId("movie-grid-virtuoso");
+
+		expect(movieGridVirtuoso.getAttribute("data-initial-item-index")).toBe(
+			"42",
+		);
+	});
+
+	it("should be able to call rangeChanged handler when the visible range changes", async () => {
+		render(<MovieGrid />);
+
+		const movieGridVirtuosoRangeChanged = screen.getByTestId(
+			"movie-grid-virtuoso-range-changed",
+		);
+
+		fireEvent.click(movieGridVirtuosoRangeChanged);
+
+		expect(movieGridHandleRangeChangedMock).toHaveBeenCalledTimes(1);
+		expect(movieGridHandleRangeChangedMock).toHaveBeenCalledWith({
+			startIndex: 12,
+			endIndex: 24,
+		});
 	});
 });
