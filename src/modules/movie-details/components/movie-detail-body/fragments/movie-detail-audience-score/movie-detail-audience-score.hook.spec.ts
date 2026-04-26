@@ -1,26 +1,19 @@
 import { makeMovieDetails } from "@tests/factories/make-movie-details";
+import { tanstackRouterMock } from "@tests/factories/make-tanstack-router";
 import { renderHook, waitFor } from "@tests/utils";
-import { getMovieDetailsRequest } from "@/modules/movie-details/http/get-movie-details-request";
+import type { MockInstance } from "vitest";
+import * as movieDetailsRequestModule from "@/modules/movie-details/http/get-movie-details-request";
 import { useMovieDetailAudienceScore } from "./movie-detail-audience-score.hook";
 
-const { useMovieDetailParamsMock } = vi.hoisted(() => ({
-	useMovieDetailParamsMock: vi.fn(),
-}));
-
-vi.mock("@tanstack/react-router", () => ({
-	getRouteApi: vi.fn(() => ({ useParams: useMovieDetailParamsMock })),
-}));
-
-vi.mock("@/modules/movie-details/http/get-movie-details-request", () => ({
-	getMovieDetailsRequest: vi.fn(),
-}));
-
 describe("useMovieDetailAudienceScore", () => {
-	const getMovieDetailsRequestMock = vi.mocked(getMovieDetailsRequest);
+	let getMovieDetailsRequestMock: MockInstance;
 
 	beforeEach(() => {
-		getMovieDetailsRequestMock.mockReset();
-		useMovieDetailParamsMock.mockReturnValue({ id: "1" });
+		tanstackRouterMock.setParams({ id: "1" });
+		getMovieDetailsRequestMock = vi.spyOn(
+			movieDetailsRequestModule,
+			"getMovieDetailsRequest",
+		);
 	});
 
 	it("should be able to expose formatted audience score labels from movie details", async () => {

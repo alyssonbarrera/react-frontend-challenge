@@ -1,25 +1,24 @@
-import { makeMovie } from "@tests/mocks/factories/make-movie";
-import { makeMoviesPage } from "@tests/mocks/factories/make-movies-page";
+import { makeMovie } from "@tests/factories/make-movie";
+import { makeMoviesPage } from "@tests/factories/make-movies-page";
 import { act, renderHook, waitFor } from "@tests/utils";
-import { discoverMoviesRequest } from "../../http/discover-movies-request";
-import { searchMoviesRequest } from "../../http/search-movies-request";
+import type { MockInstance } from "vitest";
+import * as discoverMoviesRequestModule from "../../http/discover-movies-request";
+import * as searchMoviesRequestModule from "../../http/search-movies-request";
 import { useMovieGrid } from "./movie-grid.hook";
 
-vi.mock("../../http/discover-movies-request", () => ({
-	discoverMoviesRequest: vi.fn(),
-}));
-
-vi.mock("../../http/search-movies-request", () => ({
-	searchMoviesRequest: vi.fn(),
-}));
-
 describe("useMovieGrid", () => {
-	const discoverMoviesRequestMock = vi.mocked(discoverMoviesRequest);
-	const searchMoviesRequestMock = vi.mocked(searchMoviesRequest);
+	let discoverMoviesRequestMock: MockInstance;
+	let searchMoviesRequestMock: MockInstance;
 
 	beforeEach(() => {
-		discoverMoviesRequestMock.mockReset();
-		searchMoviesRequestMock.mockReset();
+		discoverMoviesRequestMock = vi.spyOn(
+			discoverMoviesRequestModule,
+			"discoverMoviesRequest",
+		);
+		searchMoviesRequestMock = vi.spyOn(
+			searchMoviesRequestModule,
+			"searchMoviesRequest",
+		);
 	});
 
 	it("should be able to expose derived grid state in discover mode", async () => {

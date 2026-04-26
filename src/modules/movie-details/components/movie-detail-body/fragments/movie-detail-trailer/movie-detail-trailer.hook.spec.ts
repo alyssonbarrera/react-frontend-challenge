@@ -1,26 +1,19 @@
 import { makeMovieVideos } from "@tests/factories/make-movie-videos";
+import { tanstackRouterMock } from "@tests/factories/make-tanstack-router";
 import { renderHook, waitFor } from "@tests/utils";
-import { getMovieVideosRequest } from "@/modules/movie-details/http/get-movie-videos-request";
+import type { MockInstance } from "vitest";
+import * as movieVideosRequestModule from "@/modules/movie-details/http/get-movie-videos-request";
 import { useMovieDetailTrailer } from "./movie-detail-trailer.hook";
 
-const { useMovieDetailParamsMock } = vi.hoisted(() => ({
-	useMovieDetailParamsMock: vi.fn(),
-}));
-
-vi.mock("@tanstack/react-router", () => ({
-	getRouteApi: vi.fn(() => ({ useParams: useMovieDetailParamsMock })),
-}));
-
-vi.mock("@/modules/movie-details/http/get-movie-videos-request", () => ({
-	getMovieVideosRequest: vi.fn(),
-}));
-
 describe("useMovieDetailTrailer", () => {
-	const getMovieVideosRequestMock = vi.mocked(getMovieVideosRequest);
+	let getMovieVideosRequestMock: MockInstance;
 
 	beforeEach(() => {
-		getMovieVideosRequestMock.mockReset();
-		useMovieDetailParamsMock.mockReturnValue({ id: "1" });
+		tanstackRouterMock.setParams({ id: "1" });
+		getMovieVideosRequestMock = vi.spyOn(
+			movieVideosRequestModule,
+			"getMovieVideosRequest",
+		);
 	});
 
 	it("should be able to prioritize official trailer over fallback trailers", async () => {
@@ -94,7 +87,9 @@ describe("useMovieDetailTrailer", () => {
 
 	it("should be able to expose loading state while videos query is pending", async () => {
 		let resolveVideosRequest: (
-			value: Awaited<ReturnType<typeof getMovieVideosRequest>>,
+			value: Awaited<
+				ReturnType<typeof movieVideosRequestModule.getMovieVideosRequest>
+			>,
 		) => void = () => undefined;
 
 		getMovieVideosRequestMock.mockImplementationOnce(

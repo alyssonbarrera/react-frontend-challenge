@@ -7,20 +7,19 @@ import { MovieDetailTrailer } from "./fragments/movie-detail-trailer";
 import { MovieDetailWhereToWatch } from "./fragments/movie-detail-where-to-watch";
 import { useMovieDetailBody } from "./movie-detail-body.hook";
 import { MovieDetailBodyError } from "./movie-detail-body-error";
+import {
+	MovieDetailBodyShellLeft,
+	MovieDetailBodyShellRight,
+	MovieDetailBodyShellRoot,
+} from "./movie-detail-body-shell";
 
 function MovieDetailBodyView() {
 	const { body, isError, isKeyCrewError, isLoading, retryKeyCrew } =
 		useMovieDetailBody();
 
 	return (
-		<section
-			className="flex flex-col gap-8 px-10 pt-10 pb-15 lg:flex-row"
-			data-testid="movie-detail-body"
-		>
-			<div
-				className="flex min-w-0 flex-1 flex-col gap-8"
-				data-testid="movie-detail-body-left"
-			>
+		<MovieDetailBodyShellRoot data-testid="movie-detail-body">
+			<MovieDetailBodyShellLeft data-testid="movie-detail-body-left">
 				<MovieDetailSynopsis
 					synopsis={body?.synopsis}
 					isLoading={isLoading}
@@ -34,10 +33,10 @@ function MovieDetailBodyView() {
 				/>
 
 				<MovieDetailTrailer />
-			</div>
+			</MovieDetailBodyShellLeft>
 
-			<aside
-				className="flex w-full shrink-0 flex-col gap-6 lg:sticky lg:top-6 lg:w-md lg:self-start"
+			<MovieDetailBodyShellRight
+				className="lg:sticky lg:top-6 lg:self-start"
 				data-testid="movie-detail-body-right"
 			>
 				<MovieDetailAudienceScore />
@@ -50,8 +49,8 @@ function MovieDetailBodyView() {
 				/>
 
 				<MovieDetailWhereToWatch />
-			</aside>
-		</section>
+			</MovieDetailBodyShellRight>
+		</MovieDetailBodyShellRoot>
 	);
 }
 

@@ -1,3 +1,7 @@
+import {
+	MovieDetailSectionHeaderRoot,
+	MovieDetailSectionHeaderTitle,
+} from "../movie-detail-section-header";
 import { MovieDetailSectionLabel } from "../movie-detail-section-label";
 import { MovieDetailCastCard } from "./fragments/movie-detail-cast-card";
 import { MovieDetailCastError } from "./movie-detail-cast-error";
@@ -35,11 +39,13 @@ export function MovieDetailCast({
 
 	return (
 		<section className="flex flex-col gap-4.5" data-testid="movie-detail-cast">
-			<header className="flex items-center justify-between">
-				<MovieDetailSectionLabel data-testid="movie-detail-cast-label">
-					Cast
-				</MovieDetailSectionLabel>
-			</header>
+			<MovieDetailSectionHeaderRoot>
+				<MovieDetailSectionHeaderTitle>
+					<MovieDetailSectionLabel data-testid="movie-detail-cast-label">
+						Cast
+					</MovieDetailSectionLabel>
+				</MovieDetailSectionHeaderTitle>
+			</MovieDetailSectionHeaderRoot>
 			<div
 				className="grid grid-cols-2 gap-3.5 md:grid-cols-4"
 				data-testid="movie-detail-cast-grid"

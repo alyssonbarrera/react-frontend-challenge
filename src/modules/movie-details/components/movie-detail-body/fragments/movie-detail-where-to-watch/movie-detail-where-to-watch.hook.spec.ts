@@ -1,15 +1,8 @@
 import { makeMovieWatchProviders } from "@tests/factories/make-movie-watch-providers";
+import { tanstackRouterMock } from "@tests/factories/make-tanstack-router";
 import { renderHook, waitFor } from "@tests/utils";
 import { getMovieWatchProvidersRequest } from "@/modules/movie-details/http/get-movie-watch-providers-request";
 import { useMovieDetailWhereToWatch } from "./movie-detail-where-to-watch.hook";
-
-const { useMovieDetailParamsMock } = vi.hoisted(() => ({
-	useMovieDetailParamsMock: vi.fn(),
-}));
-
-vi.mock("@tanstack/react-router", () => ({
-	getRouteApi: vi.fn(() => ({ useParams: useMovieDetailParamsMock })),
-}));
 
 vi.mock(
 	"@/modules/movie-details/http/get-movie-watch-providers-request",
@@ -24,8 +17,7 @@ describe("useMovieDetailWhereToWatch", () => {
 	);
 
 	beforeEach(() => {
-		getMovieWatchProvidersRequestMock.mockReset();
-		useMovieDetailParamsMock.mockReturnValue({ id: "1" });
+		tanstackRouterMock.setParams({ id: "1" });
 	});
 
 	it("should be able to expose mapped where to watch data from watch providers query", async () => {

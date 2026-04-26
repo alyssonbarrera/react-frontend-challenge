@@ -39,13 +39,13 @@ export function useMovieDetailTrailer() {
 		: null;
 
 	function retry() {
-		void videosQuery.refetch();
+		videosQuery.refetch();
 	}
 
 	return {
 		trailer,
-		isLoading: videosQuery.isLoading,
-		isError: videosQuery.isError,
 		retry,
+		isError: videosQuery.isError,
+		isLoading: videosQuery.isLoading,
 	};
 }

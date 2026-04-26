@@ -1,3 +1,4 @@
+import { tanstackRouterMock } from "@tests/factories/make-tanstack-router";
 import { makeUser } from "@tests/factories/make-user";
 import { fireEvent, render, screen } from "@tests/utils";
 import { SidebarProvider } from "@/core/components/ui/sidebar";
@@ -10,10 +11,6 @@ let navUserTheme: "light" | "dark" = "dark";
 
 vi.mock("@/core/hooks/use-mobile", () => ({
 	useIsMobile: () => false,
-}));
-
-vi.mock("@tanstack/react-router", () => ({
-	useNavigate: () => navUserNavigateMock,
 }));
 
 vi.mock("@/core/stores/auth-store", () => ({
@@ -41,10 +38,8 @@ const navUserUser = makeUser({
 
 describe("NavUser", () => {
 	beforeEach(() => {
-		navUserNavigateMock.mockReset();
-		navUserClearAuthMock.mockReset();
-		navUserSetThemeMock.mockReset();
 		navUserTheme = "dark";
+		tanstackRouterMock.setNavigateMock(navUserNavigateMock);
 	});
 
 	it("should be able to render user identity in the trigger", () => {
@@ -67,7 +62,7 @@ describe("NavUser", () => {
 		expect(navUserEmail.textContent).toBe("alex.morgan@cinedash.app");
 	});
 
-	it("should be able to open dropdown menu and show logout item", async () => {
+	it("should be able to open dropdown menu and show logout item", () => {
 		render(
 			<SidebarProvider>
 				<NavUser user={navUserUser} />
@@ -81,14 +76,12 @@ describe("NavUser", () => {
 			ctrlKey: false,
 		});
 
-		const navUserDropdownContent = await screen.findByTestId(
+		const navUserDropdownContent = screen.getByTestId(
 			"nav-user-dropdown-content",
 		);
-		const navUserThemeItem = await screen.findByTestId("nav-user-theme-item");
-		const navUserThemeToggle = await screen.findByTestId(
-			"nav-user-theme-toggle",
-		);
-		const navUserLogoutItem = await screen.findByTestId("nav-user-logout-item");
+		const navUserThemeItem = screen.getByTestId("nav-user-theme-item");
+		const navUserThemeToggle = screen.getByTestId("nav-user-theme-toggle");
+		const navUserLogoutItem = screen.getByTestId("nav-user-logout-item");
 
 		expect(navUserDropdownContent).toBeDefined();
 		expect(navUserThemeItem).toBeDefined();
@@ -96,7 +89,7 @@ describe("NavUser", () => {
 		expect(navUserLogoutItem).toBeDefined();
 	});
 
-	it("should be able to set light theme when toggle is turned off", async () => {
+	it("should be able to set light theme when toggle is turned off", () => {
 		navUserTheme = "dark";
 
 		render(
@@ -112,16 +105,14 @@ describe("NavUser", () => {
 			ctrlKey: false,
 		});
 
-		const navUserThemeToggle = await screen.findByTestId(
-			"nav-user-theme-toggle",
-		);
+		const navUserThemeToggle = screen.getByTestId("nav-user-theme-toggle");
 
 		fireEvent.click(navUserThemeToggle);
 
 		expect(navUserSetThemeMock).toHaveBeenCalledWith("light");
 	});
 
-	it("should be able to logout and redirect to login page", async () => {
+	it("should be able to logout and redirect to login page", () => {
 		render(
 			<SidebarProvider>
 				<NavUser user={navUserUser} />
@@ -135,7 +126,7 @@ describe("NavUser", () => {
 			ctrlKey: false,
 		});
 
-		const navUserLogoutItem = await screen.findByTestId("nav-user-logout-item");
+		const navUserLogoutItem = screen.getByTestId("nav-user-logout-item");
 
 		fireEvent.click(navUserLogoutItem);
 

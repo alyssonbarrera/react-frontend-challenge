@@ -36,7 +36,7 @@ export function MovieDetailHeroInfo({
 			)}
 
 			<h1
-				className="font-heading font-bold text-[60px] text-foreground leading-[1.05] tracking-[-0.04em]"
+				className="font-heading font-bold text-[24px] text-foreground leading-[1.05] tracking-[-0.04em] sm:text-[45px] md:text-[60px]"
 				data-testid="movie-detail-hero-info-title"
 			>
 				{title}

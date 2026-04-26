@@ -1,72 +1,71 @@
 import { Skeleton } from "@/core/components/ui/skeleton";
+import {
+	MovieDetailHeroShellBackdrop,
+	MovieDetailHeroShellBackdropLayers,
+	MovieDetailHeroShellContent,
+	MovieDetailHeroShellContentRow,
+	MovieDetailHeroShellMain,
+	MovieDetailHeroShellMobileActions,
+	MovieDetailHeroShellRoot,
+} from "./movie-detail-hero-shell";
 
 const SKELETON_TONE = "bg-strong/70";
 
 export function MovieDetailHeroSkeleton() {
 	return (
-		<section
-			className="relative isolate flex min-h-160 w-full flex-col overflow-hidden bg-surface-elevated md:h-[80vh] md:max-h-205"
-			data-testid="movie-detail-hero-skeleton"
-		>
-			<div
-				aria-hidden
-				className="-z-20 absolute inset-0 animate-pulse bg-surface-card"
-				data-testid="movie-detail-hero-skeleton-backdrop"
-			/>
-			<div
-				aria-hidden
-				className="-z-10 absolute inset-0 bg-linear-to-t from-[#0A0B0E] via-[#0A0B0E]/70 via-40% to-transparent"
-				data-testid="movie-detail-hero-skeleton-overlay"
-			/>
-			<div
-				aria-hidden
-				className="-z-10 absolute inset-0 bg-linear-to-r from-[#0A0B0E]/90 via-[#0A0B0E]/40 via-40% to-transparent"
-			/>
-			<div
-				aria-hidden
-				className="-z-10 absolute inset-x-0 top-0 h-32 bg-linear-to-b from-[#0A0B0E]/70 to-transparent"
-			/>
+		<MovieDetailHeroShellRoot data-testid="movie-detail-hero-skeleton">
+			<MovieDetailHeroShellBackdropLayers
+				overlayProps={{ "data-testid": "movie-detail-hero-skeleton-overlay" }}
+			>
+				<MovieDetailHeroShellBackdrop
+					className="animate-pulse bg-surface-card"
+					data-testid="movie-detail-hero-skeleton-backdrop"
+				/>
+			</MovieDetailHeroShellBackdropLayers>
 
 			<header
-				className="flex items-center justify-between px-10 pt-6"
+				className="flex items-center justify-between px-4 pt-4 sm:px-6 sm:pt-6 md:px-10"
 				data-testid="movie-detail-hero-skeleton-header"
 			>
 				<Skeleton className={`h-9 w-20.25 rounded-full ${SKELETON_TONE}`} />
-				<div className="flex items-center gap-2">
-					<Skeleton className={`size-9 rounded-full ${SKELETON_TONE}`} />
-					<Skeleton className={`size-9 rounded-full ${SKELETON_TONE}`} />
-				</div>
+				<Skeleton className={`size-9 rounded-full ${SKELETON_TONE}`} />
 			</header>
 
-			<div
-				className="mt-auto flex flex-row items-end gap-10 px-10 pb-10"
-				data-testid="movie-detail-hero-skeleton-content"
-			>
-				<Skeleton
-					className={`aspect-280/400 w-70 rounded-xl border border-border ${SKELETON_TONE}`}
-					data-testid="movie-detail-hero-skeleton-poster"
-				/>
+			<MovieDetailHeroShellContent data-testid="movie-detail-hero-skeleton-content">
+				<MovieDetailHeroShellContentRow>
+					<div
+						className="aspect-280/400 w-32 shrink-0 overflow-hidden rounded-[12px] border border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.5)] sm:w-48 sm:rounded-[14px] md:w-70 md:rounded-[18px]"
+						data-testid="movie-detail-hero-skeleton-poster"
+					>
+						<Skeleton className={`h-full w-full ${SKELETON_TONE}`} />
+					</div>
 
-				<div className="flex flex-1 flex-col gap-5">
-					<div className="flex flex-col gap-5">
-						<Skeleton
-							className={`h-7.25 w-17.25 rounded-full ${SKELETON_TONE}`}
-						/>
-						<Skeleton className={`h-10 w-3/4 ${SKELETON_TONE}`} />
-						<div className="flex items-center gap-3">
-							<Skeleton className={`h-4 w-16 ${SKELETON_TONE}`} />
-							<Skeleton className={`h-4 w-12 ${SKELETON_TONE}`} />
-							<Skeleton className={`h-4 w-14 ${SKELETON_TONE}`} />
-							<Skeleton className={`h-4 w-32 ${SKELETON_TONE}`} />
+					<MovieDetailHeroShellMain>
+						<div className="flex max-w-190 flex-col gap-5">
+							<Skeleton
+								className={`h-7.25 w-17.25 rounded-full ${SKELETON_TONE}`}
+							/>
+							<Skeleton className={`h-10 w-3/4 ${SKELETON_TONE}`} />
+							<div className="flex flex-wrap items-center gap-x-4.5 gap-y-1">
+								<Skeleton className={`h-4 w-16 ${SKELETON_TONE}`} />
+								<Skeleton className={`h-4 w-12 ${SKELETON_TONE}`} />
+								<Skeleton className={`h-4 w-14 ${SKELETON_TONE}`} />
+								<Skeleton className={`h-4 w-32 ${SKELETON_TONE}`} />
+							</div>
 						</div>
-					</div>
 
-					<div className="flex items-center gap-3">
-						<Skeleton className={`h-11 w-40 rounded-xl ${SKELETON_TONE}`} />
-						<Skeleton className={`h-11 w-40 rounded-xl ${SKELETON_TONE}`} />
-					</div>
-				</div>
-			</div>
-		</section>
+						<div className="hidden flex-wrap items-center gap-2.5 pt-3 sm:flex">
+							<Skeleton className={`h-11 w-40 rounded-xl ${SKELETON_TONE}`} />
+							<Skeleton className={`h-11 w-40 rounded-xl ${SKELETON_TONE}`} />
+						</div>
+					</MovieDetailHeroShellMain>
+				</MovieDetailHeroShellContentRow>
+
+				<MovieDetailHeroShellMobileActions className="flex flex-wrap items-center gap-2.5 pt-3">
+					<Skeleton className={`h-11 flex-1 rounded-xl ${SKELETON_TONE}`} />
+					<Skeleton className={`h-11 flex-1 rounded-xl ${SKELETON_TONE}`} />
+				</MovieDetailHeroShellMobileActions>
+			</MovieDetailHeroShellContent>
+		</MovieDetailHeroShellRoot>
 	);
 }

@@ -1,5 +1,9 @@
 import { ErrorBoundary } from "react-error-boundary";
-import { MovieDetailSectionLabel } from "../movie-detail-section-label";
+import {
+	MovieDetailSectionShellContent,
+	MovieDetailSectionShellLabel,
+	MovieDetailSectionShellRoot,
+} from "../movie-detail-section-shell";
 import { MovieDetailWhereToWatchOption } from "./fragments/movie-detail-where-to-watch-option";
 import { useMovieDetailWhereToWatch } from "./movie-detail-where-to-watch.hook";
 import { MovieDetailWhereToWatchError } from "./movie-detail-where-to-watch-error";
@@ -27,42 +31,45 @@ function MovieDetailWhereToWatchView() {
 	}
 
 	return (
-		<section
-			className="flex flex-col gap-4 rounded-[18px] border border-border bg-card p-6"
+		<MovieDetailSectionShellRoot
+			className="gap-4 rounded-[18px] border border-border bg-card p-6"
 			data-testid="movie-detail-where-to-watch"
 		>
-			<header className="flex items-center justify-between">
-				<MovieDetailSectionLabel data-testid="movie-detail-where-to-watch-label">
-					Where to Watch
-				</MovieDetailSectionLabel>
-				<span
-					className="rounded-full border border-border bg-surface-elevated px-2.5 py-1 text-[11px] text-muted-foreground"
-					data-testid="movie-detail-where-to-watch-region"
+			<MovieDetailSectionShellLabel
+				data-testid="movie-detail-where-to-watch-label"
+				rightSlot={
+					<span
+						className="rounded-full border border-border bg-surface-elevated px-2.5 py-1 text-[11px] text-muted-foreground"
+						data-testid="movie-detail-where-to-watch-region"
+					>
+						{whereToWatch.region}
+					</span>
+				}
+			>
+				Where to Watch
+			</MovieDetailSectionShellLabel>
+			<MovieDetailSectionShellContent className="space-y-4">
+				<ul
+					className="flex flex-col gap-2.5"
+					data-testid="movie-detail-where-to-watch-list"
 				>
-					{whereToWatch.region}
-				</span>
-			</header>
+					{whereToWatch.options.map((option) => (
+						<MovieDetailWhereToWatchOption
+							key={option.id}
+							option={option}
+							onSelectStreamingOption={handleSelectStreamingOption}
+						/>
+					))}
+				</ul>
 
-			<ul
-				className="flex flex-col gap-2.5"
-				data-testid="movie-detail-where-to-watch-list"
-			>
-				{whereToWatch.options.map((option) => (
-					<MovieDetailWhereToWatchOption
-						key={option.id}
-						option={option}
-						onSelectStreamingOption={handleSelectStreamingOption}
-					/>
-				))}
-			</ul>
-
-			<p
-				className="text-[11px] text-muted-foreground"
-				data-testid="movie-detail-where-to-watch-footnote"
-			>
-				{whereToWatch.footnote}
-			</p>
-		</section>
+				<p
+					className="text-[11px] text-muted-foreground"
+					data-testid="movie-detail-where-to-watch-footnote"
+				>
+					{whereToWatch.footnote}
+				</p>
+			</MovieDetailSectionShellContent>
+		</MovieDetailSectionShellRoot>
 	);
 }
 

@@ -7,16 +7,11 @@ import { useGlobalSearch } from "@/core/hooks/use-global-search";
 import { useWatchlistStore } from "../../stores/watchlist-store";
 import { useWatchlistTable } from "./watchlist-table.hook";
 
-vi.mock("@tanstack/react-router", () => ({
-	useNavigate: vi.fn(),
-}));
-
 describe("useWatchlistTable", () => {
 	const navigateMock = vi.fn();
 
 	beforeEach(() => {
 		seedWatchlist();
-		navigateMock.mockReset();
 		vi.mocked(useNavigate).mockReturnValue(navigateMock as never);
 	});
 

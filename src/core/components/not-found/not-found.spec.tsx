@@ -1,27 +1,5 @@
 import { render, screen } from "@tests/utils";
-import type React from "react";
 import { NotFound } from "./not-found";
-
-vi.mock("@tanstack/react-router", async (importOriginal) => {
-	const actual =
-		await importOriginal<typeof import("@tanstack/react-router")>();
-
-	return {
-		...actual,
-		Link: ({
-			to,
-			children,
-			...props
-		}: {
-			to: string;
-			children: React.ReactNode;
-		} & React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
-			<a href={to} {...props}>
-				{children}
-			</a>
-		),
-	};
-});
 
 describe("NotFound", () => {
 	it("should be able to render default title and description", () => {
