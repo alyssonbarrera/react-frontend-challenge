@@ -2,9 +2,9 @@ import { makeMovieCredits } from "@tests/factories/make-movie-credits";
 import { makeMovieDetails } from "@tests/factories/make-movie-details";
 import {
 	buildBackdropUrl,
-	extractYear,
 	formatHeroRating,
 	formatHeroRatingMax,
+	formatReleaseDate,
 	formatRuntime,
 	getDirectorLabel,
 	mapMovieDetailsToHeroData,
@@ -32,10 +32,10 @@ describe("movieDetailHeroUtils", () => {
 		expect(formattedRuntime).toBe("2h 5m");
 	});
 
-	it("should not be able to extract year from an invalid release date", async () => {
-		const year = extractYear("invalid-date");
+	it("should not be able to format release date from an invalid release date", async () => {
+		const releaseDate = formatReleaseDate("invalid-date");
 
-		expect(year).toBe("");
+		expect(releaseDate).toBe("");
 	});
 
 	it("should be able to return an empty director label when director is absent", async () => {
@@ -76,7 +76,7 @@ describe("movieDetailHeroUtils", () => {
 			primaryGenre: "ACTION",
 			rating: 7.3,
 			ratingMax: 10,
-			year: "2020",
+			releaseDate: "Aug 26, 2020",
 			runtime: "2h 30m",
 			director: "dir. Christopher Nolan",
 		});

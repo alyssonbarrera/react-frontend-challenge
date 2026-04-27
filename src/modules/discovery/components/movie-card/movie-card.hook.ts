@@ -1,4 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
+import type { KeyboardEvent } from "react";
 import { toYearData } from "@/core/utils/to-year-data";
 import type { Movie } from "../../dtos/movie";
 import { buildPosterUrl } from "../../utils/movie.utils";
@@ -28,11 +29,25 @@ export function useMovieCard({ movie }: UseMovieCardParams) {
 		navigate({ to: "/movie/$id", params: { id: String(movie.id) } });
 	}
 
+	function handleCardKeyDown(event: KeyboardEvent<HTMLElement>) {
+		if (event.currentTarget !== event.target) {
+			return;
+		}
+
+		if (event.key !== "Enter" && event.key !== " ") {
+			return;
+		}
+
+		event.preventDefault();
+		handleNavigateToDetails();
+	}
+
 	return {
 		posterUrl,
 		formattedYear,
 		formattedGenre,
 		formattedRating,
+		handleCardKeyDown,
 		handleNavigateToDetails,
 	};
 }

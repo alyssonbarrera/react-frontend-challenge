@@ -7,9 +7,14 @@ import {
 } from "@/core/components/page-header";
 import { useWatchlistPageHeader } from "./watchlist-page-header.hook";
 
+const WATCHLIST_LOCALE = "en-US";
+const watchlistPluralRules = new Intl.PluralRules(WATCHLIST_LOCALE);
+
 export function WatchlistPageHeader() {
 	const { count, totalHoursLabel, lastAddedLabel } = useWatchlistPageHeader();
-	const subtitle = `${count} ${count === 1 ? "film" : "films"} · ${totalHoursLabel} of viewing${
+	const movieLabel =
+		watchlistPluralRules.select(count) === "one" ? "movie" : "movies";
+	const subtitle = `${count} ${movieLabel} · ${totalHoursLabel} of viewing${
 		lastAddedLabel ? ` · last added ${lastAddedLabel}` : ""
 	}`;
 

@@ -11,6 +11,13 @@ const TMDB_BACKDROP_URL = "https://image.tmdb.org/t/p/original";
 const RELEASE_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const RUNTIME_LOCALE = "en-US";
 
+const releaseDateFormatter = new Intl.DateTimeFormat(RUNTIME_LOCALE, {
+	month: "short",
+	day: "numeric",
+	year: "numeric",
+	timeZone: "UTC",
+});
+
 const runtimeHourFormatter = new Intl.NumberFormat(RUNTIME_LOCALE, {
 	style: "unit",
 	unit: "hour",
@@ -32,7 +39,7 @@ export type MovieDetailHeroData = {
 	primaryGenre: string;
 	rating: number;
 	ratingMax: number;
-	year: string;
+	releaseDate: string;
 	runtime: string;
 	director: string;
 };
@@ -66,12 +73,35 @@ export function formatRuntime(runtime: number | null): string {
 	return `${formattedHours} ${formattedMinutes}`;
 }
 
-export function extractYear(releaseDate: string): string {
+export function formatReleaseDate(releaseDate: string): string {
 	if (!releaseDate || !RELEASE_DATE_PATTERN.test(releaseDate)) {
 		return "";
 	}
 
-	return releaseDate.slice(0, 4);
+	const [yearRaw, monthRaw, dayRaw] = releaseDate.split("-");
+	const year = Number(yearRaw);
+	const month = Number(monthRaw);
+	const day = Number(dayRaw);
+
+	if (
+		!Number.isInteger(year) ||
+		!Number.isInteger(month) ||
+		!Number.isInteger(day)
+	) {
+		return "";
+	}
+
+	const parsedReleaseDate = new Date(Date.UTC(year, month - 1, day));
+
+	if (
+		parsedReleaseDate.getUTCFullYear() !== year ||
+		parsedReleaseDate.getUTCMonth() !== month - 1 ||
+		parsedReleaseDate.getUTCDate() !== day
+	) {
+		return "";
+	}
+
+	return releaseDateFormatter.format(parsedReleaseDate);
 }
 
 export function getDirectorLabel(credits: MovieCredits | undefined): string {
@@ -96,7 +126,7 @@ export function mapMovieDetailsToHeroData(
 		primaryGenre: movie.genres[0]?.name.toUpperCase() ?? "",
 		rating: movie.voteAverage,
 		ratingMax: MOVIE_DETAIL_RATING_MAX,
-		year: extractYear(movie.releaseDate),
+		releaseDate: formatReleaseDate(movie.releaseDate),
 		runtime: formatRuntime(movie.runtime),
 		director: getDirectorLabel(credits),
 	};

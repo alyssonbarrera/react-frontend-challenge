@@ -28,7 +28,7 @@ describe("MovieDetailHero", () => {
 				primaryGenre: "ACTION",
 				rating: 7.3,
 				ratingMax: 10,
-				year: "2020",
+				releaseDate: "Aug 26, 2020",
 				runtime: "2h 30m",
 				director: "dir. Christopher Nolan",
 			},

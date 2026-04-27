@@ -30,6 +30,7 @@ describe("MovieCard", () => {
 			formattedGenre: "Action, Adventure",
 			formattedRating: "7.3",
 			handleNavigateToDetails: vi.fn(),
+			handleCardKeyDown: vi.fn(),
 		});
 	});
 
@@ -77,6 +78,7 @@ describe("MovieCard", () => {
 			formattedGenre: "Action, Adventure",
 			formattedRating: "7.3",
 			handleNavigateToDetails,
+			handleCardKeyDown: vi.fn(),
 		});
 
 		render(<MovieCard movie={movie} />);
@@ -84,6 +86,63 @@ describe("MovieCard", () => {
 		fireEvent.click(screen.getByTestId("movie-card"));
 
 		expect(handleNavigateToDetails).toHaveBeenCalledTimes(1);
+	});
+
+	it("should be able to delegate Enter key press handling to hook", () => {
+		const handleCardKeyDown = vi.fn();
+
+		vi.mocked(useMovieCard).mockReturnValue({
+			posterUrl: "https://image.tmdb.org/poster.jpg",
+			formattedYear: "2020",
+			formattedGenre: "Action, Adventure",
+			formattedRating: "7.3",
+			handleNavigateToDetails: vi.fn(),
+			handleCardKeyDown,
+		});
+
+		render(<MovieCard movie={movie} />);
+
+		fireEvent.keyDown(screen.getByTestId("movie-card"), { key: "Enter" });
+
+		expect(handleCardKeyDown).toHaveBeenCalledTimes(1);
+	});
+
+	it("should be able to delegate Space key press handling to hook", () => {
+		const handleCardKeyDown = vi.fn();
+
+		vi.mocked(useMovieCard).mockReturnValue({
+			posterUrl: "https://image.tmdb.org/poster.jpg",
+			formattedYear: "2020",
+			formattedGenre: "Action, Adventure",
+			formattedRating: "7.3",
+			handleNavigateToDetails: vi.fn(),
+			handleCardKeyDown,
+		});
+
+		render(<MovieCard movie={movie} />);
+
+		fireEvent.keyDown(screen.getByTestId("movie-card"), { key: " " });
+
+		expect(handleCardKeyDown).toHaveBeenCalledTimes(1);
+	});
+
+	it("should be able to delegate unsupported key press handling to hook", () => {
+		const handleCardKeyDown = vi.fn();
+
+		vi.mocked(useMovieCard).mockReturnValue({
+			posterUrl: "https://image.tmdb.org/poster.jpg",
+			formattedYear: "2020",
+			formattedGenre: "Action, Adventure",
+			formattedRating: "7.3",
+			handleNavigateToDetails: vi.fn(),
+			handleCardKeyDown,
+		});
+
+		render(<MovieCard movie={movie} />);
+
+		fireEvent.keyDown(screen.getByTestId("movie-card"), { key: "Escape" });
+
+		expect(handleCardKeyDown).toHaveBeenCalledTimes(1);
 	});
 
 	it("should be able to toggle the watchlist without navigating when the watchlist button is clicked", () => {
@@ -95,6 +154,7 @@ describe("MovieCard", () => {
 			formattedGenre: "Action, Adventure",
 			formattedRating: "7.3",
 			handleNavigateToDetails,
+			handleCardKeyDown: vi.fn(),
 		});
 
 		render(<MovieCard movie={movie} />);
@@ -102,5 +162,26 @@ describe("MovieCard", () => {
 		fireEvent.click(screen.getByTestId("watchlist-toggle-button"));
 
 		expect(handleNavigateToDetails).not.toHaveBeenCalled();
+	});
+
+	it("should be able to bubble key press from watchlist button to hook key handler", () => {
+		const handleCardKeyDown = vi.fn();
+
+		vi.mocked(useMovieCard).mockReturnValue({
+			posterUrl: "https://image.tmdb.org/poster.jpg",
+			formattedYear: "2020",
+			formattedGenre: "Action, Adventure",
+			formattedRating: "7.3",
+			handleNavigateToDetails: vi.fn(),
+			handleCardKeyDown,
+		});
+
+		render(<MovieCard movie={movie} />);
+
+		fireEvent.keyDown(screen.getByTestId("watchlist-toggle-button"), {
+			key: "Enter",
+		});
+
+		expect(handleCardKeyDown).toHaveBeenCalledTimes(1);
 	});
 });

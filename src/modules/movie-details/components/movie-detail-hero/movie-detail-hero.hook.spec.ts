@@ -76,7 +76,7 @@ describe("useMovieDetailHero", () => {
 			primaryGenre: "ACTION",
 			rating: 7.3,
 			ratingMax: 10,
-			year: "2020",
+			releaseDate: "Aug 26, 2020",
 			runtime: "2h 30m",
 			director: "dir. Christopher Nolan",
 		});
@@ -113,6 +113,27 @@ describe("useMovieDetailHero", () => {
 		});
 
 		document.body.removeChild(movieDetailTrailerElement);
+	});
+
+	it("should be able to handle share cancellation or failure without throwing", async () => {
+		getMovieDetailsRequestMock.mockResolvedValueOnce(makeMovieDetails());
+		getMovieCreditsRequestMock.mockResolvedValueOnce(makeMovieCredits());
+
+		const shareSpy = vi.fn().mockRejectedValueOnce(new Error("Share failed"));
+		Object.defineProperty(window.navigator, "share", {
+			value: shareSpy,
+			configurable: true,
+			writable: true,
+		});
+
+		const { result } = renderHook(() => useMovieDetailHero());
+
+		await waitFor(() => {
+			expect(result.current.isLoading).toBe(false);
+		});
+
+		expect(() => result.current.handleShare()).not.toThrow();
+		expect(shareSpy).toHaveBeenCalledTimes(1);
 	});
 
 	it("should be able to expose error state when details query fails", async () => {

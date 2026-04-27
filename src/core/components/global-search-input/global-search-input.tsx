@@ -10,7 +10,7 @@ type GlobalSearchInputProps = {
 
 export function GlobalSearchInput({
 	debounceInMs,
-	placeholder = "Search films...",
+	placeholder = "Search movies...",
 	onDebouncedValueChange,
 }: GlobalSearchInputProps) {
 	const { searchValue, onSearchValueChange } = useGlobalSearchInput({

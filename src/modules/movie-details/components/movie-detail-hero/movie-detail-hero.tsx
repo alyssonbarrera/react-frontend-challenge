@@ -70,7 +70,7 @@ function MovieDetailHeroView() {
 							title={hero.title}
 							formattedRating={formattedRating}
 							formattedRatingMax={formattedRatingMax}
-							year={hero.year}
+							releaseDate={hero.releaseDate}
 							runtime={hero.runtime}
 							director={hero.director}
 						/>

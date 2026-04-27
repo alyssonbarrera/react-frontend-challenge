@@ -56,8 +56,16 @@ export function useMovieDetailHero() {
 	}
 
 	function handleShare() {
-		if (navigator.share && hero) {
-			navigator.share({ title: hero.title, url: window.location.href });
+		if (!navigator.share || !hero) {
+			return;
+		}
+
+		try {
+			void Promise.resolve(
+				navigator.share({ title: hero.title, url: window.location.href }),
+			).catch(() => undefined);
+		} catch {
+			// Some environments can throw synchronously instead of returning a promise.
 		}
 	}
 
