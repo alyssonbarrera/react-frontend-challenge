@@ -54,10 +54,10 @@ export const Route = createFileRoute("/_authenticated/movie/$id")({
 			},
 		],
 	}),
-	component: () => <MovieDetailsComponent />,
+	component: MovieDetailsComponent,
 });
 
-export function MovieDetailsComponent() {
+function MovieDetailsComponent() {
 	const { id } = movieDetailRouteApi.useParams();
 
 	if (!isValidMovieIdParam(id)) {
@@ -74,7 +74,6 @@ export function MovieDetailsComponent() {
 
 function isValidMovieIdParam(id: string): boolean {
 	const movieId = Number(id);
-
 	return Number.isInteger(movieId) && movieId > 0;
 }
 
