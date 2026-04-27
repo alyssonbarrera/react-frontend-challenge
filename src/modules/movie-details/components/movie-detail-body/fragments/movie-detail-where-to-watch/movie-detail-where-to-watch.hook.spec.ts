@@ -20,6 +20,10 @@ describe("useMovieDetailWhereToWatch", () => {
 		tanstackRouterMock.setParams({ id: "1" });
 	});
 
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
 	it("should be able to expose mapped where to watch data from watch providers query", async () => {
 		getMovieWatchProvidersRequestMock.mockResolvedValueOnce(
 			makeMovieWatchProviders(),
@@ -112,5 +116,71 @@ describe("useMovieDetailWhereToWatch", () => {
 			options: [{ id: "rent", label: "Rent · Apple TV", icon: "download" }],
 			footnote: "Available on 1 platform in your region.",
 		});
+	});
+
+	it("should be able to redirect in a new tab when selecting a valid option", async () => {
+		getMovieWatchProvidersRequestMock.mockResolvedValueOnce(
+			makeMovieWatchProviders(),
+		);
+		const windowOpenMock = vi
+			.spyOn(window, "open")
+			.mockReturnValue({} as Window);
+
+		const { result } = renderHook(() => useMovieDetailWhereToWatch());
+
+		await waitFor(() => {
+			expect(result.current.whereToWatch).not.toBeNull();
+		});
+
+		result.current.handleSelectStreamingOption("stream");
+
+		expect(windowOpenMock).toHaveBeenCalledTimes(1);
+		expect(windowOpenMock).toHaveBeenCalledWith(
+			"https://www.themoviedb.org/movie/1/watch?locale=US",
+			"_blank",
+			"noopener,noreferrer",
+		);
+	});
+
+	it("should not replace current page when popup is blocked", async () => {
+		getMovieWatchProvidersRequestMock.mockResolvedValueOnce(
+			makeMovieWatchProviders(),
+		);
+		const windowOpenMock = vi.spyOn(window, "open").mockReturnValueOnce(null);
+
+		const { result } = renderHook(() => useMovieDetailWhereToWatch());
+
+		await waitFor(() => {
+			expect(result.current.whereToWatch).not.toBeNull();
+		});
+
+		result.current.handleSelectStreamingOption("rent");
+
+		expect(windowOpenMock).toHaveBeenCalledTimes(1);
+		expect(windowOpenMock).toHaveBeenNthCalledWith(
+			1,
+			"https://www.themoviedb.org/movie/1/watch?locale=US",
+			"_blank",
+			"noopener,noreferrer",
+		);
+	});
+
+	it("should not redirect when selecting an unknown option", async () => {
+		getMovieWatchProvidersRequestMock.mockResolvedValueOnce(
+			makeMovieWatchProviders(),
+		);
+		const windowOpenMock = vi
+			.spyOn(window, "open")
+			.mockReturnValue({} as Window);
+
+		const { result } = renderHook(() => useMovieDetailWhereToWatch());
+
+		await waitFor(() => {
+			expect(result.current.whereToWatch).not.toBeNull();
+		});
+
+		result.current.handleSelectStreamingOption("unknown-option");
+
+		expect(windowOpenMock).not.toHaveBeenCalled();
 	});
 });

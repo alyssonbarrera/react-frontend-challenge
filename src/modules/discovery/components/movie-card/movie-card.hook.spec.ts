@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { act, renderHook } from "@testing-library/react";
+import type { KeyboardEvent } from "react";
 import type { Movie } from "../../dtos/movie";
 import { useMovieCard } from "./movie-card.hook";
 
@@ -74,5 +75,51 @@ describe("useMovieCard", () => {
 			to: "/movie/$id",
 			params: { id: String(baseMovie.id) },
 		});
+	});
+
+	it("should be able to navigate when Enter key is pressed on card root", () => {
+		const navigate = vi.fn();
+		vi.mocked(useNavigate).mockReturnValue(navigate as never);
+		const { result } = renderHook(() => useMovieCard({ movie: baseMovie }));
+		const target = document.createElement("div");
+		const preventDefault = vi.fn();
+		const keyboardEvent = {
+			key: "Enter",
+			currentTarget: target,
+			target,
+			preventDefault,
+		} as unknown as KeyboardEvent<HTMLElement>;
+
+		act(() => {
+			result.current.handleCardKeyDown(keyboardEvent);
+		});
+
+		expect(preventDefault).toHaveBeenCalledTimes(1);
+		expect(navigate).toHaveBeenCalledWith({
+			to: "/movie/$id",
+			params: { id: String(baseMovie.id) },
+		});
+	});
+
+	it("should not be able to navigate when key press comes from nested interactive content", () => {
+		const navigate = vi.fn();
+		vi.mocked(useNavigate).mockReturnValue(navigate as never);
+		const { result } = renderHook(() => useMovieCard({ movie: baseMovie }));
+		const currentTarget = document.createElement("div");
+		const nestedTarget = document.createElement("button");
+		const preventDefault = vi.fn();
+		const keyboardEvent = {
+			key: "Enter",
+			currentTarget,
+			target: nestedTarget,
+			preventDefault,
+		} as unknown as KeyboardEvent<HTMLElement>;
+
+		act(() => {
+			result.current.handleCardKeyDown(keyboardEvent);
+		});
+
+		expect(preventDefault).not.toHaveBeenCalled();
+		expect(navigate).not.toHaveBeenCalled();
 	});
 });

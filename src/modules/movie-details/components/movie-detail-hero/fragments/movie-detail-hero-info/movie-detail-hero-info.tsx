@@ -1,20 +1,20 @@
 import { Star } from "lucide-react";
 
 type MovieDetailHeroInfoProps = {
-	year: string;
 	title: string;
 	runtime: string;
 	director: string;
+	releaseDate: string;
 	primaryGenre: string;
 	formattedRating: string;
 	formattedRatingMax: string;
 };
 
 export function MovieDetailHeroInfo({
-	year,
 	title,
 	runtime,
 	director,
+	releaseDate,
 	primaryGenre,
 	formattedRating,
 	formattedRatingMax,
@@ -59,7 +59,7 @@ export function MovieDetailHeroInfo({
 				</span>
 
 				<span className="text-muted-foreground">·</span>
-				<span className="text-secondary">{year}</span>
+				<span className="text-secondary">{releaseDate}</span>
 
 				{runtime && (
 					<>

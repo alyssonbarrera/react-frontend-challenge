@@ -9,7 +9,7 @@ describe("MovieDetailHeroInfo", () => {
 				title="Tenet"
 				formattedRating="7.3"
 				formattedRatingMax="/ 10"
-				year="2020"
+				releaseDate="Aug 26, 2020"
 				runtime="2h 30m"
 				director="dir. Christopher Nolan"
 			/>,
@@ -31,7 +31,7 @@ describe("MovieDetailHeroInfo", () => {
 		expect(movieDetailHeroInfoTitle.textContent).toBe("Tenet");
 		expect(movieDetailHeroInfoMeta.textContent).toContain("7.3");
 		expect(movieDetailHeroInfoMeta.textContent).toContain("/ 10");
-		expect(movieDetailHeroInfoMeta.textContent).toContain("2020");
+		expect(movieDetailHeroInfoMeta.textContent).toContain("Aug 26, 2020");
 		expect(movieDetailHeroInfoMeta.textContent).toContain("2h 30m");
 		expect(movieDetailHeroInfoMeta.textContent).toContain(
 			"dir. Christopher Nolan",
@@ -45,7 +45,7 @@ describe("MovieDetailHeroInfo", () => {
 				title="Tenet"
 				formattedRating="7.3"
 				formattedRatingMax="/ 10"
-				year="2020"
+				releaseDate="Aug 26, 2020"
 				runtime=""
 				director=""
 			/>,

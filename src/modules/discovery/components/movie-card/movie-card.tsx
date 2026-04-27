@@ -15,15 +15,18 @@ function MovieCardView({ movie }: MovieCardProps) {
 		formattedYear,
 		formattedGenre,
 		formattedRating,
+		handleCardKeyDown,
 		handleNavigateToDetails,
 	} = useMovieCard({ movie });
 
 	return (
-		// biome-ignore lint/a11y/useKeyWithClickEvents: keyboard navigation is intentionally out of scope here
-		<article
+		<div
 			className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border bg-card"
 			data-testid="movie-card"
 			onClick={handleNavigateToDetails}
+			onKeyDown={handleCardKeyDown}
+			role="button"
+			tabIndex={0}
 		>
 			<div
 				className="relative aspect-268/380 w-full overflow-hidden bg-muted"
@@ -69,7 +72,7 @@ function MovieCardView({ movie }: MovieCardProps) {
 					<span className="text-secondary">{formattedYear}</span>
 				</div>
 			</div>
-		</article>
+		</div>
 	);
 }
 

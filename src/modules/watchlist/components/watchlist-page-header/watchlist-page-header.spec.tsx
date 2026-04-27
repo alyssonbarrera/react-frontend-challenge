@@ -30,7 +30,7 @@ describe("WatchlistPageHeader", () => {
 		expect(watchlistPageHeader).toBeDefined();
 		expect(watchlistPageHeaderTitle.textContent).toBe("Watchlist");
 		expect(watchlistPageHeaderSubtitle.textContent).toBe(
-			"0 films · 0 hours of viewing",
+			"0 movies · 0 hours of viewing",
 		);
 	});
 
@@ -54,7 +54,7 @@ describe("WatchlistPageHeader", () => {
 			"watchlist-page-header-subtitle",
 		);
 
-		expect(watchlistPageHeaderSubtitle.textContent).toContain("2 films");
+		expect(watchlistPageHeaderSubtitle.textContent).toContain("2 movies");
 		expect(watchlistPageHeaderSubtitle.textContent).toContain(
 			"4 hours of viewing",
 		);

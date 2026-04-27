@@ -19,6 +19,7 @@ type WhereToWatchData = {
 };
 
 const PROVIDERS_LOCALE = "en-US";
+const STREAMING_REDIRECT_FEATURES = "noopener,noreferrer";
 const providersPluralRules = new Intl.PluralRules(PROVIDERS_LOCALE);
 const movieDetailRouteApi = getRouteApi("/_authenticated/movie/$id");
 
@@ -87,11 +88,24 @@ export function useMovieDetailWhereToWatch() {
 	const { id } = movieDetailRouteApi.useParams();
 	const movieId = Number(id);
 	const watchProvidersQuery = useMovieWatchProvidersQuery(movieId);
+	const regionData =
+		watchProvidersQuery.data?.results[MOVIE_DETAIL_PROVIDERS_REGION] ?? null;
 
 	const whereToWatch = buildWhereToWatch(watchProvidersQuery.data);
 
-	function handleSelectStreamingOption(_optionId: string) {
-		// Placeholder for streaming deep link.
+	function handleSelectStreamingOption(optionId: string) {
+		if (!regionData?.link) {
+			return;
+		}
+
+		const hasSelectableOption =
+			whereToWatch?.options.some((option) => option.id === optionId) ?? false;
+
+		if (!hasSelectableOption) {
+			return;
+		}
+
+		window.open(regionData.link, "_blank", STREAMING_REDIRECT_FEATURES);
 	}
 
 	function retryWhereToWatch() {
