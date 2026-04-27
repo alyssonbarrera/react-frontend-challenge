@@ -8,7 +8,7 @@ describe("MovieDetailScreen", () => {
 	});
 
 	it("should be able to render screen sections", async () => {
-		render(<MovieDetailScreen />);
+		render(<MovieDetailScreen id="1" />);
 
 		const movieDetailScreen = screen.getByTestId("movie-detail-screen");
 		const movieDetailScreenHero =
@@ -23,5 +23,21 @@ describe("MovieDetailScreen", () => {
 		expect(movieDetailScreenHero).toBeDefined();
 		expect(movieDetailScreenBody).toBeDefined();
 		expect(movieDetailScreenRelated).toBeDefined();
+	});
+
+	it("should be able to render the not-found state when the id param is not valid", () => {
+		tanstackRouterMock.setParams({ id: "abc" });
+
+		render(<MovieDetailScreen id="abc" />);
+
+		const notFound = screen.getByTestId("not-found");
+		const notFoundTitle = screen.getByTestId("not-found-title");
+		const notFoundSuggestionDiscover = screen.getByTestId(
+			"not-found-suggestion-discover",
+		);
+
+		expect(notFound).toBeDefined();
+		expect(notFoundTitle.textContent).toContain("missing");
+		expect(notFoundSuggestionDiscover).toBeDefined();
 	});
 });

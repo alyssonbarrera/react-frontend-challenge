@@ -39,3 +39,8 @@ export function mapTmdbMovieDetails(
 		genres: raw.genres.map(mapTmdbGenre),
 	};
 }
+
+export function isValidMovieIdParam(id: string): boolean {
+	const movieId = Number(id);
+	return Number.isInteger(movieId) && movieId > 0;
+}

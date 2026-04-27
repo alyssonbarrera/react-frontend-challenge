@@ -6,8 +6,8 @@
 
 ## Pré-requisitos
 
-- Node.js 20+
-- pnpm 9+
+- Node.js 22+
+- pnpm 10+
 
 ## Como rodar o projeto
 
@@ -49,12 +49,12 @@ pnpm dev
 ## Login para testes
 
 - A autenticação é simulada no front-end.
-- Use qualquer e-mail válido e senha com pelo menos 7 caracteres.
+- Use qualquer e-mail válido e senha com pelo menos 6 caracteres.
 
 Exemplo:
 
-- Email: `alex@example.com`
-- Senha: `1234567`
+- Email: `johndoe@example.com`
+- Senha: `123456`
 
 ## Scripts disponíveis
 
