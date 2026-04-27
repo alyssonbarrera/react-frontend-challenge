@@ -1,3 +1,4 @@
+import { AsyncState } from "@/core/components/async-state";
 import {
 	MovieDetailSectionHeaderRoot,
 	MovieDetailSectionHeaderTitle,
@@ -25,40 +26,42 @@ export function MovieDetailCast({
 	isError,
 	isLoading,
 }: MovieDetailCastProps) {
-	if (isError) {
-		return <MovieDetailCastError />;
-	}
-
-	if (isLoading) {
-		return <MovieDetailCastSkeleton />;
-	}
-
-	if (!cast || cast.length === 0) {
-		return null;
-	}
+	const castMembers = cast ?? [];
 
 	return (
-		<section className="flex flex-col gap-4.5" data-testid="movie-detail-cast">
-			<MovieDetailSectionHeaderRoot>
-				<MovieDetailSectionHeaderTitle>
-					<MovieDetailSectionLabel data-testid="movie-detail-cast-label">
-						Cast
-					</MovieDetailSectionLabel>
-				</MovieDetailSectionHeaderTitle>
-			</MovieDetailSectionHeaderRoot>
-			<div
-				className="grid grid-cols-2 gap-3.5 md:grid-cols-4"
-				data-testid="movie-detail-cast-grid"
+		<AsyncState
+			errorComponent={<MovieDetailCastError />}
+			emptyComponent={null}
+			isEmpty={castMembers.length === 0}
+			isError={isError}
+			isLoading={isLoading}
+			loadingComponent={<MovieDetailCastSkeleton />}
+		>
+			<section
+				className="flex flex-col gap-4.5"
+				data-testid="movie-detail-cast"
 			>
-				{cast.map((member) => (
-					<MovieDetailCastCard
-						key={member.id}
-						name={member.name}
-						role={member.role}
-						profilePath={member.profilePath}
-					/>
-				))}
-			</div>
-		</section>
+				<MovieDetailSectionHeaderRoot>
+					<MovieDetailSectionHeaderTitle>
+						<MovieDetailSectionLabel data-testid="movie-detail-cast-label">
+							Cast
+						</MovieDetailSectionLabel>
+					</MovieDetailSectionHeaderTitle>
+				</MovieDetailSectionHeaderRoot>
+				<div
+					className="grid grid-cols-2 gap-3.5 md:grid-cols-4"
+					data-testid="movie-detail-cast-grid"
+				>
+					{castMembers.map((member) => (
+						<MovieDetailCastCard
+							key={member.id}
+							name={member.name}
+							role={member.role}
+							profilePath={member.profilePath}
+						/>
+					))}
+				</div>
+			</section>
+		</AsyncState>
 	);
 }

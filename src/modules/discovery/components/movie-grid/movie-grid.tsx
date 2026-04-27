@@ -1,5 +1,6 @@
 import type { ComponentProps } from "react";
 import { VirtuosoGrid, type VirtuosoGridProps } from "react-virtuoso";
+import { AsyncState } from "@/core/components/async-state";
 import type { Movie } from "../../dtos/movie";
 import { MovieCard } from "../movie-card";
 import { MovieGridSkeleton } from "../movie-grid-skeleton";
@@ -47,18 +48,6 @@ export function MovieGrid() {
 		initialItemIndex,
 	} = useMovieGrid();
 
-	if (isPending) {
-		return <MovieGridSkeleton />;
-	}
-
-	if (isError) {
-		return <MovieGridError isRetrying={isFetching} onRetry={handleRetry} />;
-	}
-
-	if (!hasMovies) {
-		return <MovieGridEmpty searchQuery={searchQuery} />;
-	}
-
 	const components: VirtuosoGridProps<Movie, unknown>["components"] = {
 		List: GridList,
 		Item: GridItem,
@@ -71,17 +60,28 @@ export function MovieGrid() {
 	};
 
 	return (
-		<VirtuosoGrid
-			useWindowScroll
-			style={{ flex: 1 }}
-			data={movies}
-			totalCount={totalCount}
-			components={components}
-			endReached={handleEndReached}
-			rangeChanged={handleRangeChanged}
-			initialTopMostItemIndex={initialItemIndex}
-			overscan={400}
-			itemContent={(_index, movie) => <MovieCard movie={movie} />}
-		/>
+		<AsyncState
+			errorComponent={
+				<MovieGridError isRetrying={isFetching} onRetry={handleRetry} />
+			}
+			emptyComponent={<MovieGridEmpty searchQuery={searchQuery} />}
+			isEmpty={!hasMovies}
+			isError={isError}
+			isLoading={isPending}
+			loadingComponent={<MovieGridSkeleton />}
+		>
+			<VirtuosoGrid
+				useWindowScroll
+				style={{ flex: 1 }}
+				data={movies}
+				totalCount={totalCount}
+				components={components}
+				endReached={handleEndReached}
+				rangeChanged={handleRangeChanged}
+				initialTopMostItemIndex={initialItemIndex}
+				overscan={400}
+				itemContent={(_index, movie) => <MovieCard movie={movie} />}
+			/>
+		</AsyncState>
 	);
 }

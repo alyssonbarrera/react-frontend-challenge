@@ -14,18 +14,6 @@ describe("movieUtils", () => {
 		expect(moviePosterUrl).toBe("https://image.tmdb.org/t/p/w185/poster.jpg");
 	});
 
-	it("should be able to return placeholder poster URL when path is null", async () => {
-		const moviePosterUrl = buildPosterUrl(null);
-
-		expect(moviePosterUrl.startsWith("data:image/svg+xml")).toBe(true);
-	});
-
-	it("should be able to return placeholder poster URL when path is empty", async () => {
-		const moviePosterUrl = buildPosterUrl("");
-
-		expect(moviePosterUrl.startsWith("data:image/svg+xml")).toBe(true);
-	});
-
 	it("should be able to map tmdb movie response", async () => {
 		const tmdbMovieResponse: TmdbMovieResponse = {
 			id: 1,

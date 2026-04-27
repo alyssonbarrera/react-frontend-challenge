@@ -54,74 +54,80 @@ export function DiscoveryFilterBar({
 
 	return (
 		<div
-			className="flex w-full flex-col items-stretch justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3 lg:flex-row lg:items-center"
+			className="flex w-full flex-col items-stretch justify-between gap-4 rounded-2xl border border-border bg-card px-4 py-3 lg:flex-row lg:items-center"
 			data-testid="discovery-filter-bar"
 		>
-			<div className="flex flex-wrap items-center gap-2.5">
-				<div className="flex items-center gap-1.5 pr-2 text-muted-foreground">
+			<div className="flex flex-col items-start gap-3 lg:flex-row lg:items-center">
+				<div className="flex items-center gap-1.5 text-muted-foreground">
 					<SlidersHorizontal className="size-3.5" />
 					<span className="font-semibold text-xs tracking-wide">Filter by</span>
 				</div>
 
 				<span className="hidden h-6 w-px bg-border lg:inline-block" />
 
-				<FilterChipDropdown
-					testId="discovery-filter-bar-genre"
-					prefix="Genre:"
-					value={filters.genre}
-					isActive={isGenreActive}
-					isDisabled={isDisabled}
-					options={DISCOVERY_GENRES.map((genre) => ({
-						label: genre,
-						isSelected: genre === filters.genre,
-						onSelect: () => onGenreChange(genre),
-					}))}
-				/>
+				<div className="flex flex-wrap items-center gap-2.5">
+					<FilterChipDropdown
+						testId="discovery-filter-bar-genre"
+						prefix="Genre:"
+						value={filters.genre}
+						isActive={isGenreActive}
+						isDisabled={isDisabled}
+						options={DISCOVERY_GENRES.map((genre) => ({
+							label: genre,
+							isSelected: genre === filters.genre,
+							onSelect: () => onGenreChange(genre),
+						}))}
+					/>
 
-				<FilterChipDropdown
-					testId="discovery-filter-bar-year"
-					prefix="Year:"
-					value={yearLabel}
-					isActive={isYearRangeActive}
-					isDisabled={isDisabled}
-					options={DISCOVERY_YEAR_RANGES.map((range) => ({
-						label: range.label,
-						isSelected:
-							range.from === filters.yearFrom && range.to === filters.yearTo,
-						onSelect: () => onYearRangeChange(range.from, range.to),
-					}))}
-				/>
+					<FilterChipDropdown
+						testId="discovery-filter-bar-year"
+						prefix="Year:"
+						value={yearLabel}
+						isActive={isYearRangeActive}
+						isDisabled={isDisabled}
+						options={DISCOVERY_YEAR_RANGES.map((range) => ({
+							label: range.label,
+							isSelected:
+								range.from === filters.yearFrom && range.to === filters.yearTo,
+							onSelect: () => onYearRangeChange(range.from, range.to),
+						}))}
+					/>
 
-				<FilterChipDropdown
-					testId="discovery-filter-bar-rating"
-					prefix="Rating:"
-					value={minRatingLabel}
-					isActive={isMinRatingActive}
-					isDisabled={isDisabled}
-					LeadingIcon={Star}
-					leadingIconClassName="text-accent-amber"
-					options={DISCOVERY_MIN_RATINGS.map((rating) => ({
-						label: rating === 0 ? "Any rating" : `${rating}+`,
-						isSelected: rating === filters.minRating,
-						onSelect: () => onMinRatingChange(rating),
-					}))}
-				/>
+					<FilterChipDropdown
+						testId="discovery-filter-bar-rating"
+						prefix="Rating:"
+						value={minRatingLabel}
+						isActive={isMinRatingActive}
+						isDisabled={isDisabled}
+						LeadingIcon={Star}
+						leadingIconClassName="text-accent-amber"
+						options={DISCOVERY_MIN_RATINGS.map((rating) => ({
+							label: rating === 0 ? "Any rating" : `${rating}+`,
+							isSelected: rating === filters.minRating,
+							onSelect: () => onMinRatingChange(rating),
+						}))}
+					/>
 
-				{hasActiveFilters && !isDisabled && (
-					<button
-						type="button"
-						onClick={onClearFilters}
-						className="flex items-center gap-1.5 rounded-[10px] px-2.5 py-2 font-medium text-muted-foreground text-xs transition-colors hover:text-foreground"
-						data-testid="discovery-filter-bar-clear"
-					>
-						<X className="size-3" />
-						Clear
-					</button>
-				)}
+					{hasActiveFilters && !isDisabled && (
+						<button
+							type="button"
+							onClick={onClearFilters}
+							className="flex items-center gap-1.5 rounded-[10px] px-2.5 py-2 font-medium text-muted-foreground text-xs transition-colors hover:text-foreground"
+							data-testid="discovery-filter-bar-clear"
+						>
+							<X className="size-3" />
+							Clear
+						</button>
+					)}
+				</div>
 			</div>
 
-			<div className="flex items-center gap-2.5">
-				<span className="font-medium text-muted-foreground text-xs">Sort:</span>
+			<div className="block h-px w-full bg-border lg:hidden" />
+
+			<div className="flex items-center justify-between gap-2.5 lg:justify-end">
+				<span className="font-semibold text-muted-foreground text-xs tracking-wide">
+					Sort:
+				</span>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild disabled={isDisabled}>
 						<button

@@ -18,7 +18,9 @@ describe("MovieDetailAudienceScore", () => {
 			formattedScoreMax: "/ 10",
 			formattedVotes: "100 votes",
 			scorePercentage: 73,
+			hasAudienceData: true,
 			retryAudienceScore: movieDetailAudienceScoreRetryMock,
+			isLoading: false,
 			isError: false,
 		};
 
@@ -73,5 +75,36 @@ describe("MovieDetailAudienceScore", () => {
 		expect(movieDetailAudienceScoreError).toBeDefined();
 		expect(movieDetailAudienceScoreRetryMock).toHaveBeenCalled();
 		expect(movieDetailAudienceScoreRetryMock).toHaveBeenCalledTimes(1);
+	});
+
+	it("should be able to render audience score skeleton while loading", () => {
+		vi.mocked(useMovieDetailAudienceScore).mockReturnValueOnce({
+			...defaultUseMovieDetailAudienceScoreMock,
+			isLoading: true,
+			hasAudienceData: false,
+		});
+
+		render(<MovieDetailAudienceScore />);
+
+		const movieDetailAudienceScoreSkeleton = screen.getByTestId(
+			"movie-detail-audience-score-skeleton",
+		);
+
+		expect(movieDetailAudienceScoreSkeleton).toBeDefined();
+	});
+
+	it("should be able to render nothing when there is no audience data", () => {
+		vi.mocked(useMovieDetailAudienceScore).mockReturnValueOnce({
+			...defaultUseMovieDetailAudienceScoreMock,
+			hasAudienceData: false,
+		});
+
+		render(<MovieDetailAudienceScore />);
+
+		const movieDetailAudienceScore = screen.queryByTestId(
+			"movie-detail-audience-score",
+		);
+
+		expect(movieDetailAudienceScore).toBeNull();
 	});
 });

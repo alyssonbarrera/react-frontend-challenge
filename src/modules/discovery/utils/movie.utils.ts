@@ -1,15 +1,13 @@
 import type { Movie, TmdbMovieResponse } from "../dtos/movie";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p";
-const POSTER_PLACEHOLDER =
-	"data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 268 380'%3E%3Crect width='268' height='380' fill='%23222'/%3E%3C/svg%3E";
 
 export function buildPosterUrl(
 	posterPath: string | null,
 	size: "w185" | "w342" | "w500" | "original" = "w500",
 ): string {
 	if (!posterPath) {
-		return POSTER_PLACEHOLDER;
+		return "";
 	}
 
 	return `${TMDB_IMAGE_BASE_URL}/${size}${posterPath}`;

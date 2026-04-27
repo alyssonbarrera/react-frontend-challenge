@@ -14,12 +14,13 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 } from "@/core/components/ui/sidebar";
+import { useAuthStore } from "@/core/stores/auth-store";
 import { CineDashLogo } from "../cinedash-logo";
 
-const user = {
-	id: crypto.randomUUID(),
-	name: "Alex Morgan",
-	email: "john.doe@cinedash.com",
+const fallbackUser = {
+	id: "fallback-user",
+	name: "Guest User",
+	email: "guest@cinedash.com",
 	avatarUrl: null,
 };
 
@@ -50,6 +51,9 @@ const sections: ComponentProps<typeof NavMain>["sections"] = [
 ];
 
 export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
+	const authenticatedUser = useAuthStore((state) => state.user);
+	const user = authenticatedUser ?? fallbackUser;
+
 	return (
 		<Sidebar collapsible="icon" data-testid="app-sidebar" {...props}>
 			<SidebarHeader>

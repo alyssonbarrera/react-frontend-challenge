@@ -18,7 +18,7 @@ export function LoginScreen() {
 					<div className="flex flex-1 items-center py-8 md:items-center md:py-12 md:flex-1 lg:py-0">
 						<div className="mx-auto w-full max-w-110 space-y-8 md:max-w-120 xl:max-w-130">
 							<div className="inline-flex items-center gap-2 rounded-full bg-accent-cyan dark:bg-accent-cyan-soft px-3 py-1.5 text-xs dark:text-accent-cyan">
-								<div className="size-1.5 rounded-full bg-black" />
+								<div className="size-1.5 rounded-full bg-black dark:bg-accent-cyan" />
 								<span className="font-medium tracking-[0.03em]">
 									Welcome back
 								</span>

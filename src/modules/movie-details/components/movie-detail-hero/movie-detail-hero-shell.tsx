@@ -54,12 +54,16 @@ function MovieDetailHeroShellRoot({
 }
 
 function MovieDetailHeroShellBackdropImage({
+	src,
 	alt,
 	className,
 	...props
 }: MovieDetailHeroShellBackdropImageProps) {
+	if (!src) return null;
+
 	return (
 		<img
+			src={src}
 			alt={alt}
 			data-slot="movie-detail-hero-shell-backdrop-image"
 			className={cn(

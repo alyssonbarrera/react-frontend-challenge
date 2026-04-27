@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import { ErrorBoundary } from "react-error-boundary";
+import { MoviePosterPlaceholder } from "@/core/components/movie-poster-placeholder";
 import { WatchlistToggleButton } from "@/modules/watchlist/components/watchlist-toggle-button";
 import type { Movie } from "../../dtos/movie";
 import { useMovieCard } from "./movie-card.hook";
@@ -23,6 +24,8 @@ function MovieCardView({ movie }: MovieCardProps) {
 		handleNavigateToDetails,
 	} = useMovieCard({ movie });
 
+	const shouldRenderPosterImage = !!posterUrl;
+
 	return (
 		<div
 			className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border bg-card"
@@ -40,12 +43,15 @@ function MovieCardView({ movie }: MovieCardProps) {
 				className="relative aspect-268/380 w-full overflow-hidden bg-muted"
 				data-testid="movie-card-poster"
 			>
-				<img
-					src={posterUrl}
-					alt={movie.title}
-					loading="lazy"
-					className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-				/>
+				{shouldRenderPosterImage && (
+					<img
+						src={posterUrl}
+						alt={movie.title}
+						className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+					/>
+				)}
+
+				{!shouldRenderPosterImage && <MoviePosterPlaceholder />}
 
 				<div
 					className="absolute top-3.5 left-3.5 flex items-center gap-1 rounded-lg border border-white/10 bg-surface-base/90 px-2.5 py-1"
