@@ -1,5 +1,5 @@
 import type { ColumnDef, SortingState } from "@tanstack/react-table";
-import { MoreHorizontal, Play, Star } from "lucide-react";
+import { MoreHorizontal, Star } from "lucide-react";
 import { Button } from "@/core/components/ui/button";
 import {
 	DropdownMenu,
@@ -9,6 +9,7 @@ import {
 } from "@/core/components/ui/dropdown-menu";
 import { buildPosterUrl } from "@/modules/discovery/utils/movie.utils";
 import { getGenreName } from "@/modules/discovery/utils/movie-genres.utils";
+import { WatchlistTablePlayButton } from "@/modules/watchlist/components/watchlist-table-play-button";
 import {
 	SORTABLE_COLUMNS,
 	type SortableColumn,
@@ -214,7 +215,10 @@ export function buildColumns({
 		createGenreColumn(),
 		createReleaseDateColumn(),
 		createRatingColumn(),
-		createActionsColumn(onRemoveFromWatchlist, onPlayMovie),
+		createActionsColumn({
+			onRemoveFromWatchlist,
+			onPlayMovie,
+		}),
 	];
 }
 
@@ -301,27 +305,21 @@ function createRatingColumn(): WatchlistColumn {
 		},
 	};
 }
-function createActionsColumn(
-	onRemoveFromWatchlist: (id: number) => void,
-	onPlayMovie: (id: number) => void,
-): WatchlistColumn {
+function createActionsColumn({
+	onRemoveFromWatchlist,
+	onPlayMovie,
+}: BuildColumnsParams): WatchlistColumn {
 	return {
 		id: "actions",
 		header: () => <span className="sr-only">Actions</span>,
 		enableSorting: false,
 		cell: ({ row }) => (
 			<div className="flex items-center justify-end gap-2">
-				<Button
-					type="button"
-					size="icon"
-					variant="outline"
-					className="size-8 rounded-lg"
-					aria-label={`Play ${row.original.title}`}
-					data-testid="watchlist-table-row-play"
-					onClick={() => onPlayMovie(row.original.id)}
-				>
-					<Play className="size-3.5" />
-				</Button>
+				<WatchlistTablePlayButton
+					movieId={row.original.id}
+					movieTitle={row.original.title}
+					onPlayMovie={onPlayMovie}
+				/>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button

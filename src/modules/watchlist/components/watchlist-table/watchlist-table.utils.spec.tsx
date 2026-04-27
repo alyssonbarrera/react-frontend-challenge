@@ -135,7 +135,10 @@ describe("watchlist-table.utils", () => {
 	it("should be able to build actions column and call remove callback", () => {
 		const onRemoveFromWatchlist = vi.fn();
 		const onPlayMovie = vi.fn();
-		const columns = buildColumns({ onRemoveFromWatchlist, onPlayMovie });
+		const columns = buildColumns({
+			onRemoveFromWatchlist,
+			onPlayMovie,
+		});
 		const actionsColumn = columns.find((column) => column.id === "actions");
 		const renderActionsCell = actionsColumn?.cell as (params: {
 			row: {

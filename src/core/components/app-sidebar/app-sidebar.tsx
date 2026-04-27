@@ -1,13 +1,6 @@
 "use client";
 
-import {
-	Calendar,
-	Compass,
-	Flame,
-	Heart,
-	History,
-	ListVideo,
-} from "lucide-react";
+import { Compass, ListVideo } from "lucide-react";
 import type { ComponentProps } from "react";
 import { NavMain } from "@/core/components/nav-main";
 import { NavUser } from "@/core/components/nav-user";

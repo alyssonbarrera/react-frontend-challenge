@@ -1,13 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { getMovieRecommendationsRequest } from "../http/get-movie-recommendations-request";
-
-export const MOVIE_RECOMMENDATIONS_QUERY_KEY = "movie-recommendations";
+import {
+	isValidMovieId,
+	movieRecommendationsQueryOptions,
+} from "./movie-details-query-options";
 
 export function useMovieRecommendationsQuery(movieId: number) {
 	return useQuery({
-		queryKey: [MOVIE_RECOMMENDATIONS_QUERY_KEY, movieId],
-		queryFn: () => getMovieRecommendationsRequest({ movieId }),
-		staleTime: 1000 * 60 * 5,
-		enabled: Number.isFinite(movieId) && movieId > 0,
+		...movieRecommendationsQueryOptions(movieId),
+		enabled: isValidMovieId(movieId),
 	});
 }

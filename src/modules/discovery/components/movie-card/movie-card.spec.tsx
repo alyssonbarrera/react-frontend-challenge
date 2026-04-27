@@ -29,8 +29,12 @@ describe("MovieCard", () => {
 			formattedYear: "2020",
 			formattedGenre: "Action, Adventure",
 			formattedRating: "7.3",
+			handleCardFocus: vi.fn(),
 			handleNavigateToDetails: vi.fn(),
 			handleCardKeyDown: vi.fn(),
+			handleCardMouseEnter: vi.fn(),
+			handleCardMouseLeave: vi.fn(),
+			handleCardTouchStart: vi.fn(),
 		});
 	});
 
@@ -77,8 +81,12 @@ describe("MovieCard", () => {
 			formattedYear: "2020",
 			formattedGenre: "Action, Adventure",
 			formattedRating: "7.3",
+			handleCardFocus: vi.fn(),
 			handleNavigateToDetails,
 			handleCardKeyDown: vi.fn(),
+			handleCardMouseEnter: vi.fn(),
+			handleCardMouseLeave: vi.fn(),
+			handleCardTouchStart: vi.fn(),
 		});
 
 		render(<MovieCard movie={movie} />);
@@ -96,8 +104,12 @@ describe("MovieCard", () => {
 			formattedYear: "2020",
 			formattedGenre: "Action, Adventure",
 			formattedRating: "7.3",
+			handleCardFocus: vi.fn(),
 			handleNavigateToDetails: vi.fn(),
 			handleCardKeyDown,
+			handleCardMouseEnter: vi.fn(),
+			handleCardMouseLeave: vi.fn(),
+			handleCardTouchStart: vi.fn(),
 		});
 
 		render(<MovieCard movie={movie} />);
@@ -115,8 +127,12 @@ describe("MovieCard", () => {
 			formattedYear: "2020",
 			formattedGenre: "Action, Adventure",
 			formattedRating: "7.3",
+			handleCardFocus: vi.fn(),
 			handleNavigateToDetails: vi.fn(),
 			handleCardKeyDown,
+			handleCardMouseEnter: vi.fn(),
+			handleCardMouseLeave: vi.fn(),
+			handleCardTouchStart: vi.fn(),
 		});
 
 		render(<MovieCard movie={movie} />);
@@ -134,8 +150,12 @@ describe("MovieCard", () => {
 			formattedYear: "2020",
 			formattedGenre: "Action, Adventure",
 			formattedRating: "7.3",
+			handleCardFocus: vi.fn(),
 			handleNavigateToDetails: vi.fn(),
 			handleCardKeyDown,
+			handleCardMouseEnter: vi.fn(),
+			handleCardMouseLeave: vi.fn(),
+			handleCardTouchStart: vi.fn(),
 		});
 
 		render(<MovieCard movie={movie} />);
@@ -143,6 +163,98 @@ describe("MovieCard", () => {
 		fireEvent.keyDown(screen.getByTestId("movie-card"), { key: "Escape" });
 
 		expect(handleCardKeyDown).toHaveBeenCalledTimes(1);
+	});
+
+	it("should be able to delegate mouse enter prefetch handling to hook", () => {
+		const handleCardMouseEnter = vi.fn();
+
+		vi.mocked(useMovieCard).mockReturnValue({
+			posterUrl: "https://image.tmdb.org/poster.jpg",
+			formattedYear: "2020",
+			formattedGenre: "Action, Adventure",
+			formattedRating: "7.3",
+			handleCardFocus: vi.fn(),
+			handleNavigateToDetails: vi.fn(),
+			handleCardKeyDown: vi.fn(),
+			handleCardMouseEnter,
+			handleCardMouseLeave: vi.fn(),
+			handleCardTouchStart: vi.fn(),
+		});
+
+		render(<MovieCard movie={movie} />);
+
+		fireEvent.mouseEnter(screen.getByTestId("movie-card"));
+
+		expect(handleCardMouseEnter).toHaveBeenCalledTimes(1);
+	});
+
+	it("should be able to delegate mouse leave prefetch cancellation handling to hook", () => {
+		const handleCardMouseLeave = vi.fn();
+
+		vi.mocked(useMovieCard).mockReturnValue({
+			posterUrl: "https://image.tmdb.org/poster.jpg",
+			formattedYear: "2020",
+			formattedGenre: "Action, Adventure",
+			formattedRating: "7.3",
+			handleCardFocus: vi.fn(),
+			handleNavigateToDetails: vi.fn(),
+			handleCardKeyDown: vi.fn(),
+			handleCardMouseEnter: vi.fn(),
+			handleCardMouseLeave,
+			handleCardTouchStart: vi.fn(),
+		});
+
+		render(<MovieCard movie={movie} />);
+
+		fireEvent.mouseLeave(screen.getByTestId("movie-card"));
+
+		expect(handleCardMouseLeave).toHaveBeenCalledTimes(1);
+	});
+
+	it("should be able to delegate focus prefetch handling to hook", () => {
+		const handleCardFocus = vi.fn();
+
+		vi.mocked(useMovieCard).mockReturnValue({
+			posterUrl: "https://image.tmdb.org/poster.jpg",
+			formattedYear: "2020",
+			formattedGenre: "Action, Adventure",
+			formattedRating: "7.3",
+			handleCardFocus,
+			handleNavigateToDetails: vi.fn(),
+			handleCardKeyDown: vi.fn(),
+			handleCardMouseEnter: vi.fn(),
+			handleCardMouseLeave: vi.fn(),
+			handleCardTouchStart: vi.fn(),
+		});
+
+		render(<MovieCard movie={movie} />);
+
+		fireEvent.focus(screen.getByTestId("movie-card"));
+
+		expect(handleCardFocus).toHaveBeenCalledTimes(1);
+	});
+
+	it("should be able to delegate touch start prefetch handling to hook", () => {
+		const handleCardTouchStart = vi.fn();
+
+		vi.mocked(useMovieCard).mockReturnValue({
+			posterUrl: "https://image.tmdb.org/poster.jpg",
+			formattedYear: "2020",
+			formattedGenre: "Action, Adventure",
+			formattedRating: "7.3",
+			handleCardFocus: vi.fn(),
+			handleNavigateToDetails: vi.fn(),
+			handleCardKeyDown: vi.fn(),
+			handleCardMouseEnter: vi.fn(),
+			handleCardMouseLeave: vi.fn(),
+			handleCardTouchStart,
+		});
+
+		render(<MovieCard movie={movie} />);
+
+		fireEvent.touchStart(screen.getByTestId("movie-card"));
+
+		expect(handleCardTouchStart).toHaveBeenCalledTimes(1);
 	});
 
 	it("should be able to toggle the watchlist without navigating when the watchlist button is clicked", () => {
@@ -153,8 +265,12 @@ describe("MovieCard", () => {
 			formattedYear: "2020",
 			formattedGenre: "Action, Adventure",
 			formattedRating: "7.3",
+			handleCardFocus: vi.fn(),
 			handleNavigateToDetails,
 			handleCardKeyDown: vi.fn(),
+			handleCardMouseEnter: vi.fn(),
+			handleCardMouseLeave: vi.fn(),
+			handleCardTouchStart: vi.fn(),
 		});
 
 		render(<MovieCard movie={movie} />);
@@ -172,8 +288,12 @@ describe("MovieCard", () => {
 			formattedYear: "2020",
 			formattedGenre: "Action, Adventure",
 			formattedRating: "7.3",
+			handleCardFocus: vi.fn(),
 			handleNavigateToDetails: vi.fn(),
 			handleCardKeyDown,
+			handleCardMouseEnter: vi.fn(),
+			handleCardMouseLeave: vi.fn(),
+			handleCardTouchStart: vi.fn(),
 		});
 
 		render(<MovieCard movie={movie} />);

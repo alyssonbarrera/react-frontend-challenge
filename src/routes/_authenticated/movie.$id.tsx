@@ -3,14 +3,19 @@ import { NotFound } from "@/core/components/not-found";
 import { MovieDetailBodySkeleton } from "@/modules/movie-details/components/movie-detail-body/movie-detail-body-skeleton";
 import { MovieDetailHeroSkeleton } from "@/modules/movie-details/components/movie-detail-hero/movie-detail-hero-skeleton";
 import { MovieDetailRelatedSkeleton } from "@/modules/movie-details/components/movie-detail-related/movie-detail-related-skeleton";
-import { getMovieDetailsRequest } from "@/modules/movie-details/http/get-movie-details-request";
-import { MOVIE_DETAILS_QUERY_KEY } from "@/modules/movie-details/queries/use-movie-details-query";
+import {
+	movieCreditsQueryOptions,
+	movieDetailsQueryOptions,
+	movieRecommendationsQueryOptions,
+	movieVideosQueryOptions,
+	movieWatchProvidersQueryOptions,
+} from "@/modules/movie-details/queries/movie-details-query-options";
 import { MovieDetailScreen } from "@/modules/movie-details/screens/movie-detail-screen";
 
 const movieDetailRouteApi = getRouteApi("/_authenticated/movie/$id");
 
 export const Route = createFileRoute("/_authenticated/movie/$id")({
-	loader: async ({ context, params }) => {
+	loader: async ({ context, params, preload }) => {
 		if (!isValidMovieIdParam(params.id)) {
 			return null;
 		}
@@ -18,11 +23,22 @@ export const Route = createFileRoute("/_authenticated/movie/$id")({
 		const movieId = Number(params.id);
 
 		try {
-			return await context.queryClient.ensureQueryData({
-				queryKey: [MOVIE_DETAILS_QUERY_KEY, movieId],
-				queryFn: () => getMovieDetailsRequest({ movieId }),
-				staleTime: 1000 * 60 * 5,
-			});
+			const movieDetails = await context.queryClient.ensureQueryData(
+				movieDetailsQueryOptions(movieId),
+			);
+
+			if (!preload) {
+				context.queryClient.prefetchQuery(movieCreditsQueryOptions(movieId));
+				context.queryClient.prefetchQuery(movieVideosQueryOptions(movieId));
+				context.queryClient.prefetchQuery(
+					movieWatchProvidersQueryOptions(movieId),
+				);
+				context.queryClient.prefetchQuery(
+					movieRecommendationsQueryOptions(movieId),
+				);
+			}
+
+			return movieDetails;
 		} catch {
 			return null;
 		}

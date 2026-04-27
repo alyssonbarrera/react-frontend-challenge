@@ -61,7 +61,7 @@ export function useMovieDetailHero() {
 		}
 
 		try {
-			void Promise.resolve(
+			Promise.resolve(
 				navigator.share({ title: hero.title, url: window.location.href }),
 			).catch(() => undefined);
 		} catch {

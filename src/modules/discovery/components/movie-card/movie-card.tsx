@@ -15,7 +15,11 @@ function MovieCardView({ movie }: MovieCardProps) {
 		formattedYear,
 		formattedGenre,
 		formattedRating,
+		handleCardFocus,
 		handleCardKeyDown,
+		handleCardMouseEnter,
+		handleCardMouseLeave,
+		handleCardTouchStart,
 		handleNavigateToDetails,
 	} = useMovieCard({ movie });
 
@@ -23,8 +27,12 @@ function MovieCardView({ movie }: MovieCardProps) {
 		<div
 			className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border bg-card"
 			data-testid="movie-card"
+			onFocus={handleCardFocus}
 			onClick={handleNavigateToDetails}
 			onKeyDown={handleCardKeyDown}
+			onMouseEnter={handleCardMouseEnter}
+			onMouseLeave={handleCardMouseLeave}
+			onTouchStart={handleCardTouchStart}
 			role="button"
 			tabIndex={0}
 		>
