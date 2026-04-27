@@ -1,3 +1,4 @@
+import { AsyncState } from "@/core/components/async-state";
 import {
 	MovieDetailSectionShellContent,
 	MovieDetailSectionShellLabel,
@@ -17,31 +18,28 @@ export function MovieDetailSynopsis({
 	synopsis,
 	isLoading,
 }: MovieDetailSynopsisProps) {
-	if (isError) {
-		return <MovieDetailSynopsisError />;
-	}
-
-	if (isLoading) {
-		return <MovieDetailSynopsisSkeleton />;
-	}
-
-	if (!synopsis) {
-		return null;
-	}
-
 	return (
-		<MovieDetailSectionShellRoot data-testid="movie-detail-synopsis">
-			<MovieDetailSectionShellLabel data-testid="movie-detail-synopsis-label">
-				Synopsis
-			</MovieDetailSectionShellLabel>
-			<MovieDetailSectionShellContent>
-				<p
-					className="text-[15px] text-secondary leading-[1.65]"
-					data-testid="movie-detail-synopsis-body"
-				>
-					{synopsis}
-				</p>
-			</MovieDetailSectionShellContent>
-		</MovieDetailSectionShellRoot>
+		<AsyncState
+			errorComponent={<MovieDetailSynopsisError />}
+			emptyComponent={null}
+			isEmpty={!synopsis}
+			isError={isError}
+			isLoading={isLoading}
+			loadingComponent={<MovieDetailSynopsisSkeleton />}
+		>
+			<MovieDetailSectionShellRoot data-testid="movie-detail-synopsis">
+				<MovieDetailSectionShellLabel data-testid="movie-detail-synopsis-label">
+					Synopsis
+				</MovieDetailSectionShellLabel>
+				<MovieDetailSectionShellContent>
+					<p
+						className="text-[15px] text-secondary leading-[1.65]"
+						data-testid="movie-detail-synopsis-body"
+					>
+						{synopsis}
+					</p>
+				</MovieDetailSectionShellContent>
+			</MovieDetailSectionShellRoot>
+		</AsyncState>
 	);
 }

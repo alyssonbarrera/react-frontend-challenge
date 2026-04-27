@@ -1,9 +1,5 @@
-import {
-	getRouteApi,
-	useCanGoBack,
-	useNavigate,
-	useRouter,
-} from "@tanstack/react-router";
+import { getRouteApi, useCanGoBack, useNavigate } from "@tanstack/react-router";
+import { historyBack } from "@/infra/history/history-back";
 import type { Movie } from "@/modules/discovery/dtos/movie";
 import { useMovieCreditsQuery } from "../../queries/use-movie-credits-query";
 import { useMovieDetailsQuery } from "../../queries/use-movie-details-query";
@@ -19,7 +15,6 @@ export type { MovieDetailHeroData } from "./movie-detail-hero.utils";
 const movieDetailRouteApi = getRouteApi("/_authenticated/movie/$id");
 
 export function useMovieDetailHero() {
-	const router = useRouter();
 	const navigate = useNavigate();
 	const canGoBack = useCanGoBack();
 
@@ -49,7 +44,7 @@ export function useMovieDetailHero() {
 
 	function handleBack() {
 		if (canGoBack) {
-			router.history.back();
+			historyBack();
 		} else {
 			navigate({ to: "/discovery" });
 		}

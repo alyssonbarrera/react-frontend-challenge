@@ -15,6 +15,7 @@ export function useMovieDetailAudienceScore() {
 	const movieId = Number(id);
 	const detailsQuery = useMovieDetailsQuery(movieId);
 	const movie = detailsQuery.data;
+	const hasAudienceData = !!movie;
 
 	const formattedScore = movie ? formatAudienceScore(movie.voteAverage) : "";
 	const formattedScoreMax = movie
@@ -33,8 +34,10 @@ export function useMovieDetailAudienceScore() {
 		formattedScore,
 		formattedVotes,
 		scorePercentage,
+		hasAudienceData,
 		formattedScoreMax,
 		retryAudienceScore,
 		isError: detailsQuery.isError,
+		isLoading: detailsQuery.isLoading,
 	};
 }

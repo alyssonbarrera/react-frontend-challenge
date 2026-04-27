@@ -3,6 +3,7 @@ import { makeMovieDetails } from "@tests/factories/make-movie-details";
 import { tanstackRouterMock } from "@tests/factories/make-tanstack-router";
 import { act, renderHook, waitFor } from "@tests/utils";
 import type { MockInstance } from "vitest";
+import * as historyBackModule from "@/infra/history/history-back";
 import * as movieCreditsRequestModule from "../../http/get-movie-credits-request";
 import * as movieDetailsRequestModule from "../../http/get-movie-details-request";
 import { useMovieDetailHero } from "./movie-detail-hero.hook";
@@ -13,6 +14,7 @@ describe("useMovieDetailHero", () => {
 
 	let getMovieDetailsRequestMock: MockInstance;
 	let getMovieCreditsRequestMock: MockInstance;
+	let historyBackMock: MockInstance;
 
 	beforeEach(() => {
 		tanstackRouterMock.setNavigateMock(navigateMock);
@@ -28,6 +30,9 @@ describe("useMovieDetailHero", () => {
 			movieCreditsRequestModule,
 			"getMovieCreditsRequest",
 		);
+		historyBackMock = vi
+			.spyOn(historyBackModule, "historyBack")
+			.mockImplementation(() => {});
 	});
 
 	it("should be able to go back using browser history when there is history", async () => {
@@ -45,7 +50,7 @@ describe("useMovieDetailHero", () => {
 			result.current.handleBack();
 		});
 
-		expect(routerBackMock).toHaveBeenCalledTimes(1);
+		expect(historyBackMock).toHaveBeenCalledTimes(1);
 		expect(navigateMock).not.toHaveBeenCalled();
 	});
 

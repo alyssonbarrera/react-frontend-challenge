@@ -323,11 +323,17 @@ routes/
 - A rota `/movie/$id` tem loader híbrido: garante `movieDetails` como dado bloqueante e só prefetch de dados complementares fora do fluxo de preload.
 - Tipagem ponta a ponta: `navigate({ to: "/discovery" })` é validado em build.
 
+### 7.1 Botão "Back" e a Navigation API (`infra/history/history-back.ts`)
+
+No fluxo `/discovery → /movie/A → /movie/B`, dois `pushState` consecutivos a partir de click handlers em rotas com mesmo prefixo acionam a **history-manipulation intervention** do Chromium: a partir do segundo, qualquer `window.history.back()` é silenciosamente ignorado (sem `popstate`, sem warning). Confirmado instrumentando `pushState`/`popstate` numa página fresca: `history.length=4`, `state.__TSR_index=1`, e ainda assim o `back()` vira no-op.
+
+**Correção.** O helper `historyBack()` em `infra/history/` chama `window.navigation.back()` (Navigation API) quando disponível e cai para `window.history.back()` no resto. A Navigation API não está sujeita à mesma heurística, e os browsers que ainda não a implementam (Firefox, Safari) também não implementam a intervention — então o fallback funciona neles. O `useMovieDetailHero` consome esse helper via `historyBack()` em vez de `router.history.back()`. Sem stack manual, sem subscription, sem efeito colateral nas setas do navegador.
+
 ---
 
 ## 8. Infra (`src/infra`)
 
-Pequena por princípio. Hoje só HTTP + cookies.
+Pequena por princípio. Hoje HTTP + cookies + um adapter de history do browser.
 
 **`infra/http/api-client.ts`**:
 
@@ -340,6 +346,8 @@ export const api = ky.create({
 ```
 
 `beforeRequest` injeta o Bearer do TMDB e o header `Accept`. **Toda request do app passa por aqui** — não há `fetch` solto pelo código. Trocar de `ky` para `axios` (ou para um SDK gerado) é uma alteração local em `infra/`.
+
+**`infra/history/history-back.ts`** encapsula a navegação "voltar" do browser priorizando a Navigation API; ver seção 7.1 para a motivação.
 
 ---
 

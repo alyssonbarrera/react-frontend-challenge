@@ -1,4 +1,5 @@
 import { ErrorBoundary } from "react-error-boundary";
+import { AsyncState } from "@/core/components/async-state";
 import { Player } from "@/core/components/player";
 import {
 	MovieDetailSectionShellContent,
@@ -12,36 +13,35 @@ import { MovieDetailTrailerSkeleton } from "./movie-detail-trailer-skeleton";
 function MovieDetailTrailerView() {
 	const { trailer, isLoading, isError, retry } = useMovieDetailTrailer();
 
-	if (isLoading) {
-		return <MovieDetailTrailerSkeleton />;
-	}
-
-	if (isError) {
-		return <MovieDetailTrailerError onRetry={retry} />;
-	}
-
-	if (!trailer) {
-		return null;
-	}
-
 	return (
-		<MovieDetailSectionShellRoot
-			className="scroll-mt-6"
-			data-testid="movie-detail-trailer"
-			id="movie-detail-trailer"
+		<AsyncState
+			errorComponent={<MovieDetailTrailerError onRetry={retry} />}
+			emptyComponent={null}
+			isEmpty={!trailer}
+			isError={isError}
+			isLoading={isLoading}
+			loadingComponent={<MovieDetailTrailerSkeleton />}
 		>
-			<MovieDetailSectionShellLabel data-testid="movie-detail-trailer-label">
-				Trailer
-			</MovieDetailSectionShellLabel>
-			<MovieDetailSectionShellContent>
-				<div
-					className="relative flex aspect-880/440 w-full overflow-hidden rounded-[18px] border border-border bg-surface-elevated"
-					data-testid="movie-detail-trailer-box"
+			{trailer ? (
+				<MovieDetailSectionShellRoot
+					className="scroll-mt-6"
+					data-testid="movie-detail-trailer"
+					id="movie-detail-trailer"
 				>
-					<Player title={trailer.title} youtubeKey={trailer.youtubeKey} />
-				</div>
-			</MovieDetailSectionShellContent>
-		</MovieDetailSectionShellRoot>
+					<MovieDetailSectionShellLabel data-testid="movie-detail-trailer-label">
+						Trailer
+					</MovieDetailSectionShellLabel>
+					<MovieDetailSectionShellContent>
+						<div
+							className="relative flex aspect-880/440 w-full overflow-hidden rounded-[18px] border border-border bg-surface-elevated"
+							data-testid="movie-detail-trailer-box"
+						>
+							<Player title={trailer.title} youtubeKey={trailer.youtubeKey} />
+						</div>
+					</MovieDetailSectionShellContent>
+				</MovieDetailSectionShellRoot>
+			) : null}
+		</AsyncState>
 	);
 }
 

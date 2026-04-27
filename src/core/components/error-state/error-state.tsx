@@ -1,6 +1,7 @@
 import { cva } from "class-variance-authority";
 import { Film, type LucideIcon, TriangleAlert, ZapOff } from "lucide-react";
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
+import { cn } from "@/core/lib/utils";
 
 type ErrorStateVariant = "error" | "notFound";
 
@@ -89,7 +90,7 @@ const errorStateVisualConfigByVariant: Record<
 	},
 };
 
-type ErrorStateProps = {
+type ErrorStateProps = ComponentProps<"div"> & {
 	variant: ErrorStateVariant;
 	title: string;
 	description: string;
@@ -107,6 +108,7 @@ export function ErrorState({
 	titleTestId,
 	containerTestId,
 	descriptionTestId,
+	...props
 }: ErrorStateProps) {
 	const errorStateVisualConfig = errorStateVisualConfigByVariant[variant];
 	const MainIcon = errorStateVisualConfig.mainIcon;
@@ -114,7 +116,11 @@ export function ErrorState({
 
 	return (
 		<div
-			className="flex min-h-dvh w-full flex-1 items-center justify-center bg-background px-6 py-16"
+			{...props}
+			className={cn(
+				"flex min-h-dvh w-full flex-1 items-center justify-center bg-background px-6 py-16",
+				props.className,
+			)}
 			data-testid={containerTestId}
 		>
 			<div className="flex w-full max-w-xl flex-col items-center gap-6 text-center">
