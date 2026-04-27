@@ -1,12 +1,11 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
+import { queryKeys } from "@/core/constants/query-keys";
 import { useDiscoveryFilters } from "../hooks/use-discovery-filters";
 import { useDiscoverySearch } from "../hooks/use-discovery-search";
 import { discoverMoviesRequest } from "../http/discover-movies-request";
 import { searchMoviesRequest } from "../http/search-movies-request";
 import type { DiscoveryFilters } from "../types/discovery-filters";
-
-export const LIST_MOVIES_QUERY_KEY = "list-movies";
 
 type ListMoviesQueryKeyParams =
 	| { mode: "search"; query: string }
@@ -32,7 +31,7 @@ export function useListMoviesQuery() {
 		: { mode: "discover", filters };
 
 	const query = useInfiniteQuery({
-		queryKey: [LIST_MOVIES_QUERY_KEY, queryParams],
+		queryKey: queryKeys.discovery.listMovies(queryParams),
 		queryFn: buildQueryFn(queryParams),
 		initialPageParam: 1,
 		getNextPageParam: (lastPage) => {

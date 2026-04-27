@@ -1,4 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
+import { tanstackRouterMock } from "@tests/factories/make-tanstack-router";
 import { makeWatchlistItem } from "@tests/factories/make-watchlist-item";
 import { fireEvent, render, screen, waitFor } from "@tests/utils";
 import { seedWatchlist } from "@tests/utils/seed-watchlist";
@@ -160,6 +161,75 @@ describe("WatchlistTable", () => {
 
 		expect(navigateMock).toHaveBeenCalledTimes(1);
 		expect(navigateMock).toHaveBeenCalledWith({
+			to: "/movie/$id",
+			params: { id: "42" },
+		});
+	});
+
+	it("should be able to preload movie details route when play button is hovered long enough", () => {
+		vi.useFakeTimers();
+		const preloadRoute = vi.fn().mockResolvedValue([]);
+		tanstackRouterMock.setPreloadRouteMock(preloadRoute);
+		seedWatchlist([makeWatchlistItem({ id: 42, title: "The Matrix" })]);
+
+		render(<WatchlistTable />);
+
+		const watchlistTableRowPlay = screen.getByTestId(
+			"watchlist-table-row-play",
+		);
+
+		fireEvent.mouseEnter(watchlistTableRowPlay);
+
+		expect(preloadRoute).not.toHaveBeenCalled();
+
+		vi.advanceTimersByTime(120);
+
+		expect(preloadRoute).toHaveBeenCalledTimes(1);
+		expect(preloadRoute).toHaveBeenCalledWith({
+			to: "/movie/$id",
+			params: { id: "42" },
+		});
+
+		vi.useRealTimers();
+	});
+
+	it("should not be able to preload movie details route when play button hover is cancelled before delay", () => {
+		vi.useFakeTimers();
+		const preloadRoute = vi.fn().mockResolvedValue([]);
+		tanstackRouterMock.setPreloadRouteMock(preloadRoute);
+		seedWatchlist([makeWatchlistItem({ id: 42, title: "The Matrix" })]);
+
+		render(<WatchlistTable />);
+
+		const watchlistTableRowPlay = screen.getByTestId(
+			"watchlist-table-row-play",
+		);
+
+		fireEvent.mouseEnter(watchlistTableRowPlay);
+		vi.advanceTimersByTime(60);
+		fireEvent.mouseLeave(watchlistTableRowPlay);
+		vi.advanceTimersByTime(120);
+
+		expect(preloadRoute).not.toHaveBeenCalled();
+
+		vi.useRealTimers();
+	});
+
+	it("should be able to preload movie details route immediately when play button receives focus", () => {
+		const preloadRoute = vi.fn().mockResolvedValue([]);
+		tanstackRouterMock.setPreloadRouteMock(preloadRoute);
+		seedWatchlist([makeWatchlistItem({ id: 42, title: "The Matrix" })]);
+
+		render(<WatchlistTable />);
+
+		const watchlistTableRowPlay = screen.getByTestId(
+			"watchlist-table-row-play",
+		);
+
+		fireEvent.focus(watchlistTableRowPlay);
+
+		expect(preloadRoute).toHaveBeenCalledTimes(1);
+		expect(preloadRoute).toHaveBeenCalledWith({
 			to: "/movie/$id",
 			params: { id: "42" },
 		});

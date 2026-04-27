@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { act, renderHook } from "@testing-library/react";
-import type { KeyboardEvent } from "react";
+import { tanstackRouterMock } from "@tests/factories/make-tanstack-router";
+import type { FocusEvent, KeyboardEvent } from "react";
 import type { Movie } from "../../dtos/movie";
 import { useMovieCard } from "./movie-card.hook";
 
@@ -72,6 +73,102 @@ describe("useMovieCard", () => {
 		});
 
 		expect(navigate).toHaveBeenCalledWith({
+			to: "/movie/$id",
+			params: { id: String(baseMovie.id) },
+		});
+	});
+
+	it("should be able to preload movie details route on card mouse enter", () => {
+		vi.useFakeTimers();
+		const preloadRoute = vi.fn().mockResolvedValue([]);
+		tanstackRouterMock.setPreloadRouteMock(preloadRoute);
+		const { result } = renderHook(() => useMovieCard({ movie: baseMovie }));
+
+		act(() => {
+			result.current.handleCardMouseEnter();
+		});
+
+		expect(preloadRoute).not.toHaveBeenCalled();
+
+		act(() => {
+			vi.advanceTimersByTime(120);
+		});
+
+		expect(preloadRoute).toHaveBeenCalledTimes(1);
+		expect(preloadRoute).toHaveBeenCalledWith({
+			to: "/movie/$id",
+			params: { id: String(baseMovie.id) },
+		});
+		vi.useRealTimers();
+	});
+
+	it("should not be able to preload movie details route when mouse leaves before delay", () => {
+		vi.useFakeTimers();
+		const preloadRoute = vi.fn().mockResolvedValue([]);
+		tanstackRouterMock.setPreloadRouteMock(preloadRoute);
+		const { result } = renderHook(() => useMovieCard({ movie: baseMovie }));
+
+		act(() => {
+			result.current.handleCardMouseEnter();
+			vi.advanceTimersByTime(60);
+			result.current.handleCardMouseLeave();
+			vi.advanceTimersByTime(120);
+		});
+
+		expect(preloadRoute).not.toHaveBeenCalled();
+		vi.useRealTimers();
+	});
+
+	it("should be able to preload movie details route when card receives focus", () => {
+		const preloadRoute = vi.fn().mockResolvedValue([]);
+		tanstackRouterMock.setPreloadRouteMock(preloadRoute);
+		const { result } = renderHook(() => useMovieCard({ movie: baseMovie }));
+		const target = document.createElement("div");
+		const focusEvent = {
+			currentTarget: target,
+			target,
+		} as unknown as FocusEvent<HTMLElement>;
+
+		act(() => {
+			result.current.handleCardFocus(focusEvent);
+		});
+
+		expect(preloadRoute).toHaveBeenCalledTimes(1);
+		expect(preloadRoute).toHaveBeenCalledWith({
+			to: "/movie/$id",
+			params: { id: String(baseMovie.id) },
+		});
+	});
+
+	it("should not be able to preload movie details route when focus comes from nested content", () => {
+		const preloadRoute = vi.fn().mockResolvedValue([]);
+		tanstackRouterMock.setPreloadRouteMock(preloadRoute);
+		const { result } = renderHook(() => useMovieCard({ movie: baseMovie }));
+		const currentTarget = document.createElement("div");
+		const nestedTarget = document.createElement("button");
+		const focusEvent = {
+			currentTarget,
+			target: nestedTarget,
+		} as unknown as FocusEvent<HTMLElement>;
+
+		act(() => {
+			result.current.handleCardFocus(focusEvent);
+		});
+
+		expect(preloadRoute).not.toHaveBeenCalled();
+	});
+
+	it("should be able to preload movie details route on card touch start", () => {
+		const preloadRoute = vi.fn().mockResolvedValue([]);
+		tanstackRouterMock.setPreloadRouteMock(preloadRoute);
+		const { result } = renderHook(() => useMovieCard({ movie: baseMovie }));
+
+		act(() => {
+			result.current.handleCardTouchStart();
+		});
+
+		expect(preloadRoute).toHaveBeenCalledTimes(1);
+		expect(preloadRoute).toHaveBeenCalledWith({
 			to: "/movie/$id",
 			params: { id: String(baseMovie.id) },
 		});

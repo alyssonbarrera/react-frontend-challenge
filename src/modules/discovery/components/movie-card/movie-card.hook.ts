@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
-import type { KeyboardEvent } from "react";
+import type { FocusEvent, KeyboardEvent } from "react";
+import { useMovieDetailsPrefetchIntent } from "@/core/hooks/use-movie-details-prefetch-intent";
 import { toYearData } from "@/core/utils/to-year-data";
 import type { Movie } from "../../dtos/movie";
 import { buildPosterUrl } from "../../utils/movie.utils";
@@ -15,6 +16,12 @@ const MAX_GENRES_DISPLAYED = 2;
 
 export function useMovieCard({ movie }: UseMovieCardParams) {
 	const navigate = useNavigate();
+	const {
+		handleMovieMouseEnterIntentPrefetch,
+		handleMovieMouseLeaveIntentPrefetch,
+		handleMovieFocusIntentPrefetch,
+		handleMovieTouchStartIntentPrefetch,
+	} = useMovieDetailsPrefetchIntent();
 
 	const formattedRating = movie.voteAverage.toFixed(1);
 	const { yearLabel: formattedYear } = toYearData(
@@ -27,6 +34,26 @@ export function useMovieCard({ movie }: UseMovieCardParams) {
 
 	function handleNavigateToDetails() {
 		navigate({ to: "/movie/$id", params: { id: String(movie.id) } });
+	}
+
+	function handleCardMouseEnter() {
+		handleMovieMouseEnterIntentPrefetch(movie.id);
+	}
+
+	function handleCardMouseLeave() {
+		handleMovieMouseLeaveIntentPrefetch(movie.id);
+	}
+
+	function handleCardFocus(event: FocusEvent<HTMLElement>) {
+		if (event.currentTarget !== event.target) {
+			return;
+		}
+
+		handleMovieFocusIntentPrefetch(movie.id);
+	}
+
+	function handleCardTouchStart() {
+		handleMovieTouchStartIntentPrefetch(movie.id);
 	}
 
 	function handleCardKeyDown(event: KeyboardEvent<HTMLElement>) {
@@ -47,6 +74,10 @@ export function useMovieCard({ movie }: UseMovieCardParams) {
 		formattedYear,
 		formattedGenre,
 		formattedRating,
+		handleCardMouseEnter,
+		handleCardMouseLeave,
+		handleCardFocus,
+		handleCardTouchStart,
 		handleCardKeyDown,
 		handleNavigateToDetails,
 	};
