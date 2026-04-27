@@ -27,8 +27,8 @@ A arquitetura combina duas convenções principais:
 | Build / Dev server | **Vite 8** | HMR rápido, configuração mínima, suporte nativo a TS e a `tsconfig paths`. |
 | UI lib | **React 19** | Suporte estável a Concurrent Features e `Activity` (usada para preservar estado de filtros entre páginas da watchlist). |
 | Tipagem | **TypeScript strict** | `strict`, `noUnusedLocals`, `noUnusedParameters`, `noUncheckedSideEffectImports` para falhar cedo. |
-| Roteamento | **TanStack Router** | File-based routing tipado, layouts via prefixo `_`, code-splitting automático e tree shaking de rotas. Atende o requisito do desafio. |
-| Server state | **TanStack Query** | Cache, deduplicação, `useInfiniteQuery` para paginação do TMDB, `staleTime` para evitar refetch agressivo. |
+| Roteamento | **TanStack Router** | File-based routing tipado, layouts via prefixo `_`, code-splitting automático, preloading por intenção (`defaultPreload: "intent"`) e tree shaking de rotas. |
+| Server state | **TanStack Query** | Cache, deduplicação, `useInfiniteQuery`, `queryOptions` reutilizáveis e chaves centralizadas (`queryKeys`) para consistência de cache e prefetch. |
 | Client state | **Zustand** | Store mínima, sem boilerplate; usada para `auth`, `theme` e `watchlist` (com `persist` middleware). |
 | URL state | **nuqs** | Filtros de discovery e busca da watchlist viram parte da URL — links compartilháveis e back/forward funcionam. |
 | Forms | **React Hook Form + Zod + `@hookform/resolvers/standard-schema`** | Validação declarativa, performática (uncontrolled), schema reaproveitável para tipagem (`z.infer`). |
@@ -70,9 +70,9 @@ src/
 │
 ├── core/                  # Código transversal (qualquer módulo pode usar)
 │   ├── components/        # Botões, sidebar, header, table-pagination, ui/ (shadcn)
-│   ├── constants/
+│   ├── constants/         # global-search, query-keys
 │   ├── dtos/
-│   ├── hooks/             # use-mobile, use-global-search, ...
+│   ├── hooks/             # use-mobile, use-global-search, use-movie-details-prefetch-intent
 │   ├── lib/               # cn(), helpers de UI
 │   ├── stores/            # auth-store, theme-store
 │   └── utils/             # debounce, to-year-data, ...
@@ -106,7 +106,7 @@ src/
     │   └── screens/movie-details-screen/
     │
     └── watchlist/
-        ├── components/              # watchlist-table, watchlist-empty-state, ...
+      ├── components/              # watchlist-table, watchlist-table-play-button, watchlist-empty-state, ...
         ├── hooks/                   # use-watchlist-search, use-watchlist-table-query
         ├── stores/                  # watchlist-store (Zustand + persist)
         ├── screens/watchlist-screen/
@@ -266,11 +266,21 @@ Componente puramente apresentacional (ex.: `CinedashLogo`, `PageHeader`, `EmptyS
 - O hook de query/mutation isola o ciclo de vida da requisição (cache key, `staleTime`, `getNextPageParam`, …).
 - Se o backend mudar, mexe só em `http/`. Se a estratégia de cache mudar, mexe só em `queries/`.
 
-**Cache keys**: chaves estruturadas como `[NAME, params]` (ex.: `[LIST_MOVIES_QUERY_KEY, { mode, query|filters }]`). Isso permite invalidação cirúrgica e diferencia sub-queries (search vs discover) sem colisão.
+**Cache keys**: chaves centralizadas em `core/constants/query-keys.ts` via builders tipados por domínio (ex.: `queryKeys.discovery.listMovies(queryParams)` e `queryKeys.movieDetails.details(movieId)`). Isso evita divergência de naming e facilita prefetch/invalidations consistentes.
 
 **`staleTime` consciente**: 5 minutos no `useListMoviesQuery` para reduzir refetch em navegação back/forward — listas do TMDB raramente mudam dentro desse intervalo.
 
 **`useInfiniteQuery`** para paginação progressiva no `MovieGrid`, com flatten via `useMemo` — a referência do array só muda quando há páginas novas.
+
+### 5.1 Estratégia de Prefetch (Movie Details)
+
+Foi adotado um prefetch em camadas para reduzir latência percebida sem gerar excesso de requests.
+
+- **Camada de intenção de interação (UI)**: `useMovieDetailsPrefetchIntent` em `core/hooks/` encapsula prefetch por hover com delay (120ms), cancelamento no `mouseleave`, prefetch imediato em `focus/touchstart`, dedupe por `movieId` e cleanup de timeouts no unmount.
+- **Camada de rota**: o loader de `/movie/$id` usa `ensureQueryData(movieDetailsQueryOptions(movieId))` para garantir os dados críticos do detalhe.
+- **Camada de dados secundários**: quando a navegação é real (`!preload`), o loader dispara prefetch de créditos, vídeos, watch providers e recomendações; durante preload por intenção, evita aquecer essas queries secundárias.
+
+Essa divisão mantém a interface responsiva e evita aquecimento agressivo desnecessário em passagens rápidas de mouse.
 
 ---
 
@@ -309,6 +319,8 @@ routes/
 
 - Prefixo `_` cria **layouts virtuais** sem segmento de URL. Ex.: `_authenticated.tsx` aplica o guard de auth para tudo abaixo.
 - `autoCodeSplitting: true` no `tanstackRouter` plugin: cada rota vira chunk próprio. Login e design-system **não** carregam código de discovery/watchlist.
+- `defaultPreload: "intent"` combinado com `defaultPreloadStaleTime: 0` permite preloading de rota orientado a intenção, sempre reavaliando staleness.
+- A rota `/movie/$id` tem loader híbrido: garante `movieDetails` como dado bloqueante e só prefetch de dados complementares fora do fluxo de preload.
 - Tipagem ponta a ponta: `navigate({ to: "/discovery" })` é validado em build.
 
 ---
@@ -382,6 +394,7 @@ Duas frentes complementares:
 - **Novo módulo** (ex.: `recommendations`): crie `src/modules/recommendations/{components,http,queries,screens,...}`. Não precisa tocar em `core/` nem em `infra/` se o backend já está exposto pelo `api-client`.
 - **Nova rota**: crie o arquivo em `src/routes/...` seguindo a convenção do TanStack Router; o `route-tree.gen.ts` é regenerado automaticamente pelo plugin do Vite.
 - **Novo componente "global"**: comece dentro do módulo. Só promova para `core/components` quando um segundo módulo realmente precisar.
+- **Nova query de server state**: primeiro adicione a key em `core/constants/query-keys.ts`, depois exponha `queryOptions` no módulo. Isso evita strings soltas de cache key.
 - **Trocar provider de auth**: alterar `modules/auth/http`, `modules/auth/mutations` e `core/stores/auth-store`. Componentes não precisam mudar.
 
 ---

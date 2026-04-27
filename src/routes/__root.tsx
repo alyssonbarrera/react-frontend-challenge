@@ -1,4 +1,3 @@
-import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import {
 	createRootRouteWithContext,
@@ -6,10 +5,16 @@ import {
 	Outlet,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { useEffect } from "react";
+import { lazy, useEffect } from "react";
 import { RouteErrorFallback } from "@/core/components/route-error-fallback";
 import { Toaster } from "@/core/components/ui/sonner";
 import { useThemeStore } from "@/core/stores/theme-store";
+
+const TanStackDevtools = lazy(() =>
+	import("@tanstack/react-devtools").then((mod) => ({
+		default: mod.TanStackDevtools,
+	})),
+);
 
 import "../styles.css";
 

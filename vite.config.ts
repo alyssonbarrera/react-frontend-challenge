@@ -6,10 +6,10 @@ import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
-const config = defineConfig({
+const config = defineConfig(({ mode }) => ({
 	resolve: { tsconfigPaths: true },
 	plugins: [
-		devtools(),
+		mode === "development" ? devtools() : null,
 		tailwindcss(),
 		tanstackRouter({
 			target: "react",
@@ -18,6 +18,6 @@ const config = defineConfig({
 		}),
 		viteReact(),
 	],
-});
+}));
 
 export default config;
