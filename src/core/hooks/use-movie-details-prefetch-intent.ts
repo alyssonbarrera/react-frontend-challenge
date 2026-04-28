@@ -79,13 +79,6 @@ export function useMovieDetailsPrefetchIntent({
 		[prefetchMovieDetailsRoute],
 	);
 
-	const handleMovieTouchStartIntentPrefetch = useCallback(
-		(movieId: number) => {
-			prefetchMovieDetailsRoute(movieId);
-		},
-		[prefetchMovieDetailsRoute],
-	);
-
 	useEffect(() => {
 		return () => {
 			for (const timeout of prefetchTimeoutByMovieIdRef.current.values()) {
@@ -100,6 +93,5 @@ export function useMovieDetailsPrefetchIntent({
 		handleMovieFocusIntentPrefetch,
 		handleMovieMouseEnterIntentPrefetch,
 		handleMovieMouseLeaveIntentPrefetch,
-		handleMovieTouchStartIntentPrefetch,
 	};
 }

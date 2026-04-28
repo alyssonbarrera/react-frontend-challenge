@@ -20,7 +20,6 @@ function MovieCardView({ movie }: MovieCardProps) {
 		handleCardKeyDown,
 		handleCardMouseEnter,
 		handleCardMouseLeave,
-		handleCardTouchStart,
 		handleNavigateToDetails,
 	} = useMovieCard({ movie });
 
@@ -35,7 +34,6 @@ function MovieCardView({ movie }: MovieCardProps) {
 			onKeyDown={handleCardKeyDown}
 			onMouseEnter={handleCardMouseEnter}
 			onMouseLeave={handleCardMouseLeave}
-			onTouchStart={handleCardTouchStart}
 			role="button"
 			tabIndex={0}
 		>

@@ -20,7 +20,6 @@ export function useMovieCard({ movie }: UseMovieCardParams) {
 		handleMovieMouseEnterIntentPrefetch,
 		handleMovieMouseLeaveIntentPrefetch,
 		handleMovieFocusIntentPrefetch,
-		handleMovieTouchStartIntentPrefetch,
 	} = useMovieDetailsPrefetchIntent();
 
 	const safeVoteAverage = Number.isFinite(movie.voteAverage)
@@ -57,10 +56,6 @@ export function useMovieCard({ movie }: UseMovieCardParams) {
 		handleMovieFocusIntentPrefetch(movie.id);
 	}
 
-	function handleCardTouchStart() {
-		handleMovieTouchStartIntentPrefetch(movie.id);
-	}
-
 	function handleCardKeyDown(event: KeyboardEvent<HTMLElement>) {
 		if (event.currentTarget !== event.target) {
 			return;
@@ -82,7 +77,6 @@ export function useMovieCard({ movie }: UseMovieCardParams) {
 		handleCardMouseEnter,
 		handleCardMouseLeave,
 		handleCardFocus,
-		handleCardTouchStart,
 		handleCardKeyDown,
 		handleNavigateToDetails,
 	};

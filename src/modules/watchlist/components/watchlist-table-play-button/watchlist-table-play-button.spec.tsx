@@ -11,7 +11,6 @@ describe("WatchlistTablePlayButton", () => {
 			handleMouseEnter: vi.fn(),
 			handleMouseLeave: vi.fn(),
 			handleFocus: vi.fn(),
-			handleTouchStart: vi.fn(),
 			handleClick: vi.fn(),
 		});
 
@@ -42,14 +41,12 @@ describe("WatchlistTablePlayButton", () => {
 		const handleMouseEnter = vi.fn();
 		const handleMouseLeave = vi.fn();
 		const handleFocus = vi.fn();
-		const handleTouchStart = vi.fn();
 		const handleClick = vi.fn();
 
 		vi.mocked(useWatchlistTablePlayButton).mockReturnValue({
 			handleMouseEnter,
 			handleMouseLeave,
 			handleFocus,
-			handleTouchStart,
 			handleClick,
 		});
 
@@ -68,13 +65,11 @@ describe("WatchlistTablePlayButton", () => {
 		fireEvent.mouseEnter(watchlistTableRowPlay);
 		fireEvent.mouseLeave(watchlistTableRowPlay);
 		fireEvent.focus(watchlistTableRowPlay);
-		fireEvent.touchStart(watchlistTableRowPlay);
 		fireEvent.click(watchlistTableRowPlay);
 
 		expect(handleMouseEnter).toHaveBeenCalledTimes(1);
 		expect(handleMouseLeave).toHaveBeenCalledTimes(1);
 		expect(handleFocus).toHaveBeenCalledTimes(1);
-		expect(handleTouchStart).toHaveBeenCalledTimes(1);
 		expect(handleClick).toHaveBeenCalledTimes(1);
 	});
 });

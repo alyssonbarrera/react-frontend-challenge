@@ -9,6 +9,7 @@ import {
 	SidebarMenuBadge,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	useSidebar,
 } from "@/core/components/ui/sidebar";
 import { useWatchlistStore } from "@/modules/watchlist/stores/watchlist-store";
 
@@ -30,9 +31,18 @@ type NavMainProps = {
 
 export function NavMain({ sections }: NavMainProps) {
 	const pathname = useLocation({ select: (location) => location.pathname });
+	const { isMobile, setOpenMobile } = useSidebar();
 
 	function isPathActive(path: string): boolean {
 		return pathname === path || pathname.startsWith(`${path}/`);
+	}
+
+	function handleItemClick() {
+		if (!isMobile) {
+			return;
+		}
+
+		setOpenMobile(false);
 	}
 
 	return (
@@ -43,6 +53,7 @@ export function NavMain({ sections }: NavMainProps) {
 					data-testid={`nav-main-section-${sectionIndex}`}
 				>
 					<SidebarGroupLabel
+						className="pointer-events-none select-none"
 						data-testid={`nav-main-section-${sectionIndex}-label`}
 					>
 						{section.label}
@@ -61,7 +72,7 @@ export function NavMain({ sections }: NavMainProps) {
 									tooltip={item.title}
 									data-testid={`nav-main-item-${sectionIndex}-${itemIndex}-button`}
 								>
-									<Link to={item.url}>
+									<Link to={item.url} onClick={handleItemClick}>
 										<item.icon />
 										<span>{item.title}</span>
 									</Link>

@@ -175,22 +175,6 @@ describe("useMovieCard", () => {
 		expect(preloadRoute).not.toHaveBeenCalled();
 	});
 
-	it("should be able to preload movie details route on card touch start", () => {
-		const preloadRoute = vi.fn().mockResolvedValue([]);
-		tanstackRouterMock.setPreloadRouteMock(preloadRoute);
-		const { result } = renderHook(() => useMovieCard({ movie: baseMovie }));
-
-		act(() => {
-			result.current.handleCardTouchStart();
-		});
-
-		expect(preloadRoute).toHaveBeenCalledTimes(1);
-		expect(preloadRoute).toHaveBeenCalledWith({
-			to: "/movie/$id",
-			params: { id: String(baseMovie.id) },
-		});
-	});
-
 	it("should be able to navigate when Enter key is pressed on card root", () => {
 		const navigate = vi.fn();
 		vi.mocked(useNavigate).mockReturnValue(navigate as never);
