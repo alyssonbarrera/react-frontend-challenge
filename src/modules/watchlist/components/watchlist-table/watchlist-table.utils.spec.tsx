@@ -72,9 +72,15 @@ describe("watchlist-table.utils", () => {
 	});
 
 	it("should be able to return pagination range without ellipsis for small page counts", () => {
-		const paginationRange = getPaginationRange(2, 6);
+		const paginationRange = getPaginationRange(2, 4);
 
-		expect(paginationRange).toEqual([1, 2, 3, 4, 5, 6]);
+		expect(paginationRange).toEqual([1, 2, 3, 4]);
+	});
+
+	it("should be able to return pagination range with ellipsis for medium page counts", () => {
+		const paginationRange = getPaginationRange(2, 5);
+
+		expect(paginationRange).toEqual([1, 2, 3, "ellipsis", 5]);
 	});
 
 	it("should be able to return pagination range with both ellipsis for large page counts", () => {
