@@ -34,7 +34,6 @@ describe("MovieCard", () => {
 			handleCardKeyDown: vi.fn(),
 			handleCardMouseEnter: vi.fn(),
 			handleCardMouseLeave: vi.fn(),
-			handleCardTouchStart: vi.fn(),
 		});
 	});
 
@@ -86,7 +85,6 @@ describe("MovieCard", () => {
 			handleCardKeyDown: vi.fn(),
 			handleCardMouseEnter: vi.fn(),
 			handleCardMouseLeave: vi.fn(),
-			handleCardTouchStart: vi.fn(),
 		});
 
 		render(<MovieCard movie={movie} />);
@@ -109,7 +107,6 @@ describe("MovieCard", () => {
 			handleCardKeyDown,
 			handleCardMouseEnter: vi.fn(),
 			handleCardMouseLeave: vi.fn(),
-			handleCardTouchStart: vi.fn(),
 		});
 
 		render(<MovieCard movie={movie} />);
@@ -132,7 +129,6 @@ describe("MovieCard", () => {
 			handleCardKeyDown,
 			handleCardMouseEnter: vi.fn(),
 			handleCardMouseLeave: vi.fn(),
-			handleCardTouchStart: vi.fn(),
 		});
 
 		render(<MovieCard movie={movie} />);
@@ -155,7 +151,6 @@ describe("MovieCard", () => {
 			handleCardKeyDown,
 			handleCardMouseEnter: vi.fn(),
 			handleCardMouseLeave: vi.fn(),
-			handleCardTouchStart: vi.fn(),
 		});
 
 		render(<MovieCard movie={movie} />);
@@ -178,7 +173,6 @@ describe("MovieCard", () => {
 			handleCardKeyDown: vi.fn(),
 			handleCardMouseEnter,
 			handleCardMouseLeave: vi.fn(),
-			handleCardTouchStart: vi.fn(),
 		});
 
 		render(<MovieCard movie={movie} />);
@@ -201,7 +195,6 @@ describe("MovieCard", () => {
 			handleCardKeyDown: vi.fn(),
 			handleCardMouseEnter: vi.fn(),
 			handleCardMouseLeave,
-			handleCardTouchStart: vi.fn(),
 		});
 
 		render(<MovieCard movie={movie} />);
@@ -224,7 +217,6 @@ describe("MovieCard", () => {
 			handleCardKeyDown: vi.fn(),
 			handleCardMouseEnter: vi.fn(),
 			handleCardMouseLeave: vi.fn(),
-			handleCardTouchStart: vi.fn(),
 		});
 
 		render(<MovieCard movie={movie} />);
@@ -232,29 +224,6 @@ describe("MovieCard", () => {
 		fireEvent.focus(screen.getByTestId("movie-card"));
 
 		expect(handleCardFocus).toHaveBeenCalledTimes(1);
-	});
-
-	it("should be able to delegate touch start prefetch handling to hook", () => {
-		const handleCardTouchStart = vi.fn();
-
-		vi.mocked(useMovieCard).mockReturnValue({
-			posterUrl: "https://image.tmdb.org/poster.jpg",
-			formattedYear: "2020",
-			formattedGenre: "Action, Adventure",
-			formattedRating: "7.3",
-			handleCardFocus: vi.fn(),
-			handleNavigateToDetails: vi.fn(),
-			handleCardKeyDown: vi.fn(),
-			handleCardMouseEnter: vi.fn(),
-			handleCardMouseLeave: vi.fn(),
-			handleCardTouchStart,
-		});
-
-		render(<MovieCard movie={movie} />);
-
-		fireEvent.touchStart(screen.getByTestId("movie-card"));
-
-		expect(handleCardTouchStart).toHaveBeenCalledTimes(1);
 	});
 
 	it("should be able to toggle the watchlist without navigating when the watchlist button is clicked", () => {
@@ -270,7 +239,6 @@ describe("MovieCard", () => {
 			handleCardKeyDown: vi.fn(),
 			handleCardMouseEnter: vi.fn(),
 			handleCardMouseLeave: vi.fn(),
-			handleCardTouchStart: vi.fn(),
 		});
 
 		render(<MovieCard movie={movie} />);
@@ -293,7 +261,6 @@ describe("MovieCard", () => {
 			handleCardKeyDown,
 			handleCardMouseEnter: vi.fn(),
 			handleCardMouseLeave: vi.fn(),
-			handleCardTouchStart: vi.fn(),
 		});
 
 		render(<MovieCard movie={movie} />);

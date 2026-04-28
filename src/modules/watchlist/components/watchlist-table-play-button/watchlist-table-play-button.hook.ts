@@ -13,7 +13,6 @@ export function useWatchlistTablePlayButton({
 		handleMovieMouseEnterIntentPrefetch,
 		handleMovieMouseLeaveIntentPrefetch,
 		handleMovieFocusIntentPrefetch,
-		handleMovieTouchStartIntentPrefetch,
 	} = useMovieDetailsPrefetchIntent();
 
 	function handleMouseEnter() {
@@ -28,10 +27,6 @@ export function useWatchlistTablePlayButton({
 		handleMovieFocusIntentPrefetch(movieId);
 	}
 
-	function handleTouchStart() {
-		handleMovieTouchStartIntentPrefetch(movieId);
-	}
-
 	function handleClick() {
 		onPlayMovie(movieId);
 	}
@@ -40,7 +35,6 @@ export function useWatchlistTablePlayButton({
 		handleMouseEnter,
 		handleMouseLeave,
 		handleFocus,
-		handleTouchStart,
 		handleClick,
 	};
 }

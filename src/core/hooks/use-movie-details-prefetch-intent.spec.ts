@@ -65,23 +65,6 @@ describe("useMovieDetailsPrefetchIntent", () => {
 		});
 	});
 
-	it("should be able to preload movie details route immediately on touch start", () => {
-		const preloadRoute = vi.fn().mockResolvedValue([]);
-		tanstackRouterMock.setPreloadRouteMock(preloadRoute);
-
-		const { result } = renderHook(() => useMovieDetailsPrefetchIntent());
-
-		act(() => {
-			result.current.handleMovieTouchStartIntentPrefetch(42);
-		});
-
-		expect(preloadRoute).toHaveBeenCalledTimes(1);
-		expect(preloadRoute).toHaveBeenCalledWith({
-			to: "/movie/$id",
-			params: { id: "42" },
-		});
-	});
-
 	it("should not be able to preload movie details route twice for the same movie after success", () => {
 		const preloadRoute = vi.fn().mockResolvedValue([]);
 		tanstackRouterMock.setPreloadRouteMock(preloadRoute);
@@ -90,7 +73,7 @@ describe("useMovieDetailsPrefetchIntent", () => {
 
 		act(() => {
 			result.current.handleMovieFocusIntentPrefetch(42);
-			result.current.handleMovieTouchStartIntentPrefetch(42);
+			result.current.handleMovieFocusIntentPrefetch(42);
 		});
 
 		expect(preloadRoute).toHaveBeenCalledTimes(1);

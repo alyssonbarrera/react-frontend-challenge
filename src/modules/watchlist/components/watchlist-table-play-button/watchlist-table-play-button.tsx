@@ -13,16 +13,11 @@ export function WatchlistTablePlayButton({
 	movieTitle,
 	onPlayMovie,
 }: WatchlistTablePlayButtonProps) {
-	const {
-		handleMouseEnter,
-		handleMouseLeave,
-		handleFocus,
-		handleTouchStart,
-		handleClick,
-	} = useWatchlistTablePlayButton({
-		movieId,
-		onPlayMovie,
-	});
+	const { handleMouseEnter, handleMouseLeave, handleFocus, handleClick } =
+		useWatchlistTablePlayButton({
+			movieId,
+			onPlayMovie,
+		});
 
 	return (
 		<Button
@@ -35,7 +30,6 @@ export function WatchlistTablePlayButton({
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 			onFocus={handleFocus}
-			onTouchStart={handleTouchStart}
 			onClick={handleClick}
 		>
 			<Play className="size-3.5" />

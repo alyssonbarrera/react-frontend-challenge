@@ -4,6 +4,16 @@ Este documento descreve as decisões técnicas do **CineDash** (Opção A do des
 
 ---
 
+## 0. Mapa em 60 segundos
+
+- **Arquitetura base**: organização por módulos de domínio (`src/modules`) com camada transversal em `src/core` e integrações externas em `src/infra`.
+- **UI e regra separadas**: componentes não triviais seguem View + Model (`.tsx` + `.hook.ts`).
+- **Dados remotos**: Query/Mutation em `modules/*/queries|mutations`, requests puras em `modules/*/http`, cliente HTTP único em `infra/http/api-client.ts`.
+- **Roteamento**: TanStack Router com layouts por prefixo `_`, `beforeLoad` para guard/redirect e loader híbrido em `/movie/$id`.
+- **Estados**: Server state com TanStack Query, client state com Zustand e filtros/busca em URL via nuqs.
+
+---
+
 ## 1. Visão geral
 
 CineDash é uma SPA construída com **React 19 + Vite + TypeScript (strict)** que consome a API pública do **TMDB** para oferecer:
@@ -25,9 +35,9 @@ A arquitetura combina duas convenções principais:
 | Camada | Tecnologia | Motivação |
 |---|---|---|
 | Build / Dev server | **Vite 8** | HMR rápido, configuração mínima, suporte nativo a TS e a `tsconfig paths`. |
-| UI lib | **React 19** | Suporte estável a Concurrent Features e `Activity` (usada para preservar estado de filtros entre páginas da watchlist). |
+| UI lib | **React 19** | Concurrent Features estáveis e `Activity` para alternar visibilidade sem desmontar subárvores da UI (ex.: paginação/ícones na watchlist). |
 | Tipagem | **TypeScript strict** | `strict`, `noUnusedLocals`, `noUnusedParameters`, `noUncheckedSideEffectImports` para falhar cedo. |
-| Roteamento | **TanStack Router** | File-based routing tipado, layouts via prefixo `_`, code-splitting automático, preloading por intenção (`defaultPreload: "intent"`) e tree shaking de rotas. |
+| Roteamento | **TanStack Router** | File-based routing tipado, layouts via prefixo `_`, code splitting por rota (`autoCodeSplitting`) e preloading por intenção (`defaultPreload: "intent"`). |
 | Server state | **TanStack Query** | Cache, deduplicação, `useInfiniteQuery`, `queryOptions` reutilizáveis e chaves centralizadas (`queryKeys`) para consistência de cache e prefetch. |
 | Client state | **Zustand** | Store mínima, sem boilerplate; usada para `auth`, `theme` e `watchlist` (com `persist` middleware). |
 | URL state | **nuqs** | Filtros de discovery e busca da watchlist viram parte da URL — links compartilháveis e back/forward funcionam. |
@@ -39,7 +49,7 @@ A arquitetura combina duas convenções principais:
 | Cookies | **js-cookie** | API simples para persistir o token de auth simulado. |
 | Notificações | **sonner** | Toasts acessíveis e leves. |
 | Lint / format | **Biome** | Substitui ESLint+Prettier numa única ferramenta rápida. |
-| Testes | **Vitest + RTL + jsdom + MSW** | Unit + integração. MSW mocka o TMDB; nas suítes que dependem de variação de cenário, mockamos a função de request diretamente (preferência do projeto). |
+| Testes | **Vitest + RTL + jsdom + MSW** | Unit + integração. MSW mocka o TMDB; nas suítes que dependem de variação de cenário, a função de request é mockada diretamente (preferência do projeto). |
 
 ---
 
@@ -64,7 +74,7 @@ src/
 │   │   │   ├── discovery.tsx        # → DiscoveryScreen
 │   │   │   └── watchlist.tsx        # → WatchlistScreen
 │   │   ├── movie.tsx                # Wrapper de /movie/$id
-│   │   └── movie.$id.tsx            # → MovieDetailsScreen
+│   │   └── movie.$id.tsx            # → MovieDetailScreen
 │   ├── design-system.tsx
 │   └── index.tsx                    # Login
 │
@@ -100,22 +110,21 @@ src/
     │   └── utils/
     │
     ├── movie-details/
-    │   ├── components/              # movie-cast, movie-trailer, movie-providers, ...
+    │   ├── components/              # movie-detail-body, movie-detail-hero, movie-detail-related, ...
     │   ├── http/                    # get-movie-details, get-credits, get-videos, ...
     │   ├── queries/                 # use-movie-details-query, ...
-    │   └── screens/movie-details-screen/
+    │   └── screens/movie-detail-screen/
     │
     └── watchlist/
-      ├── components/              # watchlist-table, watchlist-table-play-button, watchlist-empty-state, ...
-        ├── hooks/                   # use-watchlist-search, use-watchlist-table-query
-        ├── stores/                  # watchlist-store (Zustand + persist)
-        ├── screens/watchlist-screen/
-        └── utils/
+    │   ├── components/              # watchlist-table, watchlist-table-play-button, watchlist-empty-state, ...
+    │   ├── hooks/                   # use-watchlist-search, use-watchlist-table-query
+    │   ├── stores/                  # watchlist-store (Zustand + persist)
+    │   ├── screens/watchlist-screen/
+    │   └── utils/
 
 tests/
 ├── factories/             # makeMovie, makeUser, makeWatchlistItem, ...
 ├── mocks/handlers/        # MSW handlers que espelham endpoints do TMDB
-├── routes/                # specs de rota (fora de src/routes para não conflitar com file routing)
 ├── utils.tsx              # render()/renderHook com QueryClient + NuqsTestingAdapter + TooltipProvider
 └── setup-tests.ts
 ```
@@ -123,17 +132,21 @@ tests/
 ### 3.2 Regras de dependência
 
 ```text
-        routes/  ─────┐
-                      ▼
-       modules/<x> ─────► core/  ─────► infra/
-            │
-            └────────► (não importa) modules/<y>
+routes/ ─────► modules/<x>
+routes/ ─────► core/
+
+modules/<x> ─► core/
+modules/<x> ─► infra/
+modules/<x> ─► modules/<y> (imports pragmáticos, sem ciclos)
+
+core/ ───────► infra/
+core/ ───────► modules/<x> (exceções pontuais de composição global)
 ```
 
-- `routes/` é **fino**: importa o `Screen` correspondente do módulo e só.
-- Um **módulo pode importar de `core/` e `infra/`**, nunca o contrário.
-- Um **módulo evita importar de outro módulo**. Exceção pragmática: `watchlist` importa o DTO `Movie` de `discovery`, porque o item da watchlist é literalmente um `Movie` com um `addedAt`. Em vez de duplicar o DTO, reaproveita-se o contrato.
-- `core/` **nunca** importa de `modules/`. Se algo do `core/` precisa de um conceito de domínio, ou ele sobe para `core/dtos`, ou o consumidor injeta o tipo via generics.
+- `routes/` é **majoritariamente fina** (mapeia URL para Screen), mas também concentra responsabilidades de roteamento como `beforeLoad` (guard) e `loader` (orquestração de prefetch/dados críticos).
+- Um **módulo pode importar de `core/` e `infra/`**.
+- **Import entre módulos é permitido de forma pragmática**, desde que o contrato reutilizado seja canônico e não se introduza ciclo. Exemplos atuais: DTOs/utilitários de `discovery` reaproveitados por `watchlist` e `movie-details`.
+- `core/` deve permanecer **agnóstico de domínio por padrão**. Exceções pontuais de composição global (como navegação/sidebar exibindo estado de módulo) são aceitas; quando possível, prefira inversão de dependência por props/selectors.
 
 ### 3.3 Quando promover algo para `core/`
 
@@ -274,13 +287,13 @@ Componente puramente apresentacional (ex.: `CinedashLogo`, `PageHeader`, `EmptyS
 
 ### 5.1 Estratégia de Prefetch (Movie Details)
 
-Foi adotado um prefetch em camadas para reduzir latência percebida sem gerar excesso de requests.
+O prefetch foi dividido em três camadas para equilibrar latência percebida e custo de rede:
 
-- **Camada de intenção de interação (UI)**: `useMovieDetailsPrefetchIntent` em `core/hooks/` encapsula prefetch por hover com delay (120ms), cancelamento no `mouseleave`, prefetch imediato em `focus/touchstart`, dedupe por `movieId` e cleanup de timeouts no unmount.
-- **Camada de rota**: o loader de `/movie/$id` usa `ensureQueryData(movieDetailsQueryOptions(movieId))` para garantir os dados críticos do detalhe.
-- **Camada de dados secundários**: quando a navegação é real (`!preload`), o loader dispara prefetch de créditos, vídeos, watch providers e recomendações; durante preload por intenção, evita aquecer essas queries secundárias.
+- **Intenção de interação (UI)**: `useMovieDetailsPrefetchIntent` faz prefetch por hover (com delay) e focus, com dedupe por `movieId`.
+- **Rota**: o loader de `/movie/$id` garante os dados críticos com `ensureQueryData`.
+- **Dados secundários**: créditos/vídeos/providers/recomendações só aquecem na navegação real (`!preload`).
 
-Essa divisão mantém a interface responsiva e evita aquecimento agressivo desnecessário em passagens rápidas de mouse.
+Detalhamento e trade-offs dessa decisão estão na seção **7.2**.
 
 ---
 
@@ -294,7 +307,7 @@ Três Zustand stores, cada uma com responsabilidade única:
 | `theme-store` | `core/stores/` | tema claro/escuro | `localStorage` |
 | `watchlist-store` | `modules/watchlist/stores/` | itens da watchlist + ações `add`/`remove`/`toggle`/`clear` | `localStorage` (`cinedash:watchlist`) via `persist` middleware |
 
-**Por que `watchlist-store` mora no módulo e não em `core/`?** Porque é estado **de um módulo só**. Promovê-lo a `core/` quebraria a regra "core não conhece domínio".
+**Por que `watchlist-store` mora no módulo e não em `core/`?** Porque é estado **de um módulo só**. Mantê-lo no módulo preserva encapsulamento e evita espalhar regra de domínio para o código transversal; componentes globais que precisam desse dado consomem seletivamente.
 
 **URL state** (filtros de discovery, busca da watchlist) **não vai pra Zustand**: vai pro `nuqs`, ou seja, vira parte da URL. Isso resolve "share link", "voltar do navegador" e "abrir em nova aba" sem código extra.
 
@@ -321,13 +334,32 @@ routes/
 - `autoCodeSplitting: true` no `tanstackRouter` plugin: cada rota vira chunk próprio. Login e design-system **não** carregam código de discovery/watchlist.
 - `defaultPreload: "intent"` combinado com `defaultPreloadStaleTime: 0` permite preloading de rota orientado a intenção, sempre reavaliando staleness.
 - A rota `/movie/$id` tem loader híbrido: garante `movieDetails` como dado bloqueante e só prefetch de dados complementares fora do fluxo de preload.
+- Há `beforeLoad` para guard/redirect em três pontos: `_authenticated` (não autenticado -> `/`), `/` (autenticado -> `/discovery`) e `/movie` base (redirect para `/discovery`).
 - Tipagem ponta a ponta: `navigate({ to: "/discovery" })` é validado em build.
 
 ### 7.1 Botão "Back" e a Navigation API (`infra/history/history-back.ts`)
 
-No fluxo `/discovery → /movie/A → /movie/B`, dois `pushState` consecutivos a partir de click handlers em rotas com mesmo prefixo acionam a **history-manipulation intervention** do Chromium: a partir do segundo, qualquer `window.history.back()` é silenciosamente ignorado (sem `popstate`, sem warning). Confirmado instrumentando `pushState`/`popstate` numa página fresca: `history.length=4`, `state.__TSR_index=1`, e ainda assim o `back()` vira no-op.
+No cenário reproduzido no app (`/discovery -> /movie/A -> /movie/B`), observou-se no Chromium que `window.history.back()` pode ser ignorado por intervention de histórico em sequência específica de navegação, sem sinal explícito de erro no app.
 
-**Correção.** O helper `historyBack()` em `infra/history/` chama `window.navigation.back()` (Navigation API) quando disponível e cai para `window.history.back()` no resto. A Navigation API não está sujeita à mesma heurística, e os browsers que ainda não a implementam (Firefox, Safari) também não implementam a intervention — então o fallback funciona neles. O `useMovieDetailHero` consome esse helper via `historyBack()` em vez de `router.history.back()`. Sem stack manual, sem subscription, sem efeito colateral nas setas do navegador.
+**Decisão adotada.** O helper `historyBack()` prioriza `window.navigation.back()` (quando disponível) e mantém fallback para `window.history.back()`. Com isso, o comportamento de voltar fica mais previsível sem introduzir estado manual de histórico na aplicação.
+
+### 7.2 Estratégia de prefetch (composição Router + Query)
+
+Três peças se compõem para reduzir latência percebida sem sobrecarregar o TMDB:
+
+1. **Preload por intenção do Router.** `defaultPreload: "intent"` + `defaultPreloadStaleTime: 0` no `createRouter`. Ao dar hover/focus num `<Link>`, o Router pré-carrega o **bundle** da rota (chunk separado por `autoCodeSplitting`) e dispara o `loader` da rota com a flag `preload: true`.
+
+2. **Loader da rota `/movie/$id`.** Usa `context.queryClient.ensureQueryData(movieDetailsQueryOptions(movieId))` para garantir os dados críticos do detalhe (sinopse, poster, rating). Quando `preload === false` (navegação real, não intent-preload), dispara também `prefetchQuery` para créditos, vídeos, watch providers e recomendações. **Por que gatear no `!preload`?** Hover é sinal forte mas não definitivo; aquecer cinco endpoints por hover seria desperdício se o usuário acabar não clicando. As queries secundárias só esquentam quando há commit de navegação.
+
+3. **Intent prefetch granular nos cards (`useMovieDetailsPrefetchIntent`).** O `MovieCard` chama `router.preloadRoute({ to: "/movie/$id", params })` em **hover (com 120ms de debounce)** e em **focus**. O hook mantém um `Map` de timeouts e um `Set` de IDs já prefetchados (idempotência); `mouseLeave` cancela o timeout pendente, evitando requests para cards "tangenciados" pelo cursor. Isso aciona o mesmo loader do item 2 — ou seja, hover num card aquece `movieDetails`, mas não as queries secundárias.
+
+**Decisão consciente: nada de prefetch no mobile.** Considerou-se `onTouchStart` e `IntersectionObserver` com `rootMargin`. Ambos foram descartados:
+- `onTouchStart` dispara no mesmo gesto que comita a navegação (~50ms de janela). Ganho de latência irrelevante e ainda gera request em toques que viram scroll.
+- `IntersectionObserver` com margem dispararia prefetch para cada card que entrasse na viewport — numa grade de ~100 cards, seriam ~100 requests ao TMDB por sessão de scroll, com >90% de desperdício. TMDB tem rate limit (~50 req/s) e o usuário mobile paga em dados.
+
+Hover é sinal forte (mira deliberada num card específico). Toque/scroll não é. No mobile, o detalhe carrega no tap com skeleton da rota — comportamento honesto, sem queimar API/dados.
+
+> **A lista de Discovery não tem loader de dados.** O `defaultPreload: "intent"` já adianta o **bundle** ao dar hover no link da sidebar; os dados carregam em paralelo ao commit, com skeleton breve. Implementar um loader exigiria expor os filtros (hoje em `nuqs`) também via `validateSearch` da rota — duplicaria parsers e ainda não traria ganho perceptível, dado que a query principal entra em cache de 5 min após o primeiro acesso.
 
 ---
 
@@ -345,7 +377,7 @@ export const api = ky.create({
 });
 ```
 
-`beforeRequest` injeta o Bearer do TMDB e o header `Accept`. **Toda request do app passa por aqui** — não há `fetch` solto pelo código. Trocar de `ky` para `axios` (ou para um SDK gerado) é uma alteração local em `infra/`.
+`beforeRequest` injeta o Bearer do TMDB e o header `Accept`. **As chamadas HTTP ao TMDB passam por aqui** — não há `fetch` solto para esse fluxo no código. A autenticação do desafio é simulada localmente, então não depende de request de rede. Trocar de `ky` para `axios` (ou para um SDK gerado) continua sendo uma alteração local em `infra/`.
 
 **`infra/history/history-back.ts`** encapsula a navegação "voltar" do browser priorizando a Navigation API; ver seção 7.1 para a motivação.
 
@@ -364,11 +396,11 @@ Duas frentes complementares:
 
 **Convenções importantes** (consolidadas no projeto):
 
-- **Não mockar query hooks**: para variar cenários de erro/loading em hook specs, observamos o request com `vi.spyOn` no módulo `http/*.ts` e controlamos o retorno com `mockResolvedValueOnce` / `mockRejectedValueOnce`.
-- **Em specs de View**, mockamos o hook local do componente com `vi.mock("./componente.hook")` para testar somente renderização e interação da View.
+- **Não mockar query hooks**: para variar cenários de erro/loading em hook specs, observa-se o request com `vi.spyOn` no módulo `http/*.ts` e controla-se o retorno com `mockResolvedValueOnce` / `mockRejectedValueOnce`.
+- **Em specs de View**, mocka-se o hook local do componente com `vi.mock("./componente.hook")` para testar somente renderização e interação da View.
 - **Factories** ficam em `tests/factories/` e seguem assinatura `(override?: Partial<T>) => T`.
 - **`data-testid`** em pontos-chave da árvore (`discovery-screen`, `watchlist-table`, ...) para queries estáveis.
-- **Matchers de presença**: no código atual, os testes usam majoritariamente `toBeDefined`/`toBeNull`.
+- **Matchers de presença**: base atual usa bastante validação de presença; evolução prevista é aumentar matchers semânticos e consultas orientadas a acessibilidade nos fluxos críticos.
 
 ---
 
@@ -389,7 +421,7 @@ Duas frentes complementares:
 | MVVM simplificado (sem container) | Container component repassando props | Custo de boilerplate sem ganho real; React Hooks já dão a mesma testabilidade. |
 | Module-based em vez de Feature-Sliced Design (FSD) | FSD canônico (`entities/`, `features/`, `widgets/`...) | FSD tem ganhos em produtos com muitos *features cross-entity*; aqui o domínio é compacto e a convenção interna é mais leve e direta. Atende o critério "estrutura modular sólida" do desafio. |
 | Zustand para client state | Redux Toolkit / Context API | Bundle menor, API mínima, `persist` middleware resolve watchlist sem código adicional. |
-| `nuqs` para filtros/busca | Estado em store + sincronização manual com URL | Elimina classe inteira de bugs ("voltei e perdi os filtros"). |
+| `nuqs` para filtros/busca | Estado em store + sincronização manual com URL | Elimina uma classe inteira de bugs de navegação e estado (perda de filtros ao retornar). |
 | `ky` em vez de `axios` | `axios` | Menor, baseado em `fetch` (Edge-friendly), API de hooks (`beforeRequest`) muito enxuta. |
 | Auth simulada | Backend mock real (json-server/MSW only) | O desafio explicitamente foca em frontend; manter a simulação local + cookie cobre os fluxos de UX (guard, persistência, logout). |
 | Watchlist em `localStorage` (Zustand persist) | IndexedDB / backend | Volume pequeno, leitura síncrona, bom o suficiente. Mudar para IndexedDB é trocar o `storage` do middleware. |
@@ -407,7 +439,21 @@ Duas frentes complementares:
 
 ---
 
-## 13. Referências
+## 13. Aderência aos critérios do desafio
+
+| Critério da avaliação | Como o projeto atende |
+|---|---|
+| Estrutura modular sólida | Organização por domínio em `modules/`, com fronteiras explícitas e convenção de promoção para `core/`. |
+| Separação UI / lógica / dados | View + Model por componente e camada de dados separada em `queries/mutations/http`. |
+| TanStack Query bem aplicado | Cache keys centralizadas, `queryOptions`, `useInfiniteQuery`, prefetch por intenção + loader. |
+| Estado e persistência | Zustand para auth/theme/watchlist, com persist e responsabilidades separadas. |
+| UX de estados assíncronos | Skeletons, erro e vazio tratados em telas/componentes-chave. |
+| Testes significativos | Cobertura de hook, view e requests com estratégia consistente de mocks/factories. |
+| Documentação de decisões | Trade-offs explícitos, justificativa de escolhas e caminhos de evolução. |
+
+---
+
+## 14. Referências
 
 - [Module-Based Code Organization — Alysson Barrera](https://medium.com/@alyssonbarrera.s/module-based-code-organization-48091ee917b0)
 - [TanStack Router — File-based routing](https://tanstack.com/router)

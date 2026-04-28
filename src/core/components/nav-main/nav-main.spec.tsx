@@ -1,11 +1,15 @@
 import { tanstackRouterMock } from "@tests/factories/make-tanstack-router";
-import { render, screen } from "@tests/utils";
+import { fireEvent, render, screen } from "@tests/utils";
 import { Compass, Flame, Heart } from "lucide-react";
-import { SidebarProvider } from "@/core/components/ui/sidebar";
+import { SidebarProvider, useSidebar } from "@/core/components/ui/sidebar";
 import { NavMain } from "./nav-main";
 
+const { useIsMobileMock } = vi.hoisted(() => ({
+	useIsMobileMock: vi.fn(() => false),
+}));
+
 vi.mock("@/core/hooks/use-mobile", () => ({
-	useIsMobile: () => false,
+	useIsMobile: useIsMobileMock,
 }));
 
 const navMainSections = [
@@ -43,6 +47,7 @@ const navMainSections = [
 describe("NavMain", () => {
 	beforeEach(() => {
 		tanstackRouterMock.setPathname("/discovery");
+		useIsMobileMock.mockReturnValue(false);
 	});
 
 	it("should be able to render sections items and badges", () => {
@@ -100,4 +105,48 @@ describe("NavMain", () => {
 		);
 		expect(navMainItemFavoritesButton.getAttribute("href")).toBe("/watchlist");
 	});
+
+	it("should be able to close mobile sidebar when clicking on a navigation item", () => {
+		useIsMobileMock.mockReturnValue(true);
+
+		render(
+			<SidebarProvider>
+				<MobileSidebarState />
+				<NavMain sections={navMainSections} />
+			</SidebarProvider>,
+		);
+
+		const mobileSidebarOpenButton = screen.getByTestId(
+			"mobile-sidebar-open-button",
+		);
+		const navMainItemDiscoverButton = screen.getByTestId(
+			"nav-main-item-0-0-button",
+		);
+		const mobileSidebarOpenState = screen.getByTestId("mobile-sidebar-open");
+
+		expect(mobileSidebarOpenState.textContent).toBe("false");
+
+		fireEvent.click(mobileSidebarOpenButton);
+		expect(mobileSidebarOpenState.textContent).toBe("true");
+
+		fireEvent.click(navMainItemDiscoverButton);
+		expect(mobileSidebarOpenState.textContent).toBe("false");
+	});
 });
+
+function MobileSidebarState() {
+	const { openMobile, setOpenMobile } = useSidebar();
+
+	return (
+		<div>
+			<button
+				type="button"
+				data-testid="mobile-sidebar-open-button"
+				onClick={() => setOpenMobile(true)}
+			>
+				Open mobile sidebar
+			</button>
+			<span data-testid="mobile-sidebar-open">{String(openMobile)}</span>
+		</div>
+	);
+}
