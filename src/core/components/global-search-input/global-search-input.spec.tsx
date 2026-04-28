@@ -5,15 +5,20 @@ import { useGlobalSearchInput } from "./global-search-input.hook";
 vi.mock("./global-search-input.hook");
 
 describe("GlobalSearchInput", () => {
-	let onSearchValueChangeMock: ReturnType<typeof vi.fn>;
+	let onSearchInputChangeMock: ReturnType<typeof vi.fn>;
+	let onSearchInputKeyDownMock: ReturnType<typeof vi.fn>;
 	let defaultUseGlobalSearchInputMock: ReturnType<typeof useGlobalSearchInput>;
 
 	beforeEach(() => {
-		onSearchValueChangeMock = vi.fn();
+		onSearchInputChangeMock = vi.fn();
+		onSearchInputKeyDownMock = vi.fn();
 
 		defaultUseGlobalSearchInputMock = {
 			searchValue: "",
-			onSearchValueChange: onSearchValueChangeMock,
+			onSearchValueChange: vi.fn(),
+			onSearchSubmit: vi.fn(),
+			onSearchInputChange: onSearchInputChangeMock,
+			onSearchInputKeyDown: onSearchInputKeyDownMock,
 		};
 
 		vi.mocked(useGlobalSearchInput).mockReturnValue(
@@ -42,7 +47,7 @@ describe("GlobalSearchInput", () => {
 		expect(globalSearchInput).toHaveProperty("value", "matrix");
 	});
 
-	it("should be able to forward typing events to onSearchValueChange", () => {
+	it("should be able to forward typing events to onSearchInputChange", () => {
 		render(<GlobalSearchInput />);
 
 		const globalSearchInput = screen.getByTestId("global-search-input");
@@ -51,7 +56,23 @@ describe("GlobalSearchInput", () => {
 			target: { value: "inception" },
 		});
 
-		expect(onSearchValueChangeMock).toHaveBeenCalledTimes(1);
-		expect(onSearchValueChangeMock).toHaveBeenCalledWith("inception");
+		expect(onSearchInputChangeMock).toHaveBeenCalled();
+		expect(onSearchInputChangeMock).toHaveBeenCalledTimes(1);
+	});
+
+	it("should be able to forward Enter keydown events to onSearchInputKeyDown", () => {
+		vi.mocked(useGlobalSearchInput).mockReturnValueOnce({
+			...defaultUseGlobalSearchInputMock,
+			searchValue: "matrix",
+		});
+
+		render(<GlobalSearchInput />);
+
+		const globalSearchInput = screen.getByTestId("global-search-input");
+
+		fireEvent.keyDown(globalSearchInput, { key: "Enter", code: "Enter" });
+
+		expect(onSearchInputKeyDownMock).toHaveBeenCalled();
+		expect(onSearchInputKeyDownMock).toHaveBeenCalledTimes(1);
 	});
 });

@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+	type ChangeEvent,
+	type KeyboardEvent,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from "react";
 import { GLOBAL_SEARCH_DEBOUNCE_MIN_MS } from "@/core/constants/global-search";
 import { useGlobalSearch } from "@/core/hooks/use-global-search";
 import { debounce } from "@/core/utils/debounce";
@@ -20,21 +27,59 @@ export function useGlobalSearchInput({
 		debounceInMs,
 	);
 
+	const syncSearchValue = useCallback(
+		(nextSearchValue: string) => {
+			const trimmed = nextSearchValue.trim();
+			setSearchValueOnUrl(trimmed ? nextSearchValue : null);
+
+			onDebouncedValueChange?.(nextSearchValue);
+		},
+		[setSearchValueOnUrl, onDebouncedValueChange],
+	);
+
 	const debounceSearchValueSync = useMemo(
 		() =>
 			debounce((nextSearchValue: string) => {
-				const trimmed = nextSearchValue.trim();
-				setSearchValueOnUrl(trimmed ? nextSearchValue : null);
-
-				onDebouncedValueChange?.(nextSearchValue);
+				syncSearchValue(nextSearchValue);
 			}, effectiveDebounceInMs),
-		[effectiveDebounceInMs, onDebouncedValueChange, setSearchValueOnUrl],
+		[effectiveDebounceInMs, syncSearchValue],
 	);
 
-	function onSearchValueChange(nextSearchValue: string) {
-		setSearchValue(nextSearchValue);
-		debounceSearchValueSync(nextSearchValue);
-	}
+	const onSearchValueChange = useCallback(
+		(nextSearchValue: string) => {
+			setSearchValue(nextSearchValue);
+			debounceSearchValueSync(nextSearchValue);
+		},
+		[debounceSearchValueSync],
+	);
+
+	const onSearchSubmit = useCallback(
+		(nextSearchValue = searchValue) => {
+			setSearchValue(nextSearchValue);
+			debounceSearchValueSync.cancel();
+			syncSearchValue(nextSearchValue);
+		},
+		[searchValue, debounceSearchValueSync, syncSearchValue],
+	);
+
+	const onSearchInputChange = useCallback(
+		(event: ChangeEvent<HTMLInputElement>) => {
+			onSearchValueChange(event.target.value);
+		},
+		[onSearchValueChange],
+	);
+
+	const onSearchInputKeyDown = useCallback(
+		(event: KeyboardEvent<HTMLInputElement>) => {
+			if (event.key !== "Enter") {
+				return;
+			}
+
+			onSearchSubmit(event.currentTarget.value);
+			event.currentTarget.blur();
+		},
+		[onSearchSubmit],
+	);
 
 	useEffect(() => {
 		setSearchValue(searchValueOnUrl);
@@ -48,6 +93,9 @@ export function useGlobalSearchInput({
 
 	return {
 		searchValue,
+		onSearchSubmit,
 		onSearchValueChange,
+		onSearchInputChange,
+		onSearchInputKeyDown,
 	};
 }
