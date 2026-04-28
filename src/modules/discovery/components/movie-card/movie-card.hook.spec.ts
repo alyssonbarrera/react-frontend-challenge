@@ -62,6 +62,23 @@ describe("useMovieCard", () => {
 		expect(displayedGenres).toHaveLength(2);
 	});
 
+	it("should be able to handle malformed movie values without throwing", () => {
+		const malformedMovie = {
+			...baseMovie,
+			voteAverage: Number.NaN,
+			releaseDate: null,
+			genreIds: null,
+		} as unknown as Movie;
+
+		const { result } = renderHook(() =>
+			useMovieCard({ movie: malformedMovie }),
+		);
+
+		expect(result.current.formattedRating).toBe("0.0");
+		expect(result.current.formattedYear).toBe("—");
+		expect(result.current.formattedGenre).toBe("Unknown");
+	});
+
 	it("should be able to navigate to the movie details with the movie id", () => {
 		const navigate = vi.fn();
 		vi.mocked(useNavigate).mockReturnValue(navigate as never);

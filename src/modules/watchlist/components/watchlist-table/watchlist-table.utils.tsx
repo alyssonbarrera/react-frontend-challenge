@@ -7,9 +7,9 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/core/components/ui/dropdown-menu";
-import { buildPosterUrl } from "@/modules/discovery/utils/movie.utils";
 import { getGenreName } from "@/modules/discovery/utils/movie-genres.utils";
 import { WatchlistTablePlayButton } from "@/modules/watchlist/components/watchlist-table-play-button";
+import { WatchlistTablePoster } from "@/modules/watchlist/components/watchlist-table-poster";
 import {
 	SORTABLE_COLUMNS,
 	type SortableColumn,
@@ -228,23 +228,22 @@ function createTitleColumn(): WatchlistColumn {
 		header: "Title",
 		accessorKey: "title",
 		sortingFn: "text",
-		cell: ({ row }) => (
-			<div className="flex items-center gap-3">
-				<img
-					src={buildPosterUrl(row.original.posterPath, "w185")}
-					alt={row.original.title}
-					loading="lazy"
-					className="h-14 w-10 shrink-0 rounded-md object-cover"
-					data-testid="watchlist-table-row-poster"
-				/>
-				<span
-					className="font-semibold text-foreground text-sm"
-					data-testid="watchlist-table-row-title"
-				>
-					{row.original.title}
-				</span>
-			</div>
-		),
+		cell: ({ row }) => {
+			return (
+				<div className="flex items-center gap-3">
+					<WatchlistTablePoster
+						posterPath={row.original.posterPath}
+						title={row.original.title}
+					/>
+					<span
+						className="font-semibold text-foreground text-sm"
+						data-testid="watchlist-table-row-title"
+					>
+						{row.original.title}
+					</span>
+				</div>
+			);
+		},
 		meta: { headClassName: "px-6 py-4", cellClassName: "px-6 py-4.5" },
 	};
 }
@@ -326,7 +325,7 @@ function createActionsColumn({
 							type="button"
 							size="icon"
 							variant="ghost"
-							className="size-8 rounded-lg"
+							className="size-8 rounded-lg cursor-pointer"
 							aria-label={`More actions for ${row.original.title}`}
 							data-testid="watchlist-table-row-actions"
 						>
@@ -335,6 +334,7 @@ function createActionsColumn({
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
 						<DropdownMenuItem
+							className="cursor-pointer"
 							onSelect={() => onRemoveFromWatchlist(row.original.id)}
 							data-testid="watchlist-table-row-remove"
 						>
