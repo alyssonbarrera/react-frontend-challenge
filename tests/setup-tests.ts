@@ -1,9 +1,12 @@
 import "@testing-library/react";
 import { cleanup } from "@testing-library/react";
+import { config } from "dotenv";
 import { useAuthStore } from "@/core/stores/auth-store";
 import { tanstackRouterMock } from "./factories/make-tanstack-router";
 import { makeUser } from "./factories/make-user";
 import { server } from "./mocks/node";
+
+config({ path: ".env.test", override: true, quiet: true });
 
 vi.mock("@tanstack/react-router", async (importOriginal) => {
 	const { makeTanstackRouter } = await import(

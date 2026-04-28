@@ -11,15 +11,13 @@ import type { TmdbMovieDetailsResponse } from "@/modules/movie-details/dtos/movi
 import type { TmdbMovieVideosResponse } from "@/modules/movie-details/dtos/movie-videos";
 import type { TmdbMovieWatchProvidersResponse } from "@/modules/movie-details/dtos/movie-watch-providers";
 
-export const MOVIE_DETAILS_URL = "https://api.themoviedb.org/3/movie/:movieId";
-export const MOVIE_CREDITS_URL =
-	"https://api.themoviedb.org/3/movie/:movieId/credits";
-export const MOVIE_VIDEOS_URL =
-	"https://api.themoviedb.org/3/movie/:movieId/videos";
-export const MOVIE_WATCH_PROVIDERS_URL =
-	"https://api.themoviedb.org/3/movie/:movieId/watch/providers";
-export const MOVIE_RECOMMENDATIONS_URL =
-	"https://api.themoviedb.org/3/movie/:movieId/recommendations";
+const API_BASE_URL = process.env.VITE_API_URL ?? "http://localhost:3333";
+
+export const MOVIE_DETAILS_URL = `${API_BASE_URL}/movie/:movieId`;
+export const MOVIE_CREDITS_URL = `${API_BASE_URL}/movie/:movieId/credits`;
+export const MOVIE_VIDEOS_URL = `${API_BASE_URL}/movie/:movieId/videos`;
+export const MOVIE_WATCH_PROVIDERS_URL = `${API_BASE_URL}/movie/:movieId/watch/providers`;
+export const MOVIE_RECOMMENDATIONS_URL = `${API_BASE_URL}/movie/:movieId/recommendations`;
 
 const tmdbMovieDetails: TmdbMovieDetailsResponse = {
 	id: 1,
