@@ -101,6 +101,11 @@ describe("movieDetailsUtils", () => {
 		expect(isValidMovieIdParam("999999")).toBe(true);
 	});
 
+	it("should be able to validate id params coerced into a positive integer by Number", () => {
+		expect(isValidMovieIdParam("1e2")).toBe(true);
+		expect(isValidMovieIdParam(" 1 ")).toBe(true);
+	});
+
 	it("should not be able to validate non-numeric id params", () => {
 		expect(isValidMovieIdParam("abc")).toBe(false);
 		expect(isValidMovieIdParam("")).toBe(false);

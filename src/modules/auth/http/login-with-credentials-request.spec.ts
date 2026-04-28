@@ -12,7 +12,7 @@ describe("loginWithCredentialsRequest", () => {
 
 		expect(loginWithCredentialsRequestResponse.token).toBeTypeOf("string");
 		expect(loginWithCredentialsRequestResponse.user.id).toBeTypeOf("string");
-		expect(loginWithCredentialsRequestResponse.user.name).toBe("Alex Morgan");
+		expect(loginWithCredentialsRequestResponse.user.name).toBe("John Doe");
 		expect(loginWithCredentialsRequestResponse.user.email).toBe(email);
 	});
 

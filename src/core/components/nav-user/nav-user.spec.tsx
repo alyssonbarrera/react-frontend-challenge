@@ -32,8 +32,8 @@ vi.mock("@/core/stores/theme-store", () => ({
 }));
 
 const navUserUser = makeUser({
-	name: "Alex Morgan",
-	email: "alex.morgan@cinedash.app",
+	name: "John Doe",
+	email: "john.doe@cinedash.app",
 });
 
 describe("NavUser", () => {
@@ -58,8 +58,8 @@ describe("NavUser", () => {
 		expect(navUserMenu).toBeDefined();
 		expect(navUserTrigger).toBeDefined();
 		expect(navUserIdentity).toBeDefined();
-		expect(navUserName.textContent).toBe("Alex Morgan");
-		expect(navUserEmail.textContent).toBe("alex.morgan@cinedash.app");
+		expect(navUserName.textContent).toBe("John Doe");
+		expect(navUserEmail.textContent).toBe("john.doe@cinedash.app");
 	});
 
 	it("should be able to open dropdown menu and show logout item", () => {

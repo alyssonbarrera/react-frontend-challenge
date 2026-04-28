@@ -70,13 +70,15 @@ export function NavMain({ sections }: NavMainProps) {
 									<WatchlistMenuBadge
 										testId={`nav-main-item-${sectionIndex}-${itemIndex}-badge`}
 									/>
-								) : item.badge ? (
-									<SidebarMenuBadge
-										data-testid={`nav-main-item-${sectionIndex}-${itemIndex}-badge`}
-									>
-										{item.badge}
-									</SidebarMenuBadge>
-								) : null}
+								) : (
+									item.badge && (
+										<SidebarMenuBadge
+											data-testid={`nav-main-item-${sectionIndex}-${itemIndex}-badge`}
+										>
+											{item.badge}
+										</SidebarMenuBadge>
+									)
+								)}
 							</SidebarMenuItem>
 						))}
 					</SidebarMenu>

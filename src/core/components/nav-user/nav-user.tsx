@@ -41,7 +41,7 @@ export function NavUser({ user }: NavUserProps) {
 					<DropdownMenuTrigger asChild>
 						<SidebarMenuButton
 							size="lg"
-							className="border rounded-full border-border bg-surface-elevated text-foreground data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+							className="border cursor-pointer rounded-full border-border bg-surface-elevated text-foreground data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 							data-testid="nav-user-trigger"
 						>
 							<Avatar className="h-8 w-8 rounded-full">
@@ -121,6 +121,7 @@ export function NavUser({ user }: NavUserProps) {
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							onSelect={handleLogout}
+							className="cursor-pointer"
 							data-testid="nav-user-logout-item"
 						>
 							<LogOut />

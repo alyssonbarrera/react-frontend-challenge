@@ -30,7 +30,7 @@ function MovieDetailWhereToWatchView() {
 			isLoading={isLoading}
 			loadingComponent={<MovieDetailWhereToWatchSkeleton />}
 		>
-			{whereToWatch ? (
+			{whereToWatch && (
 				<MovieDetailSectionShellRoot
 					className="gap-4 rounded-[18px] border border-border bg-card p-6"
 					data-testid="movie-detail-where-to-watch"
@@ -70,7 +70,7 @@ function MovieDetailWhereToWatchView() {
 						</p>
 					</MovieDetailSectionShellContent>
 				</MovieDetailSectionShellRoot>
-			) : null}
+			)}
 		</AsyncState>
 	);
 }

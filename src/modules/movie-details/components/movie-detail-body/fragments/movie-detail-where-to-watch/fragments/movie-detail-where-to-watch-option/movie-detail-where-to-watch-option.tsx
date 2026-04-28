@@ -34,7 +34,7 @@ export function MovieDetailWhereToWatchOption({
 			<button
 				type="button"
 				onClick={() => onSelectStreamingOption(option.id)}
-				className="flex w-full items-center gap-3 rounded-[14px] border border-border bg-surface-elevated px-4 py-3 text-left text-[13px] text-foreground transition hover:border-accent-cyan/40 hover:bg-surface-elevated/80"
+				className="flex cursor-pointer w-full items-center gap-3 rounded-[14px] border border-border bg-surface-elevated px-4 py-3 text-left text-[13px] text-foreground transition hover:border-accent-cyan/40 hover:bg-surface-elevated/80"
 				data-testid="movie-detail-where-to-watch-option"
 			>
 				<Icon className="size-4 text-accent-cyan" />
