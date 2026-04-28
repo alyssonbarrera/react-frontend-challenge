@@ -101,7 +101,7 @@ export function LoginForm() {
 						<Button
 							type="button"
 							variant="link"
-							className="text-xs p-0 h-auto hover:no-underline hover:text-primary/80"
+							className="text-xs p-0 h-auto hover:no-underline hover:text-primary/80 cursor-pointer"
 							onClick={onForgotPassword}
 							data-testid="login-form-forgot-button"
 						>
