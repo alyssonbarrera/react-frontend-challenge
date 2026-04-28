@@ -2,7 +2,7 @@ name: CI/CD
 
 on:
   push:
-    branches: [feature/cinedash-ci-cd]
+    branches: [main]
 
 concurrency:
   group: cloudflare-pages-${{ github.ref }}
