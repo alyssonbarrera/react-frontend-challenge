@@ -1,4 +1,5 @@
 import { Star } from "lucide-react";
+import { memo } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { MoviePosterPlaceholder } from "@/core/components/movie-poster-placeholder";
 import { WatchlistToggleButton } from "@/modules/watchlist/components/watchlist-toggle-button";
@@ -88,7 +89,7 @@ function MovieCardView({ movie }: MovieCardProps) {
 	);
 }
 
-export function MovieCard({ movie }: MovieCardProps) {
+function MovieCardComponent({ movie }: MovieCardProps) {
 	return (
 		<ErrorBoundary
 			fallbackRender={({ resetErrorBoundary }) => (
@@ -99,3 +100,5 @@ export function MovieCard({ movie }: MovieCardProps) {
 		</ErrorBoundary>
 	);
 }
+
+export const MovieCard = memo(MovieCardComponent);

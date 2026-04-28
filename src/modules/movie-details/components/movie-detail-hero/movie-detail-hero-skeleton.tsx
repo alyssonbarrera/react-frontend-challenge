@@ -24,7 +24,7 @@ export function MovieDetailHeroSkeleton() {
 			</MovieDetailHeroShellBackdropLayers>
 
 			<header
-				className="flex items-center justify-between px-4 pt-4 sm:px-6 sm:pt-6 md:px-10"
+				className="mx-auto flex w-full max-w-384 items-center justify-between px-4 pt-4 sm:px-6 sm:pt-6 md:px-10"
 				data-testid="movie-detail-hero-skeleton-header"
 			>
 				<Skeleton className={`h-9 w-20.25 rounded-full ${SKELETON_TONE}`} />

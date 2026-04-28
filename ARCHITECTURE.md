@@ -45,7 +45,7 @@ A arquitetura combina duas convenções principais:
 | HTTP | **ky** | Wrapper sobre `fetch` com `hooks.beforeRequest` (injeta o Bearer do TMDB) e `timeout`. |
 | UI Kit | **shadcn/ui (radix-nova) + Tailwind v4** | Componentes copiados (não dependência opaca), totalmente customizáveis e versionados junto do app. |
 | Tabelas | **TanStack Table v8** | Headless. Usado na watchlist para sorting/paginação client-side com tipagem forte. Diferencial mencionado no desafio. |
-| Virtualização | **react-virtuoso** | Lista de descoberta pode ter centenas de filmes; virtuoso evita renderizar fora do viewport. |
+| Virtualização | **@tanstack/react-virtual** | Lista de descoberta pode ter centenas de filmes; virtualização headless com controle fino de layout/scroll evita renderização fora do viewport. |
 | Cookies | **js-cookie** | API simples para persistir o token de auth simulado. |
 | Notificações | **sonner** | Toasts acessíveis e leves. |
 | Lint / format | **Biome** | Substitui ESLint+Prettier numa única ferramenta rápida. |
