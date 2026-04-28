@@ -91,27 +91,33 @@ export function getPaginationRange(
 		return [];
 	}
 
-	const maxVisiblePages = 5;
+	const maxVisiblePagesWithoutEllipsis = 4;
 
-	if (totalPages <= maxVisiblePages + 2) {
+	if (totalPages <= maxVisiblePagesWithoutEllipsis) {
 		return Array.from({ length: totalPages }, (_, index) => index + 1);
 	}
 
+	const normalizedCurrentPage = Math.min(Math.max(currentPage, 1), totalPages);
 	const siblings = 1;
-	const leftSibling = Math.max(currentPage - siblings, 1);
-	const rightSibling = Math.min(currentPage + siblings, totalPages);
+	let middleStart = Math.max(normalizedCurrentPage - siblings, 2);
+	let middleEnd = Math.min(normalizedCurrentPage + siblings, totalPages - 1);
 
-	const showLeftEllipsis = leftSibling > 2;
-	const showRightEllipsis = rightSibling < totalPages - 1;
+	if (normalizedCurrentPage <= 2) {
+		middleEnd = Math.min(3, totalPages - 1);
+	}
+
+	if (normalizedCurrentPage >= totalPages - 1) {
+		middleStart = Math.max(totalPages - 2, 2);
+	}
+
+	const showLeftEllipsis = middleStart > 2;
+	const showRightEllipsis = middleEnd < totalPages - 1;
 
 	const range: PaginationRangeItem[] = [1];
 
 	if (showLeftEllipsis) {
 		range.push("ellipsis");
 	}
-
-	const middleStart = showLeftEllipsis ? leftSibling : 2;
-	const middleEnd = showRightEllipsis ? rightSibling : totalPages - 1;
 
 	for (let page = middleStart; page <= middleEnd; page++) {
 		range.push(page);
