@@ -124,6 +124,9 @@
   --sidebar-accent-foreground: var(--text-primary);
   --sidebar-border: var(--border-subtle);
   --sidebar-ring: var(--accent-cyan);
+
+  --scrollbar-thumb: var(--text-primary);
+  --scrollbar-thumb-hover: var(--text-primary);
 }
 
 .dark {
@@ -143,12 +146,53 @@
   --primary-foreground: var(--bg-base);
   --accent-foreground: var(--bg-base);
   --sidebar-primary-foreground: var(--bg-base);
+
+  --scrollbar-thumb: var(--accent-cyan);
+  --scrollbar-thumb-hover: var(--accent-cyan-hover);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--bg-elevated);
   }
+
+  *::-webkit-scrollbar {
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+
+  *::-webkit-scrollbar-track {
+    background-color: var(--bg-elevated);
+  }
+
+  *::-webkit-scrollbar-button {
+    height: 0.5rem;
+    width: 0.5rem;
+    background-color: var(--bg-elevated);
+    color: var(--accent-cyan);
+  }
+
+  *::-webkit-scrollbar-button:hover {
+    background-color: var(--bg-surface);
+    color: var(--accent-cyan-hover);
+  }
+
+  *::-webkit-scrollbar-thumb {
+    border: 1px solid var(--bg-elevated);
+    border-radius: 999px;
+    background-color: var(--scrollbar-thumb);
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover);
+  }
+
+  *::-webkit-scrollbar-corner {
+    background-color: var(--bg-elevated);
+  }
+
   body {
     @apply min-h-screen bg-background text-foreground antialiased;
   }

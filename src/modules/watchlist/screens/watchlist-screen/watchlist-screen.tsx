@@ -8,7 +8,7 @@ export function WatchlistScreen() {
 
 	return (
 		<main
-			className="flex w-full min-w-0 flex-col gap-6"
+			className="mx-auto flex w-full max-w-384 flex-col gap-6"
 			data-testid="watchlist-screen"
 		>
 			<WatchlistPageHeader />

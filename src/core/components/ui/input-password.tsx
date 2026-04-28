@@ -27,7 +27,7 @@ function InputPassword({
 			<button
 				type="button"
 				onClick={toggleVisibility}
-				className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+				className="cursor-pointer absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
 				aria-label={isVisible ? "Hide password" : "Show password"}
 			>
 				{isVisible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
