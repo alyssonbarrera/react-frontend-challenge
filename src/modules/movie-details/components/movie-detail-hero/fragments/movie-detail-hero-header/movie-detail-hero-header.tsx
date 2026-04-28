@@ -11,7 +11,7 @@ export function MovieDetailHeroHeader({
 }: MovieDetailHeroHeaderProps) {
 	return (
 		<nav
-			className="flex w-full items-center justify-between px-4 pt-4 sm:px-6 sm:pt-6 md:px-10"
+			className="mx-auto flex w-full max-w-384 items-center justify-between px-4 pt-4 sm:px-6 sm:pt-6 md:px-10"
 			data-testid="movie-detail-hero-header"
 		>
 			<button

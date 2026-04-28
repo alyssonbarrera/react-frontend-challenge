@@ -9,7 +9,7 @@ function MovieDetailBodyShellRoot({
 		<section
 			data-slot="movie-detail-body-shell-root"
 			className={cn(
-				"flex flex-col gap-8 px-10 pt-10 pb-15 lg:flex-row",
+				"mx-auto flex w-full max-w-384 flex-col gap-8 px-4 pt-10 pb-15 sm:px-6 md:px-10 lg:flex-row",
 				className,
 			)}
 			{...props}

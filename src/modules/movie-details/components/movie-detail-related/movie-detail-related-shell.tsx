@@ -9,7 +9,10 @@ function MovieDetailRelatedShellRoot({
 	return (
 		<section
 			data-slot="movie-detail-related-shell-root"
-			className={cn("flex flex-col gap-5 px-10 pb-15", className)}
+			className={cn(
+				"mx-auto flex w-full max-w-384 flex-col gap-5 px-4 pb-15 sm:px-6 md:px-10",
+				className,
+			)}
 			{...props}
 		/>
 	);
