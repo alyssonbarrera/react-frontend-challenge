@@ -1,0 +1,240 @@
+import { makeMovie } from "@tests/factories/make-movie";
+import { makeMoviesPage } from "@tests/factories/make-movies-page";
+import { act, renderHook, waitFor } from "@tests/utils";
+import type { MockInstance } from "vitest";
+import * as discoverMoviesRequestModule from "../../http/discover-movies-request";
+import * as searchMoviesRequestModule from "../../http/search-movies-request";
+import { useMovieGrid } from "./movie-grid.hook";
+
+describe("useMovieGrid", () => {
+	let discoverMoviesRequestMock: MockInstance;
+	let searchMoviesRequestMock: MockInstance;
+
+	beforeEach(() => {
+		discoverMoviesRequestMock = vi.spyOn(
+			discoverMoviesRequestModule,
+			"discoverMoviesRequest",
+		);
+		searchMoviesRequestMock = vi.spyOn(
+			searchMoviesRequestModule,
+			"searchMoviesRequest",
+		);
+	});
+
+	it("should be able to expose derived grid state in discover mode", async () => {
+		discoverMoviesRequestMock.mockResolvedValueOnce(
+			makeMoviesPage({
+				page: 1,
+				totalPages: 1,
+				results: [makeMovie({ id: 1, title: "Tenet" })],
+			}),
+		);
+
+		const { result } = renderHook(() => useMovieGrid());
+
+		await waitFor(() => {
+			expect(result.current.isPending).toBe(false);
+			expect(result.current.isError).toBe(false);
+		});
+
+		expect(result.current.isSearching).toBe(false);
+		expect(result.current.searchQuery).toBe("");
+		expect(result.current.totalCount).toBe(1);
+		expect(result.current.hasMovies).toBe(true);
+		expect(result.current.movies).toHaveLength(1);
+		expect(discoverMoviesRequestMock).toHaveBeenCalledTimes(1);
+		expect(searchMoviesRequestMock).not.toHaveBeenCalled();
+	});
+
+	it("should be able to expose search mode state from query params", async () => {
+		searchMoviesRequestMock.mockResolvedValueOnce(
+			makeMoviesPage({
+				page: 1,
+				totalPages: 1,
+				results: [makeMovie({ id: 2, title: "Dune" })],
+			}),
+		);
+
+		const { result } = renderHook(() => useMovieGrid(), {
+			searchParams: { q: "dune" },
+		});
+
+		await waitFor(() => {
+			expect(result.current.isPending).toBe(false);
+			expect(result.current.isError).toBe(false);
+		});
+
+		expect(result.current.isSearching).toBe(true);
+		expect(result.current.searchQuery).toBe("dune");
+		expect(result.current.totalCount).toBe(1);
+		expect(result.current.hasMovies).toBe(true);
+		expect(searchMoviesRequestMock).toHaveBeenCalledTimes(1);
+		expect(discoverMoviesRequestMock).not.toHaveBeenCalled();
+	});
+
+	it("should be able to expose hasMovies as false when the API returns no results", async () => {
+		discoverMoviesRequestMock.mockResolvedValueOnce(
+			makeMoviesPage({ page: 1, totalPages: 1, results: [] }),
+		);
+
+		const { result } = renderHook(() => useMovieGrid());
+
+		await waitFor(() => {
+			expect(result.current.isPending).toBe(false);
+			expect(result.current.isError).toBe(false);
+		});
+
+		expect(result.current.totalCount).toBe(0);
+		expect(result.current.hasMovies).toBe(false);
+		expect(result.current.movies).toHaveLength(0);
+		expect(discoverMoviesRequestMock).toHaveBeenCalledTimes(1);
+	});
+
+	it("should be able to fetch next page when end is reached and there is a next page", async () => {
+		discoverMoviesRequestMock
+			.mockResolvedValueOnce(
+				makeMoviesPage({
+					page: 1,
+					totalPages: 2,
+					results: [makeMovie({ id: 1, title: "Tenet" })],
+				}),
+			)
+			.mockResolvedValueOnce(
+				makeMoviesPage({
+					page: 2,
+					totalPages: 2,
+					results: [makeMovie({ id: 2, title: "Dune" })],
+				}),
+			);
+
+		const { result } = renderHook(() => useMovieGrid());
+
+		await waitFor(() => {
+			expect(result.current.isPending).toBe(false);
+			expect(result.current.isError).toBe(false);
+			expect(result.current.hasNextPage).toBe(true);
+			expect(result.current.totalCount).toBe(1);
+		});
+
+		act(() => {
+			result.current.handleEndReached();
+		});
+
+		await waitFor(() => {
+			expect(result.current.totalCount).toBe(2);
+		});
+
+		expect(result.current.movies[0].title).toBe("Tenet");
+		expect(result.current.movies[1].title).toBe("Dune");
+		expect(result.current.hasNextPage).toBe(false);
+		expect(discoverMoviesRequestMock).toHaveBeenCalledTimes(2);
+		expect(discoverMoviesRequestMock).toHaveBeenNthCalledWith(
+			1,
+			expect.objectContaining({ page: 1 }),
+		);
+		expect(discoverMoviesRequestMock).toHaveBeenNthCalledWith(
+			2,
+			expect.objectContaining({ page: 2 }),
+		);
+	});
+
+	it("should be able to dedupe movies with the same id across multiple pages", async () => {
+		discoverMoviesRequestMock
+			.mockResolvedValueOnce(
+				makeMoviesPage({
+					page: 1,
+					totalPages: 2,
+					results: [makeMovie({ id: 1, title: "Tenet" })],
+				}),
+			)
+			.mockResolvedValueOnce(
+				makeMoviesPage({
+					page: 2,
+					totalPages: 2,
+					results: [
+						makeMovie({ id: 1, title: "Tenet Duplicate" }),
+						makeMovie({ id: 2, title: "Dune" }),
+					],
+				}),
+			);
+
+		const { result } = renderHook(() => useMovieGrid());
+
+		await waitFor(() => {
+			expect(result.current.isPending).toBe(false);
+			expect(result.current.isError).toBe(false);
+			expect(result.current.hasNextPage).toBe(true);
+		});
+
+		act(() => {
+			result.current.handleEndReached();
+		});
+
+		await waitFor(() => {
+			expect(result.current.hasNextPage).toBe(false);
+			expect(result.current.totalCount).toBe(2);
+		});
+
+		expect(result.current.movies).toHaveLength(2);
+		expect(result.current.movies[0].id).toBe(1);
+		expect(result.current.movies[0].title).toBe("Tenet");
+		expect(result.current.movies[1].id).toBe(2);
+		expect(discoverMoviesRequestMock).toHaveBeenCalledTimes(2);
+	});
+
+	it("should be able to avoid fetching next page when there is no next page", async () => {
+		discoverMoviesRequestMock.mockResolvedValueOnce(
+			makeMoviesPage({
+				page: 1,
+				totalPages: 1,
+				results: [makeMovie({ id: 1, title: "Tenet" })],
+			}),
+		);
+
+		const { result } = renderHook(() => useMovieGrid());
+
+		await waitFor(() => {
+			expect(result.current.isPending).toBe(false);
+			expect(result.current.isError).toBe(false);
+			expect(result.current.hasNextPage).toBe(false);
+		});
+
+		act(() => {
+			result.current.handleEndReached();
+		});
+
+		expect(discoverMoviesRequestMock).toHaveBeenCalledTimes(1);
+		expect(result.current.totalCount).toBe(1);
+	});
+
+	it("should be able to retry after a failed request", async () => {
+		discoverMoviesRequestMock
+			.mockRejectedValueOnce(new Error("Server error"))
+			.mockResolvedValueOnce(
+				makeMoviesPage({
+					page: 1,
+					totalPages: 1,
+					results: [makeMovie({ id: 1, title: "Tenet" })],
+				}),
+			);
+
+		const { result } = renderHook(() => useMovieGrid());
+
+		await waitFor(() => {
+			expect(result.current.isError).toBe(true);
+		});
+
+		act(() => {
+			result.current.handleRetry();
+		});
+
+		await waitFor(() => {
+			expect(result.current.isPending).toBe(false);
+			expect(result.current.isError).toBe(false);
+		});
+
+		expect(result.current.totalCount).toBe(1);
+		expect(result.current.hasMovies).toBe(true);
+		expect(discoverMoviesRequestMock).toHaveBeenCalledTimes(2);
+	});
+});
