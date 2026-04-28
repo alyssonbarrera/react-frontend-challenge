@@ -13,10 +13,11 @@ export function GlobalSearchInput({
 	placeholder = "Search movies...",
 	onDebouncedValueChange,
 }: GlobalSearchInputProps) {
-	const { searchValue, onSearchValueChange } = useGlobalSearchInput({
-		debounceInMs,
-		onDebouncedValueChange,
-	});
+	const { searchValue, onSearchInputChange, onSearchInputKeyDown } =
+		useGlobalSearchInput({
+			debounceInMs,
+			onDebouncedValueChange,
+		});
 
 	return (
 		<div className="mx-auto flex h-11 w-full items-center gap-3 rounded-xl border border-border/80 bg-card px-4 md:max-w-130">
@@ -24,9 +25,8 @@ export function GlobalSearchInput({
 			<Input
 				type="search"
 				value={searchValue}
-				onChange={(event) => {
-					onSearchValueChange(event.target.value);
-				}}
+				onKeyDown={onSearchInputKeyDown}
+				onChange={onSearchInputChange}
 				placeholder={placeholder}
 				className="h-auto rounded-none border-0 bg-transparent p-0 text-sm placeholder:text-muted-foreground focus-visible:ring-0"
 				data-testid="global-search-input"

@@ -147,4 +147,49 @@ describe("useGlobalSearchInput", () => {
 
 		expect(onDebouncedValueChange).not.toHaveBeenCalled();
 	});
+
+	it("should be able to sync the value immediately when search is submitted", () => {
+		const onUrlUpdate = vi.fn<(event: UrlUpdateEvent) => void>();
+
+		const { result } = renderHook(() => useGlobalSearchInput({}), {
+			onUrlUpdate,
+		});
+
+		act(() => {
+			result.current.onSearchSubmit("arrival");
+		});
+
+		act(() => {
+			vi.runAllTimers();
+		});
+
+		expect(onUrlUpdate).toHaveBeenCalledTimes(1);
+
+		const updatedSearchParams = onUrlUpdate.mock.calls[0][0].searchParams;
+
+		expect(updatedSearchParams.get("q")).toBe("arrival");
+	});
+
+	it("should be able to cancel pending debounce and keep only the immediate submit sync", () => {
+		const onDebouncedValueChange = vi.fn();
+
+		const { result } = renderHook(
+			() => useGlobalSearchInput({ onDebouncedValueChange }),
+			{},
+		);
+
+		act(() => {
+			result.current.onSearchValueChange("first value");
+			result.current.onSearchSubmit("second value");
+		});
+
+		expect(onDebouncedValueChange).toHaveBeenCalledTimes(1);
+		expect(onDebouncedValueChange).toHaveBeenCalledWith("second value");
+
+		act(() => {
+			vi.runAllTimers();
+		});
+
+		expect(onDebouncedValueChange).toHaveBeenCalledTimes(1);
+	});
 });
