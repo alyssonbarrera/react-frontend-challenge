@@ -4,9 +4,10 @@ import type {
 	TmdbPaginatedResponse,
 } from "@/modules/discovery/dtos/movie";
 
-export const DISCOVER_MOVIES_URL =
-	"https://api.themoviedb.org/3/discover/movie";
-export const SEARCH_MOVIES_URL = "https://api.themoviedb.org/3/search/movie";
+const API_BASE_URL = process.env.VITE_API_URL ?? "http://localhost:3333";
+
+export const DISCOVER_MOVIES_URL = `${API_BASE_URL}/discover/movie`;
+export const SEARCH_MOVIES_URL = `${API_BASE_URL}/search/movie`;
 
 const tmdbMovie: TmdbMovieResponse = {
 	id: 1,

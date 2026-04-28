@@ -1,6 +1,8 @@
 import { resolve } from "node:path";
 import { defineConfig } from "vitest/config";
 
+const isCI = process.env.CI === "true";
+
 export default defineConfig({
 	resolve: {
 		alias: {
@@ -9,10 +11,11 @@ export default defineConfig({
 		},
 	},
 	test: {
-		silent: false,
+		silent: isCI,
 		globals: true,
 		testTimeout: 10_000,
 		typecheck: { enabled: true },
+		bail: isCI ? 1 : 0,
 		clearMocks: true,
 		exclude: ["**/node_modules/**", "**/dist/**"],
 		setupFiles: ["tests/setup-tests.ts"],
