@@ -55,6 +55,28 @@ describe("WatchlistTable", () => {
 		expect(watchlistTableHeaderAdded).toBeNull();
 	});
 
+	it("should be able to render poster fallback when a movie has no poster path", () => {
+		seedWatchlist([
+			makeWatchlistItem({
+				id: 1,
+				title: "Posterless Movie",
+				posterPath: null,
+			}),
+		]);
+
+		render(<WatchlistTable />);
+
+		const watchlistTableRowPoster = screen.queryByTestId(
+			"watchlist-table-row-poster",
+		);
+		const watchlistTableRowPosterFallback = screen.getByTestId(
+			"watchlist-table-row-poster-fallback",
+		);
+
+		expect(watchlistTableRowPoster).toBeNull();
+		expect(watchlistTableRowPosterFallback).toBeDefined();
+	});
+
 	it("should be able to render the inline no-results message when the search returns nothing", () => {
 		seedWatchlist([
 			makeWatchlistItem({ id: 1, title: "The Matrix" }),

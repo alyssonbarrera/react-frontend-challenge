@@ -5,7 +5,11 @@ import { useListMoviesQuery } from "../../queries/use-list-movies-query";
 const restoredIndexCache = new Map<string, number>();
 
 function buildCacheKey(searchQuery: string) {
-	return searchQuery ? `search:${searchQuery}` : "discover";
+	if (searchQuery) {
+		return null;
+	}
+
+	return "discover";
 }
 
 export function useMovieGrid() {
@@ -23,7 +27,7 @@ export function useMovieGrid() {
 	} = useListMoviesQuery();
 
 	const cacheKey = buildCacheKey(searchQuery);
-	const restoredIndex = restoredIndexCache.get(cacheKey) ?? 0;
+	const restoredIndex = cacheKey ? (restoredIndexCache.get(cacheKey) ?? 0) : 0;
 	const initialItemIndexRef = useRef(restoredIndex);
 	const initialItemIndex = initialItemIndexRef.current;
 
@@ -43,7 +47,11 @@ export function useMovieGrid() {
 	}
 
 	function handleRangeChanged(range: ListRange) {
-		restoredIndexCache.set(cacheKey, range.startIndex);
+		if (!cacheKey) {
+			return;
+		}
+
+		restoredIndexCache.set(cacheKey, Math.max(0, range.startIndex));
 	}
 
 	return {

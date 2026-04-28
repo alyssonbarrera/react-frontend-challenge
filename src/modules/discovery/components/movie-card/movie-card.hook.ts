@@ -23,9 +23,14 @@ export function useMovieCard({ movie }: UseMovieCardParams) {
 		handleMovieTouchStartIntentPrefetch,
 	} = useMovieDetailsPrefetchIntent();
 
-	const formattedRating = movie.voteAverage.toFixed(1);
+	const safeVoteAverage = Number.isFinite(movie.voteAverage)
+		? movie.voteAverage
+		: 0;
+	const formattedRating = safeVoteAverage.toFixed(1);
+	const safeReleaseDate =
+		typeof movie.releaseDate === "string" ? movie.releaseDate : "";
 	const { yearLabel: formattedYear } = toYearData(
-		movie.releaseDate,
+		safeReleaseDate,
 		FALLBACK_YEAR,
 	);
 
@@ -83,8 +88,9 @@ export function useMovieCard({ movie }: UseMovieCardParams) {
 	};
 }
 
-function formatGenres(genreIds: readonly number[]): string {
-	const mappedGenreNames = genreIds.map((id) => getGenreName(id));
+function formatGenres(genreIds: readonly number[] | null | undefined): string {
+	const normalizedGenreIds = Array.isArray(genreIds) ? genreIds : [];
+	const mappedGenreNames = normalizedGenreIds.map((id) => getGenreName(id));
 	const knownGenreNames = mappedGenreNames.filter((name): name is string =>
 		Boolean(name),
 	);

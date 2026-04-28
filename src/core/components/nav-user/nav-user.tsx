@@ -115,6 +115,7 @@ export function NavUser({ user }: NavUserProps) {
 								checked={isDarkTheme}
 								onCheckedChange={handleThemeCheckedChange}
 								aria-label="Toggle theme"
+								className="cursor-pointer"
 								data-testid="nav-user-theme-toggle"
 							/>
 						</DropdownMenuItem>

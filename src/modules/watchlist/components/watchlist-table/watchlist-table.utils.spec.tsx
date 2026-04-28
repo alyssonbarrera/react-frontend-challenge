@@ -7,6 +7,7 @@ import {
 	getPaginationRange,
 	mapWatchlistItemToRow,
 	toSortQueryState,
+	type WatchlistTableRow,
 } from "./watchlist-table.utils";
 
 const fixedNow = new Date("2026-04-25T12:00:00.000Z");
@@ -130,6 +131,52 @@ describe("watchlist-table.utils", () => {
 		expect(tableRow.ratingValue).toBe(0);
 		expect(tableRow.ratingLabel).toBe("0.0");
 		expect(tableRow.posterPath).toBeNull();
+	});
+
+	it("should be able to render poster fallback when title cell has no poster", () => {
+		const onRemoveFromWatchlist = vi.fn();
+		const onPlayMovie = vi.fn();
+		const columns = buildColumns({
+			onRemoveFromWatchlist,
+			onPlayMovie,
+		});
+		const titleColumn = columns.find((column) => column.id === "title");
+		const renderTitleCell = titleColumn?.cell as (params: {
+			row: {
+				original: WatchlistTableRow;
+			};
+		}) => ReactElement;
+
+		render(
+			renderTitleCell({
+				row: {
+					original: {
+						id: 99,
+						title: "Posterless Movie",
+						posterPath: null,
+						genreLabel: "Action",
+						releaseDateLabel: "01/01/2024",
+						releaseDateValue: 1704067200000,
+						ratingLabel: "7.3",
+						ratingValue: 7.3,
+					},
+				},
+			}),
+		);
+
+		const watchlistTableRowPoster = screen.queryByTestId(
+			"watchlist-table-row-poster",
+		);
+		const watchlistTableRowPosterFallback = screen.getByTestId(
+			"watchlist-table-row-poster-fallback",
+		);
+		const watchlistTableRowTitle = screen.getByTestId(
+			"watchlist-table-row-title",
+		);
+
+		expect(watchlistTableRowPoster).toBeNull();
+		expect(watchlistTableRowPosterFallback).toBeDefined();
+		expect(watchlistTableRowTitle.textContent).toBe("Posterless Movie");
 	});
 
 	it("should be able to build actions column and call remove callback", () => {

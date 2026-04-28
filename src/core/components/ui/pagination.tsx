@@ -52,7 +52,7 @@ function PaginationLink({
 			variant={isActive ? "default" : "outline"}
 			size="icon-sm"
 			className={cn(
-				"size-9 rounded-[10px] font-heading font-semibold text-[13px] tracking-[0.2px]",
+				"cursor-pointer size-9 rounded-[10px] font-heading font-semibold text-[13px] tracking-[0.2px]",
 				!isActive && "text-secondary hover:text-foreground",
 				className,
 			)}

@@ -299,4 +299,41 @@ describe("useMovieGrid", () => {
 
 		expect(discoverAgain.result.current.initialItemIndex).toBe(10);
 	});
+
+	it("should not be able to restore cached scroll position in search mode", async () => {
+		searchMoviesRequestMock.mockResolvedValue(
+			makeMoviesPage({
+				page: 1,
+				totalPages: 1,
+				results: [makeMovie({ id: 2, title: "Dune" })],
+			}),
+		);
+
+		const firstSearch = renderHook(() => useMovieGrid(), {
+			searchParams: { q: "dune" },
+		});
+
+		await waitFor(() => {
+			expect(firstSearch.result.current.isPending).toBe(false);
+		});
+
+		act(() => {
+			firstSearch.result.current.handleRangeChanged({
+				startIndex: 22,
+				endIndex: 34,
+			});
+		});
+
+		firstSearch.unmount();
+
+		const secondSearch = renderHook(() => useMovieGrid(), {
+			searchParams: { q: "dune" },
+		});
+
+		await waitFor(() => {
+			expect(secondSearch.result.current.isPending).toBe(false);
+		});
+
+		expect(secondSearch.result.current.initialItemIndex).toBe(0);
+	});
 });
