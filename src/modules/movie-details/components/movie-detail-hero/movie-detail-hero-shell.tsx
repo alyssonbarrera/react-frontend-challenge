@@ -164,7 +164,7 @@ function MovieDetailHeroShellContent({
 		<div
 			data-slot="movie-detail-hero-shell-content"
 			className={cn(
-				"mt-auto flex flex-col gap-4 px-4 pb-4 sm:flex-row sm:items-end sm:gap-6 sm:px-6 sm:pb-6 md:gap-10 md:px-10 md:pb-10",
+				"mx-auto mt-auto flex w-full max-w-384 flex-col gap-4 px-4 pb-4 sm:flex-row sm:items-end sm:gap-6 sm:px-6 sm:pb-6 md:gap-10 md:px-10 md:pb-10",
 				className,
 			)}
 			{...props}
