@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
 import { queryKeys } from "@/core/constants/query-keys";
+import type { Movie } from "../dtos/movie";
 import { useDiscoveryFilters } from "../hooks/use-discovery-filters";
 import { useDiscoverySearch } from "../hooks/use-discovery-search";
 import { discoverMoviesRequest } from "../http/discover-movies-request";
@@ -33,6 +33,12 @@ export function useListMoviesQuery() {
 	const query = useInfiniteQuery({
 		queryKey: queryKeys.discovery.listMovies(queryParams),
 		queryFn: buildQueryFn(queryParams),
+		select: (data) => ({
+			...data,
+			dedupedMovies: dedupeMoviesById(
+				data.pages.flatMap((page) => page.results),
+			),
+		}),
 		initialPageParam: 1,
 		getNextPageParam: (lastPage) => {
 			if (lastPage.page >= lastPage.totalPages) {
@@ -44,10 +50,7 @@ export function useListMoviesQuery() {
 		staleTime: 1000 * 60 * 5,
 	});
 
-	const movies = useMemo(
-		() => query.data?.pages.flatMap((page) => page.results) ?? [],
-		[query.data],
-	);
+	const movies = query.data?.dedupedMovies ?? [];
 
 	return {
 		...query,
@@ -55,4 +58,18 @@ export function useListMoviesQuery() {
 		searchQuery: trimmedSearch,
 		isSearching: queryParams.mode === "search",
 	};
+}
+
+function dedupeMoviesById(movies: ReadonlyArray<Movie>): Movie[] {
+	const uniqueMoviesById = new Map<number, Movie>();
+
+	for (const movie of movies) {
+		if (uniqueMoviesById.has(movie.id)) {
+			continue;
+		}
+
+		uniqueMoviesById.set(movie.id, movie);
+	}
+
+	return Array.from(uniqueMoviesById.values());
 }

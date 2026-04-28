@@ -112,7 +112,7 @@ export function DiscoveryFilterBar({
 						<button
 							type="button"
 							onClick={onClearFilters}
-							className="flex items-center gap-1.5 rounded-[10px] px-2.5 py-2 font-medium text-muted-foreground text-xs transition-colors hover:text-foreground"
+							className="cursor-pointer flex items-center gap-1.5 rounded-[10px] px-2.5 py-2 font-medium text-muted-foreground text-xs transition-colors hover:text-foreground"
 							data-testid="discovery-filter-bar-clear"
 						>
 							<X className="size-3" />
@@ -133,7 +133,7 @@ export function DiscoveryFilterBar({
 						<button
 							type="button"
 							disabled={isDisabled}
-							className="flex items-center gap-2 rounded-[10px] border border-border bg-surface-elevated px-3.5 py-2 font-semibold text-foreground text-xs transition-colors hover:border-strong disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-border"
+							className="flex cursor-pointer items-center gap-2 rounded-[10px] border border-border bg-surface-elevated px-3.5 py-2 font-semibold text-foreground text-xs transition-colors hover:border-strong disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-border"
 							data-testid="discovery-filter-bar-sort"
 						>
 							{sortLabel}
@@ -147,6 +147,7 @@ export function DiscoveryFilterBar({
 								onSelect={() => {
 									onSortChange(option.value);
 								}}
+								className="cursor-pointer"
 								data-testid={`discovery-filter-bar-sort-option-${option.value}`}
 							>
 								{option.label}
@@ -191,7 +192,7 @@ function FilterChipDropdown({
 					type="button"
 					disabled={isDisabled}
 					className={cn(
-						"flex items-center gap-2 rounded-[10px] border px-3.5 py-2 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+						"flex cursor-pointer items-center gap-2 rounded-[10px] border px-3.5 py-2 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-50",
 						isActive
 							? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
 							: "border-border bg-surface-elevated text-foreground hover:border-strong",
@@ -219,7 +220,10 @@ function FilterChipDropdown({
 						data-testid={`${testId}-option-${option.label
 							.toLowerCase()
 							.replace(/\s+/g, "-")}`}
-						className={cn(option.isSelected && "font-semibold text-primary")}
+						className={cn(
+							"cursor-pointer",
+							option.isSelected && "font-semibold text-primary",
+						)}
 					>
 						{option.label}
 					</DropdownMenuItem>

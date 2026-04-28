@@ -1,13 +1,20 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import type { ComponentProps } from "react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { Movie } from "../../dtos/movie";
 import { MovieGrid } from "./movie-grid";
 
 const useMovieGridMock = vi.hoisted(() => vi.fn());
 
-vi.mock("./movie-grid.hook", () => ({
-	useMovieGrid: useMovieGridMock,
-}));
+vi.mock("./movie-grid.hook", async () => {
+	const actual =
+		await vi.importActual<typeof import("./movie-grid.hook")>(
+			"./movie-grid.hook",
+		);
+
+	return {
+		...actual,
+		useMovieGrid: useMovieGridMock,
+	};
+});
 
 vi.mock("../movie-card", () => ({
 	MovieCard: ({ movie }: { movie: Movie }) => (
@@ -16,65 +23,14 @@ vi.mock("../movie-card", () => ({
 	MovieCardSkeleton: () => <div data-testid="movie-card-skeleton" />,
 }));
 
-vi.mock("react-virtuoso", () => ({
-	VirtuosoGrid: ({
-		data,
-		totalCount,
-		itemContent,
-		components,
-		endReached,
-		rangeChanged,
-		initialTopMostItemIndex,
-	}: {
-		data: ReadonlyArray<Movie>;
-		totalCount: number;
-		itemContent: (index: number, movie: Movie) => React.ReactNode;
-		components?: {
-			List?: React.ComponentType<ComponentProps<"div">>;
-			Item?: React.ComponentType<ComponentProps<"div">>;
-			Footer?: () => React.ReactNode;
-		};
-		endReached?: (index: number) => void;
-		rangeChanged?: (range: { startIndex: number; endIndex: number }) => void;
-		initialTopMostItemIndex?: number;
-	}) => {
-		const List = components?.List ?? "div";
-		const Item = components?.Item ?? "div";
-		const Footer = components?.Footer;
-
-		return (
-			<div
-				data-testid="movie-grid-virtuoso"
-				data-total-count={String(totalCount)}
-				data-initial-item-index={String(initialTopMostItemIndex ?? 0)}
-			>
-				<button
-					type="button"
-					data-testid="movie-grid-virtuoso-end-reached"
-					onClick={() => endReached?.(totalCount - 1)}
-				>
-					Reach end
-				</button>
-				<button
-					type="button"
-					data-testid="movie-grid-virtuoso-range-changed"
-					onClick={() => rangeChanged?.({ startIndex: 12, endIndex: 24 })}
-				>
-					Range changed
-				</button>
-				<List>
-					{data.map((movie, index) => (
-						<Item key={movie.id}>
-							<div data-testid="movie-grid-virtuoso-item">
-								{itemContent(index, movie)}
-							</div>
-						</Item>
-					))}
-				</List>
-				{Footer ? <Footer /> : null}
-			</div>
-		);
-	},
+vi.mock("@tanstack/react-virtual", () => ({
+	useWindowVirtualizer: () => ({
+		getVirtualItems: () => [
+			{ index: 0, key: "row-0", start: 0, size: 400, end: 400, lane: 0 },
+		],
+		getTotalSize: () => 400,
+		measureElement: vi.fn(),
+	}),
 }));
 
 const baseMovie: Movie = {
@@ -97,12 +53,10 @@ const baseMovie: Movie = {
 describe("MovieGrid", () => {
 	let movieGridHandleRetryMock: ReturnType<typeof vi.fn>;
 	let movieGridHandleEndReachedMock: ReturnType<typeof vi.fn>;
-	let movieGridHandleRangeChangedMock: ReturnType<typeof vi.fn>;
 
 	beforeEach(() => {
 		movieGridHandleRetryMock = vi.fn();
 		movieGridHandleEndReachedMock = vi.fn();
-		movieGridHandleRangeChangedMock = vi.fn();
 
 		useMovieGridMock.mockReturnValue({
 			movies: [baseMovie],
@@ -115,14 +69,12 @@ describe("MovieGrid", () => {
 			searchQuery: "",
 			handleRetry: movieGridHandleRetryMock,
 			handleEndReached: movieGridHandleEndReachedMock,
-			handleRangeChanged: movieGridHandleRangeChangedMock,
-			initialItemIndex: 0,
 			isFetchingNextPage: false,
 		});
 	});
 
 	it("should be able to render the skeleton while pending", async () => {
-		useMovieGridMock.mockReturnValueOnce({
+		useMovieGridMock.mockReturnValue({
 			movies: [],
 			isError: false,
 			isPending: true,
@@ -133,8 +85,6 @@ describe("MovieGrid", () => {
 			searchQuery: "",
 			handleRetry: movieGridHandleRetryMock,
 			handleEndReached: movieGridHandleEndReachedMock,
-			handleRangeChanged: movieGridHandleRangeChangedMock,
-			initialItemIndex: 0,
 			isFetchingNextPage: false,
 		});
 
@@ -150,7 +100,7 @@ describe("MovieGrid", () => {
 	});
 
 	it("should be able to render error state and retry action", async () => {
-		useMovieGridMock.mockReturnValueOnce({
+		useMovieGridMock.mockReturnValue({
 			movies: [],
 			isError: true,
 			isPending: false,
@@ -161,8 +111,6 @@ describe("MovieGrid", () => {
 			searchQuery: "",
 			handleRetry: movieGridHandleRetryMock,
 			handleEndReached: movieGridHandleEndReachedMock,
-			handleRangeChanged: movieGridHandleRangeChangedMock,
-			initialItemIndex: 0,
 			isFetchingNextPage: false,
 		});
 
@@ -179,7 +127,7 @@ describe("MovieGrid", () => {
 	});
 
 	it("should be able to render empty state", async () => {
-		useMovieGridMock.mockReturnValueOnce({
+		useMovieGridMock.mockReturnValue({
 			movies: [],
 			isError: false,
 			isPending: false,
@@ -190,8 +138,6 @@ describe("MovieGrid", () => {
 			searchQuery: "matrix",
 			handleRetry: movieGridHandleRetryMock,
 			handleEndReached: movieGridHandleEndReachedMock,
-			handleRangeChanged: movieGridHandleRangeChangedMock,
-			initialItemIndex: 0,
 			isFetchingNextPage: false,
 		});
 
@@ -204,7 +150,7 @@ describe("MovieGrid", () => {
 	});
 
 	it("should be able to render the virtualized movie grid", async () => {
-		useMovieGridMock.mockReturnValueOnce({
+		useMovieGridMock.mockReturnValue({
 			movies: [baseMovie, { ...baseMovie, id: 2, title: "Dune" }],
 			isError: false,
 			isPending: false,
@@ -215,28 +161,22 @@ describe("MovieGrid", () => {
 			searchQuery: "",
 			handleRetry: movieGridHandleRetryMock,
 			handleEndReached: movieGridHandleEndReachedMock,
-			handleRangeChanged: movieGridHandleRangeChangedMock,
-			initialItemIndex: 0,
 			isFetchingNextPage: false,
 		});
 
 		render(<MovieGrid />);
 
-		const movieGridVirtuoso = screen.getByTestId("movie-grid-virtuoso");
-		const movieGridList = screen.getByTestId("movie-grid-list");
-		const movieGridItems = screen.getAllByTestId("movie-grid-item");
+		const movieGridVirtualizer = screen.getByTestId("movie-grid-virtualizer");
 		const movieGridMovieCards = screen.getAllByTestId("movie-grid-movie-card");
 		const movieGridEnd = screen.getByTestId("movie-grid-end");
 
-		expect(movieGridVirtuoso.getAttribute("data-total-count")).toBe("2");
-		expect(movieGridList).toBeDefined();
-		expect(movieGridItems).toHaveLength(2);
+		expect(movieGridVirtualizer).toBeDefined();
 		expect(movieGridMovieCards).toHaveLength(2);
 		expect(movieGridEnd).toBeDefined();
 	});
 
 	it("should be able to render loading footer while fetching next page", async () => {
-		useMovieGridMock.mockReturnValueOnce({
+		useMovieGridMock.mockReturnValue({
 			movies: [baseMovie],
 			isError: false,
 			isPending: false,
@@ -247,8 +187,6 @@ describe("MovieGrid", () => {
 			searchQuery: "",
 			handleRetry: movieGridHandleRetryMock,
 			handleEndReached: movieGridHandleEndReachedMock,
-			handleRangeChanged: movieGridHandleRangeChangedMock,
-			initialItemIndex: 0,
 			isFetchingNextPage: true,
 		});
 
@@ -262,57 +200,25 @@ describe("MovieGrid", () => {
 	});
 
 	it("should be able to call endReached handler when virtualized list reaches the end", async () => {
-		render(<MovieGrid />);
-
-		const movieGridVirtuosoEndReached = screen.getByTestId(
-			"movie-grid-virtuoso-end-reached",
-		);
-
-		fireEvent.click(movieGridVirtuosoEndReached);
-
-		expect(movieGridHandleEndReachedMock).toHaveBeenCalled();
-		expect(movieGridHandleEndReachedMock).toHaveBeenCalledTimes(1);
-	});
-
-	it("should be able to forward initialItemIndex to the virtualized grid", async () => {
-		useMovieGridMock.mockReturnValueOnce({
+		useMovieGridMock.mockReturnValue({
 			movies: [baseMovie],
 			isError: false,
 			isPending: false,
 			hasMovies: true,
 			totalCount: 1,
 			isFetching: false,
-			hasNextPage: false,
+			hasNextPage: true,
 			searchQuery: "",
 			handleRetry: movieGridHandleRetryMock,
 			handleEndReached: movieGridHandleEndReachedMock,
-			handleRangeChanged: movieGridHandleRangeChangedMock,
-			initialItemIndex: 42,
 			isFetchingNextPage: false,
 		});
 
 		render(<MovieGrid />);
 
-		const movieGridVirtuoso = screen.getByTestId("movie-grid-virtuoso");
-
-		expect(movieGridVirtuoso.getAttribute("data-initial-item-index")).toBe(
-			"42",
-		);
-	});
-
-	it("should be able to call rangeChanged handler when the visible range changes", async () => {
-		render(<MovieGrid />);
-
-		const movieGridVirtuosoRangeChanged = screen.getByTestId(
-			"movie-grid-virtuoso-range-changed",
-		);
-
-		fireEvent.click(movieGridVirtuosoRangeChanged);
-
-		expect(movieGridHandleRangeChangedMock).toHaveBeenCalledTimes(1);
-		expect(movieGridHandleRangeChangedMock).toHaveBeenCalledWith({
-			startIndex: 12,
-			endIndex: 24,
+		await waitFor(() => {
+			expect(movieGridHandleEndReachedMock).toHaveBeenCalled();
 		});
+		expect(movieGridHandleEndReachedMock).toHaveBeenCalledTimes(1);
 	});
 });
