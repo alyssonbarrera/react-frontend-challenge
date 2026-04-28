@@ -28,7 +28,7 @@ function MovieCardView({ movie }: MovieCardProps) {
 
 	return (
 		<div
-			className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border bg-card"
+			className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border bg-card cursor-pointer"
 			data-testid="movie-card"
 			onFocus={handleCardFocus}
 			onClick={handleNavigateToDetails}

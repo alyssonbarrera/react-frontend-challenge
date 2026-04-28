@@ -22,7 +22,7 @@ function MovieDetailTrailerView() {
 			isLoading={isLoading}
 			loadingComponent={<MovieDetailTrailerSkeleton />}
 		>
-			{trailer ? (
+			{trailer && (
 				<MovieDetailSectionShellRoot
 					className="scroll-mt-6"
 					data-testid="movie-detail-trailer"
@@ -40,7 +40,7 @@ function MovieDetailTrailerView() {
 						</div>
 					</MovieDetailSectionShellContent>
 				</MovieDetailSectionShellRoot>
-			) : null}
+			)}
 		</AsyncState>
 	);
 }

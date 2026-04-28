@@ -28,7 +28,7 @@ export async function loginWithCredentialsRequest({
 		token: crypto.randomUUID(),
 		user: {
 			id: crypto.randomUUID(),
-			name: "Alex Morgan",
+			name: "John Doe",
 			email,
 			avatarUrl: null,
 		},

@@ -17,7 +17,7 @@ export function MovieDetailHeroHeader({
 			<button
 				type="button"
 				onClick={onBack}
-				className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface-base/60 px-3.5 py-2 text-foreground backdrop-blur transition hover:bg-surface-base/80"
+				className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-surface-base/60 px-3.5 py-2 text-foreground backdrop-blur transition hover:bg-surface-base/80"
 				data-testid="movie-detail-hero-header-back"
 			>
 				<ArrowLeft className="size-3.5" />
@@ -29,7 +29,7 @@ export function MovieDetailHeroHeader({
 					type="button"
 					onClick={onShare}
 					aria-label="Share"
-					className="inline-flex size-9.5 items-center justify-center rounded-full border border-white/10 bg-surface-base/60 text-foreground backdrop-blur transition hover:bg-surface-base/80"
+					className="inline-flex cursor-pointer size-9.5 items-center justify-center rounded-full border border-white/10 bg-surface-base/60 text-foreground backdrop-blur transition hover:bg-surface-base/80"
 					data-testid="movie-detail-hero-header-share"
 				>
 					<Share2 className="size-3.5" />

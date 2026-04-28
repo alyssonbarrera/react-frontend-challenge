@@ -53,11 +53,12 @@ describe("loginSchema", () => {
 			password: "",
 		});
 
+		expect(loginSchemaValidationResult.success).toBe(false);
+
 		const issuePaths = loginSchemaValidationResult.error?.issues.map((issue) =>
 			issue.path.join("."),
 		);
 
-		expect(loginSchemaValidationResult.success).toBe(false);
 		expect(issuePaths).toContain("email");
 		expect(issuePaths).toContain("password");
 	});

@@ -12,7 +12,11 @@ export function useMovieDetailHeroActions() {
 	const isWatchTrailerDisabled =
 		videosQuery.isLoading || videosQuery.isError || hasNoVideos;
 
+	const hasNoTrailer =
+		!videosQuery.isLoading && !videosQuery.isError && hasNoVideos;
+
 	return {
+		hasNoTrailer,
 		isWatchTrailerDisabled,
 		isWatchTrailerLoading: videosQuery.isLoading,
 	};

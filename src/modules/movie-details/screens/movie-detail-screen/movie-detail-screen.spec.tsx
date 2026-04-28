@@ -26,8 +26,6 @@ describe("MovieDetailScreen", () => {
 	});
 
 	it("should be able to render the not-found state when the id param is not valid", () => {
-		tanstackRouterMock.setParams({ id: "abc" });
-
 		render(<MovieDetailScreen id="abc" />);
 
 		const notFound = screen.getByTestId("not-found");

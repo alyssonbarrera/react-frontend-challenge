@@ -29,7 +29,7 @@ export function WatchlistTablePlayButton({
 			type="button"
 			size="icon"
 			variant="outline"
-			className="size-8 rounded-lg"
+			className="size-8 rounded-lg cursor-pointer"
 			aria-label={`Play ${movieTitle}`}
 			data-testid="watchlist-table-row-play"
 			onMouseEnter={handleMouseEnter}

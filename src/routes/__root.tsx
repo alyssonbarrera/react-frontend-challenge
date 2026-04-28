@@ -4,17 +4,34 @@ import {
 	HeadContent,
 	Outlet,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { lazy, useEffect } from "react";
 import { RouteErrorFallback } from "@/core/components/route-error-fallback";
 import { Toaster } from "@/core/components/ui/sonner";
 import { useThemeStore } from "@/core/stores/theme-store";
 
-const TanStackDevtools = lazy(() =>
-	import("@tanstack/react-devtools").then((mod) => ({
-		default: mod.TanStackDevtools,
-	})),
-);
+const Devtools = import.meta.env.DEV
+	? lazy(() =>
+			import("@tanstack/react-devtools").then(async (mod) => {
+				const { TanStackRouterDevtoolsPanel } = await import(
+					"@tanstack/react-router-devtools"
+				);
+
+				return {
+					default: () => (
+						<mod.TanStackDevtools
+							config={{ position: "bottom-right" }}
+							plugins={[
+								{
+									name: "TanStack Router",
+									render: <TanStackRouterDevtoolsPanel />,
+								},
+							]}
+						/>
+					),
+				};
+			}),
+		)
+	: null;
 
 import "../styles.css";
 
@@ -45,19 +62,7 @@ function RootComponent() {
 			<HeadContent />
 			<Outlet />
 			<Toaster position="top-right" richColors />
-			{import.meta.env.DEV && (
-				<TanStackDevtools
-					config={{
-						position: "bottom-right",
-					}}
-					plugins={[
-						{
-							name: "TanStack Router",
-							render: <TanStackRouterDevtoolsPanel />,
-						},
-					]}
-				/>
-			)}
+			{Devtools && <Devtools />}
 		</>
 	);
 }
